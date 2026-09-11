@@ -1,693 +1,3363 @@
 <!DOCTYPE html>
 
 <html lang="th">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>อินนาวน์ — หลักสูตรอบรมองค์กรจากงานจริงของทีม</title>
-<meta content="อบรมองค์กรด้านปัญญาประดิษฐ์และการพัฒนาซอฟต์แวร์อย่างปลอดภัย โดยไพบูลย์ พนัสบดี เรียนจากงานจริงของทีม เลือกหลักสูตรสำหรับผู้บริหารหรือทีมพัฒนา พร้อมขอใบเสนอราคา" name="description"/>
-<meta content="เปลี่ยนวิสัยทัศน์ผู้บริหาร ให้เป็นความสามารถของคนทั้งองค์กร" property="og:title"/>
-<meta content="อบรมองค์กรด้านปัญญาประดิษฐ์และการพัฒนาซอฟต์แวร์อย่างปลอดภัย โดยไพบูลย์ พนัสบดี เรียนจากงานจริงของทีม เลือกหลักสูตรสำหรับผู้บริหารหรือทีมพัฒนา พร้อมขอใบเสนอราคา" property="og:description"/>
-<meta content="website" property="og:type"/>
-<meta content="th_TH" property="og:locale"/>
-<meta content="noindex, nofollow" name="robots"/>
-<script>try{const t=localStorage.getItem("innow-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}</script>
-<style>
-@font-face{font-family:"Anuphan";font-style:normal;font-weight:500 700;font-display:swap;src:url("fonts/Anuphan-Variable.ttf") format("truetype")}
-@font-face{font-family:"IBM Plex Sans Thai";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/IBMPlexSansThai-Regular.ttf") format("truetype")}
-@font-face{font-family:"IBM Plex Sans Thai";font-style:normal;font-weight:500;font-display:swap;src:url("fonts/IBMPlexSansThai-Medium.ttf") format("truetype")}
-@font-face{font-family:"IBM Plex Sans Thai";font-style:normal;font-weight:600;font-display:swap;src:url("fonts/IBMPlexSansThai-SemiBold.ttf") format("truetype")}
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>อินนาวน์ — หลักสูตรอบรมองค์กรจากงานจริงของทีม</title>
+  <meta
+    content="อบรมองค์กรด้านปัญญาประดิษฐ์และการพัฒนาซอฟต์แวร์อย่างปลอดภัย โดยไพบูลย์ พนัสบดี เรียนจากงานจริงของทีม เลือกหลักสูตรสำหรับผู้บริหารหรือทีมพัฒนา พร้อมขอใบเสนอราคา"
+    name="description" />
+  <meta content="เปลี่ยนวิสัยทัศน์ผู้บริหาร ให้เป็นความสามารถของคนทั้งองค์กร" property="og:title" />
+  <meta
+    content="อบรมองค์กรด้านปัญญาประดิษฐ์และการพัฒนาซอฟต์แวร์อย่างปลอดภัย โดยไพบูลย์ พนัสบดี เรียนจากงานจริงของทีม เลือกหลักสูตรสำหรับผู้บริหารหรือทีมพัฒนา พร้อมขอใบเสนอราคา"
+    property="og:description" />
+  <meta content="website" property="og:type" />
+  <meta content="th_TH" property="og:locale" />
+  <meta content="noindex, nofollow" name="robots" />
+  <script>try { const t = localStorage.getItem("innow-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) { }</script>
+  <style>
+    @font-face {
+      font-family: "Anuphan";
+      font-style: normal;
+      font-weight: 500 700;
+      font-display: swap;
+      src: url("fonts/Anuphan-Variable.ttf") format("truetype")
+    }
 
-/* BEGIN AUTHORITATIVE TOKENS: Design System v2.3, units converted to rem */
-:root{
-  color-scheme: dark;
+    @font-face {
+      font-family: "IBM Plex Sans Thai";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("fonts/IBMPlexSansThai-Regular.ttf") format("truetype")
+    }
 
-  
-  --innow-navy-900:#0A1F38;
-  --innow-navy-800:#06254A;
-  --innow-navy-700:#13253C;
-  --innow-navy-600:#1B3A5C;
-  
-  --innow-blue-600:#014799;
-  --innow-blue-700:#013A80;
-  --innow-blue-500:#2E6FC0;
-  --innow-blue-400:#6FA8E8;
-  --innow-blue-300:#8FBEF0;
-  --innow-blue-200:#B7CBE3;
-  --innow-blue-100:#DCE7F4;
-  --innow-blue-50:#F1F5FA;
-  --innow-slate-600:#546A83;
-  
-  --innow-slate-500:#6B87A8;
-  --innow-slate-400:#919EAC;
-  
-  --innow-metal-white:#FFFFFF;
-  --innow-silver-mist:#E8EEF5;
-  --innow-ice-blue:#BFD8F6;
-  --innow-flow-blue:#69A7F5;
-  --innow-deep-water:#0A1F38;
-  --innow-deepest-water:#061629;
+    @font-face {
+      font-family: "IBM Plex Sans Thai";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("fonts/IBMPlexSansThai-Medium.ttf") format("truetype")
+    }
 
-  
-  --on-navy-tx:#FFFFFF;
-  --on-navy-body:#B7CBE3;
-  --on-navy-accent:#8FBEF0;
-  --on-navy-line:rgba(183,203,227,.35);
+    @font-face {
+      font-family: "IBM Plex Sans Thai";
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url("fonts/IBMPlexSansThai-SemiBold.ttf") format("truetype")
+    }
 
-  
-  --d-bg:#081A2E;      --l-bg:#FFFFFF;
-  --d-bg-raised:#0A1F38; --l-bg-raised:#FFFFFF;
-  --d-bg-panel:#06254A;  --l-bg-panel:#F1F5FA;
-  --d-bg-sunken:#061829; --l-bg-sunken:#E8EFF8;
-  --d-line:#1B3A5C;      --l-line:#D3E0EF;
-  --d-line-soft:#132E4C; --l-line-soft:#E6EDF6;
-  --d-tx:#FFFFFF;        --l-tx:#0A1F38;
-  --d-tx-body:#C9D8EA;   --l-tx-body:#13253C;
-  --d-tx-muted:#B7CBE3;  --l-tx-muted:#546A83;
-  
-  --d-tx-subtle:#8FA6C0; --l-tx-subtle:#5B6E85;
-  --d-tx-accent:#6FA8E8; --l-tx-accent:#014799;
-  --d-tx-link:#8FBEF0;   --l-tx-link:#014799;
-  --d-focus:#6FA8E8;     --l-focus:#014799;
-  --d-ok:#4FD1A5;        --l-ok:#0E6E52;
-  --d-warn:#F0B849;      --l-warn:#8A5A05;
-  --d-crit:#F58C82;      --l-crit:#A6362D;
-  --d-chip:#0E2C50;      --l-chip:#E6EDF7;
-  --d-shadow:0 0.0625rem 0 rgba(255,255,255,.04), 0 0.75rem 2rem -1.125rem rgba(0,0,0,.9);
-  --l-shadow:0 0.0625rem 0 rgba(10,31,56,.03), 0 0.625rem 1.875rem -1.25rem rgba(10,31,56,.5);
-  --d-glow-core:rgba(46,111,192,.52); --l-glow-core:rgba(46,111,192,.18);
-  --d-glow-edge:rgba(111,168,232,.12); --l-glow-edge:rgba(111,168,232,.06);
-  --d-ice:linear-gradient(135deg,#061629 0%,#0A1F38 58%,#0B315F 100%);
-  --l-ice:linear-gradient(135deg,#FFFFFF 0%,#F5F8FC 48%,#EAF2FB 100%);
+    /* BEGIN AUTHORITATIVE TOKENS: Design System v2.3, units converted to rem */
+    :root {
+      color-scheme: dark;
 
-  
-  --d-stage-bg:linear-gradient(135deg,#FFFFFF 0%,#F5F8FC 48%,#EAF2FB 100%);
-  --l-stage-bg:var(--hero-water-gradient);
-  --d-stage-edge:#E6EDF6;              --l-stage-edge:#1B3A5C;
-  --d-stage-tx:#0A1F38;                --l-stage-tx:#FFFFFF;
-  --d-stage-body:#13253C;              --l-stage-body:#B7CBE3;
-  --d-stage-accent:#014799;            --l-stage-accent:#8FBEF0;
-  --d-stage-rule:#D3E0EF;              --l-stage-rule:rgba(183,203,227,.35);
-  --d-stage-lh:var(--lh-body);         --l-stage-lh:var(--lh-body-dark);
-  --d-stage-field:var(--rise-field-on-light);
-  --l-stage-field:var(--rise-field-gradient);
-  --d-stage-field-op:.55;              --l-stage-field-op:.60;
-  --d-stage-glow:radial-gradient(ellipse 13.3% 24.1% at 50% 50%,
-    rgba(255,255,255,.92) 0%, rgba(143,190,240,.58) 9%, rgba(111,168,232,.34) 22%,
-    rgba(40,138,229,.15) 42%, rgba(40,138,229,.04) 60%, transparent 76%);
-  --l-stage-glow:radial-gradient(ellipse 19.2% 34.7% at 50% 50%,
-    rgba(14,112,177,.46) 0%, rgba(40,138,229,.20) 24%, rgba(46,111,192,.08) 46%, transparent 68%);
-  --d-stage-arrow:var(--value-arrow-on-light);
-  --l-stage-arrow:var(--value-arrow-on-dark);
-  
-  --d-stage-st:var(--innow-blue-400);  --l-stage-st:var(--innow-blue-600);
-  --d-stage-ct:var(--innow-blue-600);  --l-stage-ct:var(--innow-blue-400);
-  --d-stage-pk:var(--innow-navy-900);  --l-stage-pk:#FFFFFF;
-  --d-stage-kn:#FFFFFF;                --l-stage-kn:var(--innow-navy-900);
 
-  
-  --bg:var(--d-bg);
-  --bg-raised:var(--d-bg-raised);
-  --bg-panel:var(--d-bg-panel);
-  --bg-sunken:var(--d-bg-sunken);
-  --line:var(--d-line);
-  --line-soft:var(--d-line-soft);
-  
-  --line-strong:var(--innow-slate-500);
-  --tx:var(--d-tx);
-  --tx-body:var(--d-tx-body);
-  --tx-muted:var(--d-tx-muted);
-  --tx-subtle:var(--d-tx-subtle);
-  --tx-accent:var(--d-tx-accent);
-  --tx-link:var(--d-tx-link);
-  --focus:var(--d-focus);
-  --ok:var(--d-ok);
-  --warn:var(--d-warn);
-  --crit:var(--d-crit);
-  --chip:var(--d-chip);
-  --shadow:var(--d-shadow);
+      --innow-navy-900: #0A1F38;
+      --innow-navy-800: #06254A;
+      --innow-navy-700: #13253C;
+      --innow-navy-600: #1B3A5C;
 
-  
-  --rise-glow-core:var(--d-glow-core);
-  --rise-glow-edge:var(--d-glow-edge);
-  
-  --water-rise-gradient:linear-gradient(90deg,#DCE5EF 0%,#9CC5F4 25%,#3D8DE5 55%,#014799 78%,#0A1F38 100%);
-  
-  --rise-field-gradient:linear-gradient(90deg,
-    rgba(27,58,92,.14) 0%,
-    rgba(1,71,153,.74) 19%,
-    rgba(1,71,153,.90) 51%,
-    rgba(46,111,192,.96) 78%,
-    rgba(191,216,246,1) 91%,
-    rgba(232,238,245,1) 100%);
-  
-  --rise-field-on-light:linear-gradient(90deg,
-    rgba(111,168,232,.10) 0%,
-    rgba(111,168,232,.32) 19%,
-    rgba(46,111,192,.48) 51%,
-    rgba(1,71,153,.72) 78%,
-    rgba(1,71,153,.92) 91%,
-    rgba(1,71,153,1) 100%);
-  
-  --hero-water-gradient:radial-gradient(circle at 83.5% 21%,rgba(58,124,190,.30) 0%,rgba(1,71,153,.17) 28%,transparent 58%),linear-gradient(135deg,#061629 0%,#0A1F38 45%,#0B315F 100%);
-  --section-ice-gradient:var(--d-ice);
-  
-  
-  --innow-deep-glow:#0E70B1;
-  --innow-deep-glow-soft:#288AE5;
+      --innow-blue-600: #014799;
+      --innow-blue-700: #013A80;
+      --innow-blue-500: #2E6FC0;
+      --innow-blue-400: #6FA8E8;
+      --innow-blue-300: #8FBEF0;
+      --innow-blue-200: #B7CBE3;
+      --innow-blue-100: #DCE7F4;
+      --innow-blue-50: #F1F5FA;
+      --innow-slate-600: #546A83;
 
-  
-  --diagram-structure:var(--innow-blue-400);   
-  --diagram-content:var(--innow-blue-600);     
-  --diagram-peak:var(--innow-navy-900);        
-  --diagram-label:var(--innow-navy-700);       
+      --innow-slate-500: #6B87A8;
+      --innow-slate-400: #919EAC;
 
-  
-  --value-arrow-on-light:linear-gradient(90deg,
-    var(--innow-blue-400) 0%, var(--innow-blue-400) 55%,
-    var(--innow-blue-600) 84%, var(--innow-navy-900) 100%);
-  --value-arrow-on-dark:linear-gradient(90deg,
-    var(--innow-blue-600) 0%, var(--innow-blue-600) 55%,
-    var(--innow-blue-400) 84%, #FFFFFF 100%);
-  --value-halo:radial-gradient(circle,#EFF7FE 0%,rgba(239,247,254,0) 70%);
-  --cta-water-gradient:linear-gradient(135deg,#014799 0%,#0A1F38 100%);
+      --innow-metal-white: #FFFFFF;
+      --innow-silver-mist: #E8EEF5;
+      --innow-ice-blue: #BFD8F6;
+      --innow-flow-blue: #69A7F5;
+      --innow-deep-water: #0A1F38;
+      --innow-deepest-water: #061629;
 
-  
-  --f-display:"Anuphan","Noto Sans Thai","Leelawadee UI",Tahoma,system-ui,sans-serif;
-  --f-read:"IBM Plex Sans Thai","Noto Sans Thai","Leelawadee UI",Tahoma,system-ui,sans-serif;
-  --f-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
-  
-  --f-thai:var(--f-read);
-  --f-disp:var(--f-display);
 
-  
-  --w-body:400; --w-med:500; --w-semi:600; --w-bold:700;
+      --on-navy-tx: #FFFFFF;
+      --on-navy-body: #B7CBE3;
+      --on-navy-accent: #8FBEF0;
+      --on-navy-line: rgba(183, 203, 227, .35);
 
-  
-  --fs-d1:clamp(2rem,5.2vw,3.25rem);
-  --fs-d2:clamp(1.625rem,3.8vw,2.375rem);
-  --fs-h1:2.125rem; --fs-h2:1.75rem; --fs-h3:1.25rem;
-  --fs-lead:1.25rem; --fs-body:1.0625rem; --fs-sm:0.9375rem; --fs-cap:0.875rem;
-  
-  --fs-xs:0.8125rem; --fs-2xs:0.75rem; --fs-3xs:0.6875rem;
-  --fs-eye:0.71875rem; --fs-num:2.75rem;
 
-  
-  --lh-display:1.31; --lh-head:1.4; --lh-lead:1.6; --lh-body:1.7; --lh-dense:1.6;
-  
-  --lh-body-dark:1.75;
-  --measure:68ch;
+      --d-bg: #081A2E;
+      --l-bg: #FFFFFF;
+      --d-bg-raised: #0A1F38;
+      --l-bg-raised: #FFFFFF;
+      --d-bg-panel: #06254A;
+      --l-bg-panel: #F1F5FA;
+      --d-bg-sunken: #061829;
+      --l-bg-sunken: #E8EFF8;
+      --d-line: #1B3A5C;
+      --l-line: #D3E0EF;
+      --d-line-soft: #132E4C;
+      --l-line-soft: #E6EDF6;
+      --d-tx: #FFFFFF;
+      --l-tx: #0A1F38;
+      --d-tx-body: #C9D8EA;
+      --l-tx-body: #13253C;
+      --d-tx-muted: #B7CBE3;
+      --l-tx-muted: #546A83;
 
-  
-  --s1:0.25rem; --s2:0.5rem; --s3:0.75rem; --s4:1rem; --s5:1.5rem; --s6:2rem; --s7:3rem; --s8:4rem; --s9:6rem;
-  --s05:0.125rem; --s15:0.375rem; --s25:0.625rem; --s45:1.25rem;
-  --r-xs:0.1875rem; --r-sm:0.25rem; --r-md:0.5rem; --r-lg:0.875rem; --r-pill:62.4375rem;
+      --d-tx-subtle: #8FA6C0;
+      --l-tx-subtle: #5B6E85;
+      --d-tx-accent: #6FA8E8;
+      --l-tx-accent: #014799;
+      --d-tx-link: #8FBEF0;
+      --l-tx-link: #014799;
+      --d-focus: #6FA8E8;
+      --l-focus: #014799;
+      --d-ok: #4FD1A5;
+      --l-ok: #0E6E52;
+      --d-warn: #F0B849;
+      --l-warn: #8A5A05;
+      --d-crit: #F58C82;
+      --l-crit: #A6362D;
+      --d-chip: #0E2C50;
+      --l-chip: #E6EDF7;
+      --d-shadow: 0 0.0625rem 0 rgba(255, 255, 255, .04), 0 0.75rem 2rem -1.125rem rgba(0, 0, 0, .9);
+      --l-shadow: 0 0.0625rem 0 rgba(10, 31, 56, .03), 0 0.625rem 1.875rem -1.25rem rgba(10, 31, 56, .5);
+      --d-glow-core: rgba(46, 111, 192, .52);
+      --l-glow-core: rgba(46, 111, 192, .18);
+      --d-glow-edge: rgba(111, 168, 232, .12);
+      --l-glow-edge: rgba(111, 168, 232, .06);
+      --d-ice: linear-gradient(135deg, #061629 0%, #0A1F38 58%, #0B315F 100%);
+      --l-ice: linear-gradient(135deg, #FFFFFF 0%, #F5F8FC 48%, #EAF2FB 100%);
 
-  
-  --dur-press:80ms;      
-  --dur-hover:120ms;     
-  --dur-disclose:180ms;  
-  --dur-menu:220ms;      
-  --dur-draw:420ms;      
-  --ease-out:ease-out;
-  --ease-rise:cubic-bezier(.2,.8,.2,1);
 
-  
-  --elev-0:none;
-  --elev-1:0 0.0625rem 0 rgba(10,31,56,.03);
-  --elev-2:var(--shadow);
+      --d-stage-bg: linear-gradient(135deg, #FFFFFF 0%, #F5F8FC 48%, #EAF2FB 100%);
+      --l-stage-bg: var(--hero-water-gradient);
+      --d-stage-edge: #E6EDF6;
+      --l-stage-edge: #1B3A5C;
+      --d-stage-tx: #0A1F38;
+      --l-stage-tx: #FFFFFF;
+      --d-stage-body: #13253C;
+      --l-stage-body: #B7CBE3;
+      --d-stage-accent: #014799;
+      --l-stage-accent: #8FBEF0;
+      --d-stage-rule: #D3E0EF;
+      --l-stage-rule: rgba(183, 203, 227, .35);
+      --d-stage-lh: var(--lh-body);
+      --l-stage-lh: var(--lh-body-dark);
+      --d-stage-field: var(--rise-field-on-light);
+      --l-stage-field: var(--rise-field-gradient);
+      --d-stage-field-op: .55;
+      --l-stage-field-op: .60;
+      --d-stage-glow: radial-gradient(ellipse 13.3% 24.1% at 50% 50%,
+          rgba(255, 255, 255, .92) 0%, rgba(143, 190, 240, .58) 9%, rgba(111, 168, 232, .34) 22%,
+          rgba(40, 138, 229, .15) 42%, rgba(40, 138, 229, .04) 60%, transparent 76%);
+      --l-stage-glow: radial-gradient(ellipse 19.2% 34.7% at 50% 50%,
+          rgba(14, 112, 177, .46) 0%, rgba(40, 138, 229, .20) 24%, rgba(46, 111, 192, .08) 46%, transparent 68%);
+      --d-stage-arrow: var(--value-arrow-on-light);
+      --l-stage-arrow: var(--value-arrow-on-dark);
 
-  
-  
-  --z-glow:-2; --z-field:-1; --z-content:1; --z-sticky:10;
+      --d-stage-st: var(--innow-blue-400);
+      --l-stage-st: var(--innow-blue-600);
+      --d-stage-ct: var(--innow-blue-600);
+      --l-stage-ct: var(--innow-blue-400);
+      --d-stage-pk: var(--innow-navy-900);
+      --l-stage-pk: #FFFFFF;
+      --d-stage-kn: #FFFFFF;
+      --l-stage-kn: var(--innow-navy-900);
 
-  
-  --stage-bg:var(--d-stage-bg); --stage-edge:var(--d-stage-edge);
-  --stage-tx:var(--d-stage-tx); --stage-body:var(--d-stage-body);
-  --stage-accent:var(--d-stage-accent); --stage-rule:var(--d-stage-rule);
-  --stage-lh:var(--d-stage-lh); --stage-field:var(--d-stage-field);
-  --stage-field-op:var(--d-stage-field-op); --stage-glow:var(--d-stage-glow);
-  --stage-arrow:var(--d-stage-arrow);
-  --stage-st:var(--d-stage-st); --stage-ct:var(--d-stage-ct);
-  --stage-pk:var(--d-stage-pk); --stage-kn:var(--d-stage-kn);
-}
 
-/* END AUTHORITATIVE TOKENS */
-/* Aliases of documented values: DS 1138 (hero), 1912 (container),
+      --bg: var(--d-bg);
+      --bg-raised: var(--d-bg-raised);
+      --bg-panel: var(--d-bg-panel);
+      --bg-sunken: var(--d-bg-sunken);
+      --line: var(--d-line);
+      --line-soft: var(--d-line-soft);
+
+      --line-strong: var(--innow-slate-500);
+      --tx: var(--d-tx);
+      --tx-body: var(--d-tx-body);
+      --tx-muted: var(--d-tx-muted);
+      --tx-subtle: var(--d-tx-subtle);
+      --tx-accent: var(--d-tx-accent);
+      --tx-link: var(--d-tx-link);
+      --focus: var(--d-focus);
+      --ok: var(--d-ok);
+      --warn: var(--d-warn);
+      --crit: var(--d-crit);
+      --chip: var(--d-chip);
+      --shadow: var(--d-shadow);
+
+
+      --rise-glow-core: var(--d-glow-core);
+      --rise-glow-edge: var(--d-glow-edge);
+
+      --water-rise-gradient: linear-gradient(90deg, #DCE5EF 0%, #9CC5F4 25%, #3D8DE5 55%, #014799 78%, #0A1F38 100%);
+
+      --rise-field-gradient: linear-gradient(90deg,
+          rgba(27, 58, 92, .14) 0%,
+          rgba(1, 71, 153, .74) 19%,
+          rgba(1, 71, 153, .90) 51%,
+          rgba(46, 111, 192, .96) 78%,
+          rgba(191, 216, 246, 1) 91%,
+          rgba(232, 238, 245, 1) 100%);
+
+      --rise-field-on-light: linear-gradient(90deg,
+          rgba(111, 168, 232, .10) 0%,
+          rgba(111, 168, 232, .32) 19%,
+          rgba(46, 111, 192, .48) 51%,
+          rgba(1, 71, 153, .72) 78%,
+          rgba(1, 71, 153, .92) 91%,
+          rgba(1, 71, 153, 1) 100%);
+
+      --hero-water-gradient: radial-gradient(circle at 83.5% 21%, rgba(58, 124, 190, .30) 0%, rgba(1, 71, 153, .17) 28%, transparent 58%), linear-gradient(135deg, #061629 0%, #0A1F38 45%, #0B315F 100%);
+      --section-ice-gradient: var(--d-ice);
+
+
+      --innow-deep-glow: #0E70B1;
+      --innow-deep-glow-soft: #288AE5;
+
+
+      --diagram-structure: var(--innow-blue-400);
+      --diagram-content: var(--innow-blue-600);
+      --diagram-peak: var(--innow-navy-900);
+      --diagram-label: var(--innow-navy-700);
+
+
+      --value-arrow-on-light: linear-gradient(90deg,
+          var(--innow-blue-400) 0%, var(--innow-blue-400) 55%,
+          var(--innow-blue-600) 84%, var(--innow-navy-900) 100%);
+      --value-arrow-on-dark: linear-gradient(90deg,
+          var(--innow-blue-600) 0%, var(--innow-blue-600) 55%,
+          var(--innow-blue-400) 84%, #FFFFFF 100%);
+      --value-halo: radial-gradient(circle, #EFF7FE 0%, rgba(239, 247, 254, 0) 70%);
+      --cta-water-gradient: linear-gradient(135deg, #014799 0%, #0A1F38 100%);
+
+
+      --f-display: "Anuphan", "Noto Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+      --f-read: "IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+      --f-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+      --f-thai: var(--f-read);
+      --f-disp: var(--f-display);
+
+
+      --w-body: 400;
+      --w-med: 500;
+      --w-semi: 600;
+      --w-bold: 700;
+
+
+      --fs-d1: clamp(2rem, 5.2vw, 3.25rem);
+      --fs-d2: clamp(1.625rem, 3.8vw, 2.375rem);
+      --fs-h1: 2.125rem;
+      --fs-h2: 1.75rem;
+      --fs-h3: 1.25rem;
+      --fs-lead: 1.25rem;
+      --fs-body: 1.0625rem;
+      --fs-sm: 0.9375rem;
+      --fs-cap: 0.875rem;
+
+      --fs-xs: 0.8125rem;
+      --fs-2xs: 0.75rem;
+      --fs-3xs: 0.6875rem;
+      --fs-eye: 0.71875rem;
+      --fs-num: 2.75rem;
+
+
+      --lh-display: 1.31;
+      --lh-head: 1.4;
+      --lh-lead: 1.6;
+      --lh-body: 1.7;
+      --lh-dense: 1.6;
+
+      --lh-body-dark: 1.75;
+      --measure: 68ch;
+
+
+      --s1: 0.25rem;
+      --s2: 0.5rem;
+      --s3: 0.75rem;
+      --s4: 1rem;
+      --s5: 1.5rem;
+      --s6: 2rem;
+      --s7: 3rem;
+      --s8: 4rem;
+      --s9: 6rem;
+      --s05: 0.125rem;
+      --s15: 0.375rem;
+      --s25: 0.625rem;
+      --s45: 1.25rem;
+      --r-xs: 0.1875rem;
+      --r-sm: 0.25rem;
+      --r-md: 0.5rem;
+      --r-lg: 0.875rem;
+      --r-pill: 62.4375rem;
+
+
+      --dur-press: 80ms;
+      --dur-hover: 120ms;
+      --dur-disclose: 180ms;
+      --dur-menu: 220ms;
+      --dur-draw: 420ms;
+      --ease-out: ease-out;
+      --ease-rise: cubic-bezier(.2, .8, .2, 1);
+
+
+      --elev-0: none;
+      --elev-1: 0 0.0625rem 0 rgba(10, 31, 56, .03);
+      --elev-2: var(--shadow);
+
+
+
+      --z-glow: -2;
+      --z-field: -1;
+      --z-content: 1;
+      --z-sticky: 10;
+
+
+      --stage-bg: var(--d-stage-bg);
+      --stage-edge: var(--d-stage-edge);
+      --stage-tx: var(--d-stage-tx);
+      --stage-body: var(--d-stage-body);
+      --stage-accent: var(--d-stage-accent);
+      --stage-rule: var(--d-stage-rule);
+      --stage-lh: var(--d-stage-lh);
+      --stage-field: var(--d-stage-field);
+      --stage-field-op: var(--d-stage-field-op);
+      --stage-glow: var(--d-stage-glow);
+      --stage-arrow: var(--d-stage-arrow);
+      --stage-st: var(--d-stage-st);
+      --stage-ct: var(--d-stage-ct);
+      --stage-pk: var(--d-stage-pk);
+      --stage-kn: var(--d-stage-kn);
+    }
+
+    /* END AUTHORITATIVE TOKENS */
+    /* Aliases of documented values: DS 1138 (hero), 1912 (container),
    2135 (navigation), 1962 (targets), 2358 (focus), 1786 (fields).
    Breakpoints below are the compiled rem values of DS 1917–1920. */
-:root{--container:75rem;--hero-measure:60rem;--nav-height:4.25rem;--target:2.75rem;--hairline:.0625rem;--focus-width:.1875rem;--field-size:1rem;--reduced:.01ms;--lh-fallback:1.8;--gutter:var(--s4);--section-space:var(--s8);--brand-mark:var(--s7);--diagram-width:var(--hero-measure);--lh-current:var(--lh-body-dark);--logo-color:var(--on-navy-tx);--hero-btn-bg:var(--innow-blue-600);--hero-btn-tx:var(--on-navy-tx);--hero-btn-hover:var(--innow-blue-500);--elev-current:var(--elev-0);--d-hero-photo-scrim:.88;--l-hero-photo-scrim:.74;--hero-photo-scrim:var(--d-hero-photo-scrim);--rise-field-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='430 0 470 260' preserveAspectRatio='xMidYMid meet'%3E%3Cdefs%3E%3Cfilter id='b' filterUnits='userSpaceOnUse' x='0' y='-40' width='940' height='340'%3E%3CfeGaussianBlur stdDeviation='5'/%3E%3C/filter%3E%3C/defs%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg filter='url(%23b)' opacity='.55'%3E%3Cpath stroke-width='2' d='M280 140C348 64 462 140 520 140H670C750 140 790 112 848 50M824.6 55.4L848 50L844.2 73.7'/%3E%3Cpath stroke-width='2' opacity='.38' d='M280 140C348 216 462 140 520 140M280 140C212 64 98 140 40 140M280 140C212 216 98 140 40 140'/%3E%3C/g%3E%3Cpath stroke-width='1.75' d='M280 140C348 64 462 140 520 140H670C750 140 790 112 848 50M824.6 55.4L848 50L844.2 73.7'/%3E%3Cpath stroke-width='1.75' opacity='.38' d='M280 140C348 216 462 140 520 140M280 140C212 64 98 140 40 140M280 140C212 216 98 140 40 140'/%3E%3C/g%3E%3C/svg%3E");--brand-logo-mask:url("images/brand-logo-mask.png")}
-@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;--bg:var(--l-bg);--bg-raised:var(--l-bg-raised);--bg-panel:var(--l-bg-panel);--bg-sunken:var(--l-bg-sunken);--line:var(--l-line);--line-soft:var(--l-line-soft);--tx:var(--l-tx);--tx-body:var(--l-tx-body);--tx-muted:var(--l-tx-muted);--tx-subtle:var(--l-tx-subtle);--tx-accent:var(--l-tx-accent);--tx-link:var(--l-tx-link);--focus:var(--l-focus);--ok:var(--l-ok);--warn:var(--l-warn);--crit:var(--l-crit);--chip:var(--l-chip);--shadow:var(--l-shadow);--section-ice-gradient:var(--l-ice);--lh-current:var(--lh-body);--logo-color:var(--innow-blue-600);--hero-btn-bg:var(--innow-blue-400);--hero-btn-tx:var(--innow-navy-900);--hero-btn-hover:var(--innow-blue-300);--stage-bg:var(--l-stage-bg);--stage-edge:var(--l-stage-edge);--stage-tx:var(--l-stage-tx);--stage-body:var(--l-stage-body);--stage-accent:var(--l-stage-accent);--stage-rule:var(--l-stage-rule);--stage-lh:var(--l-stage-lh);--stage-field:var(--l-stage-field);--stage-field-op:var(--l-stage-field-op);--stage-glow:var(--l-stage-glow);--stage-arrow:var(--l-stage-arrow);--stage-st:var(--l-stage-st);--stage-ct:var(--l-stage-ct);--stage-pk:var(--l-stage-pk);--stage-kn:var(--l-stage-kn);--hero-photo-scrim:var(--l-hero-photo-scrim);--elev-current:var(--elev-2)}}
-:root[data-theme="light"]{color-scheme:light;--bg:var(--l-bg);--bg-raised:var(--l-bg-raised);--bg-panel:var(--l-bg-panel);--bg-sunken:var(--l-bg-sunken);--line:var(--l-line);--line-soft:var(--l-line-soft);--tx:var(--l-tx);--tx-body:var(--l-tx-body);--tx-muted:var(--l-tx-muted);--tx-subtle:var(--l-tx-subtle);--tx-accent:var(--l-tx-accent);--tx-link:var(--l-tx-link);--focus:var(--l-focus);--ok:var(--l-ok);--warn:var(--l-warn);--crit:var(--l-crit);--chip:var(--l-chip);--shadow:var(--l-shadow);--section-ice-gradient:var(--l-ice);--lh-current:var(--lh-body);--logo-color:var(--innow-blue-600);--hero-btn-bg:var(--innow-blue-400);--hero-btn-tx:var(--innow-navy-900);--hero-btn-hover:var(--innow-blue-300);--stage-bg:var(--l-stage-bg);--stage-edge:var(--l-stage-edge);--stage-tx:var(--l-stage-tx);--stage-body:var(--l-stage-body);--stage-accent:var(--l-stage-accent);--stage-rule:var(--l-stage-rule);--stage-lh:var(--l-stage-lh);--stage-field:var(--l-stage-field);--stage-field-op:var(--l-stage-field-op);--stage-glow:var(--l-stage-glow);--stage-arrow:var(--l-stage-arrow);--stage-st:var(--l-stage-st);--stage-ct:var(--l-stage-ct);--stage-pk:var(--l-stage-pk);--stage-kn:var(--l-stage-kn);--hero-photo-scrim:var(--l-hero-photo-scrim);--elev-current:var(--elev-2)}
-:root[data-theme="dark"]{color-scheme:dark}
-*,:before,:after{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-height) + var(--s5))}
-body{margin:0;background:var(--bg);color:var(--tx-body);font-family:var(--f-read);font-size:var(--fs-body);font-weight:var(--w-body);line-height:var(--lh-current);letter-spacing:0;-webkit-text-size-adjust:100%}
-[hidden]{display:none!important}img{display:block;max-width:100%;height:auto}svg{max-width:100%}
-h1,h2,h3,h4{margin:0;font-family:var(--f-display);font-weight:var(--w-semi);line-height:var(--lh-head);letter-spacing:0;color:var(--tx);text-wrap:balance}
-h2{font-size:var(--fs-d2)}h3{font-size:var(--fs-h2)}h4{font-size:var(--fs-h3)}p,figure{margin:0}p{text-wrap:pretty}strong{font-weight:var(--w-semi)}
-a{color:var(--tx-link);text-underline-offset:var(--s1)}button,input,select,textarea{font:inherit;letter-spacing:0}button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}button{cursor:pointer}
-a,button{touch-action:manipulation}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:var(--focus-width) solid var(--focus);outline-offset:var(--focus-width)}
-.wrap{width:calc(100% - var(--gutter)*2);max-width:var(--container);margin-inline:auto}.section{padding-block:var(--section-space)}.section-head{max-width:var(--measure);margin-bottom:var(--s7)}.section-head p{margin-top:var(--s4);color:var(--tx-muted)}
-.label{font-size:var(--fs-cap);font-weight:var(--w-med);color:var(--tx-accent);margin-bottom:var(--s3)}
-.skip{position:fixed;inset-block-start:var(--s2);inset-inline-start:var(--s4);padding:var(--s3) var(--s5);background:var(--bg);z-index:var(--z-sticky);transform:translateY(-200%)}.skip:focus{transform:none}
-.site-header{background:var(--bg-raised);border-bottom:var(--hairline) solid var(--line);position:sticky;top:0;z-index:var(--z-sticky)}
-.header-inner{display:flex;align-items:center;gap:var(--s5);min-height:var(--nav-height);flex-wrap:wrap;padding-block:var(--s2)}
-.brand{display:flex;align-items:center;gap:var(--s3);color:var(--logo-color);text-decoration:none;min-height:var(--target)}.brand svg{width:calc(var(--s9) + var(--s5));height:auto}.brand-name{font-family:var(--f-display);font-size:var(--fs-h1);font-weight:var(--w-semi)}
-.header-actions{margin-left:auto;display:flex;gap:var(--s2);align-items:center}.nav{display:flex;gap:var(--s5);align-items:center;flex:1;justify-content:flex-end}.nav a{font-family:var(--f-display);font-weight:var(--w-med);font-size:var(--fs-sm);min-height:var(--target);display:flex;align-items:center;color:var(--tx-body);text-decoration:none}.nav a:hover{text-decoration:underline;color:var(--tx-link)}
-.button{display:inline-flex;align-items:center;justify-content:center;gap:var(--s3);min-height:var(--target);padding:var(--s3) var(--s5);border:var(--hairline) solid transparent;border-radius:var(--r-md);font-family:var(--f-display);font-weight:var(--w-semi);font-size:var(--field-size);line-height:var(--lh-dense);text-decoration:none;transition:background var(--dur-hover) var(--ease-out),color var(--dur-hover) var(--ease-out),border-color var(--dur-hover) var(--ease-out),transform var(--dur-press) var(--ease-out)}
-.button:active{transform:translateY(var(--hairline))}.button.primary{color:var(--on-navy-tx);background:var(--cta-water-gradient)}.button.primary:hover{background:var(--innow-blue-500)}.button.ghost{background:transparent;border-color:var(--line-strong);color:var(--tx-link)}.button.ghost:hover{background:var(--chip)}.button.accent{background:var(--innow-blue-400);color:var(--innow-navy-900)}.button.accent:hover{background:var(--innow-blue-300);border-color:var(--innow-blue-600)}
-.theme,.menu-toggle{min-width:var(--target);min-height:var(--target);padding:var(--s2) var(--s3);border:var(--hairline) solid var(--line-strong);border-radius:var(--r-md);background:transparent;color:var(--tx-body);font-size:var(--fs-cap)}.theme:hover,.menu-toggle:hover{background:var(--chip)}.menu-toggle{display:none}
-.on-navy{--tx:var(--on-navy-tx);--tx-body:var(--on-navy-body);--tx-muted:var(--on-navy-body);--tx-link:var(--on-navy-accent);--tx-accent:var(--on-navy-accent);--focus:var(--innow-blue-400);--bg:var(--innow-navy-900);--bg-panel:var(--innow-navy-800);--line:var(--innow-navy-600);--chip:var(--d-chip);--crit:var(--d-crit);--lh-current:var(--lh-body-dark);background:var(--innow-navy-900);color:var(--tx-body);line-height:var(--lh-current)}
-.hero{--tx:var(--stage-tx);--tx-body:var(--stage-body);--tx-muted:var(--stage-body);--tx-link:var(--stage-accent);--tx-accent:var(--stage-accent);--focus:var(--stage-accent);padding-block:var(--s8) var(--s7);background:var(--stage-bg);color:var(--stage-body);line-height:var(--stage-lh);border-bottom:var(--hairline) solid var(--stage-edge)}.lockup{--h:var(--fs-d1);--ratio:.5;max-width:var(--hero-measure);margin-bottom:var(--s7)}.lead-line{font-size:var(--h);line-height:var(--lh-display);font-weight:var(--w-semi);letter-spacing:0}.lead-line span{display:block}.result-word{font-weight:var(--w-bold);text-decoration:underline;text-decoration-color:var(--stage-accent);text-decoration-thickness:var(--focus-width);text-underline-offset:var(--s2)}.sub-line{font-family:var(--f-display);font-size:calc(var(--h)*var(--ratio));font-weight:var(--w-med);line-height:var(--lh-head);margin-top:var(--s5);color:var(--stage-accent)}
-.hero-lower{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:var(--s8);align-items:center}.hero-copy p{font-size:var(--fs-lead);line-height:var(--stage-lh)}.hero-actions{display:flex;gap:var(--s4);flex-wrap:wrap;margin-top:var(--s6);align-items:center}.hero-actions .text-link{min-height:var(--target);display:inline-flex;align-items:center;font-size:var(--fs-sm)}.hero-copy .hero-note{font-size:var(--fs-cap);margin-top:var(--s5);max-width:var(--measure)}.hero-figure{overflow:hidden;border-radius:var(--r-lg);background:var(--stage-edge)}.hero-photo{width:100%;aspect-ratio:16/9;object-fit:cover}.hero-figure figcaption{padding:var(--s3) var(--s4);font-size:var(--fs-cap);color:var(--stage-body)}
-.client-strip{background:var(--l-bg);color:var(--l-tx-body);padding-block:var(--s6);border-bottom:var(--hairline) solid var(--l-line-soft)}.client-strip p{font-size:var(--fs-cap);color:var(--l-tx-muted);text-align:center}.client-list{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--s6);align-items:center;margin:var(--s5) 0 0;padding:0}.client-list li{display:grid;place-items:center;min-height:var(--s9);padding:var(--s2)}.client-logo{max-height:var(--s8);width:auto;object-fit:contain}
-.method-section{background:var(--bg)}.method-layout{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:var(--s7);align-items:start}.diagram-frame{background:var(--l-bg);border:var(--hairline) solid var(--l-line-soft);border-radius:var(--r-lg);padding:var(--s5) var(--s3);color:var(--l-tx-body)}.diagram-frame figcaption{max-width:var(--measure);margin:var(--s4) auto 0;padding-inline:var(--s4);font-size:var(--fs-cap);text-align:center}.diagram{--st:var(--diagram-structure);--ct:var(--diagram-content);--pk:var(--diagram-peak);--lb:var(--diagram-label);--kn:var(--l-bg)}.diagram>svg{display:block;width:100%;height:auto}.diagram .st{stroke:var(--st)}.diagram .dash{stroke-dasharray:7 9;opacity:.55}.diagram .pk{stroke:var(--pk)}.diagram .peak-dot{fill:var(--pk)}.diagram .ring{fill:var(--kn);stroke:var(--ct)}.diagram .node{fill:var(--ct)}.diagram .num{fill:var(--kn);font-family:var(--f-display);font-size:var(--fs-sm);font-weight:var(--w-semi)}.diagram .lb{fill:var(--lb);font-family:var(--f-read);font-size:var(--fs-h3)}.diagram .lb-en{fill:var(--lb);font-family:var(--f-read);font-size:var(--fs-2xs)}.diagram .g-st{stop-color:var(--st)}.diagram .g-ct{stop-color:var(--ct)}.diagram .g-pk{stop-color:var(--pk)}.diagram .method-icon{color:var(--ct)}
-.method-list{counter-reset:steps;list-style:none;margin:0;padding:0;display:grid;gap:var(--s5)}.method-list li{position:relative;padding-left:var(--s7);counter-increment:steps}.method-list li:before{content:counter(steps,decimal-leading-zero);position:absolute;left:0;top:0;font-family:var(--f-display);font-size:var(--fs-h3);color:var(--tx-accent)}.method-list h3{font-size:var(--fs-h3);margin-bottom:var(--s1)}.method-list p{font-size:var(--fs-sm)}.method-list .official{font-size:var(--fs-cap);color:var(--tx-muted);margin-top:var(--s1)}.method-value{margin-top:var(--s6);border-left:var(--s1) solid var(--tx);padding-left:var(--s5)}.method-value strong{display:block;color:var(--tx);font-size:var(--fs-h3);font-family:var(--f-display)}.method-value p{font-size:var(--fs-sm);margin-top:var(--s1)}
+    :root {
+      --container: 75rem;
+      --hero-measure: 60rem;
+      --nav-height: 4.25rem;
+      --target: 2.75rem;
+      --hairline: .0625rem;
+      --focus-width: .1875rem;
+      --field-size: 1rem;
+      --reduced: .01ms;
+      --lh-fallback: 1.8;
+      --gutter: var(--s4);
+      --section-space: var(--s8);
+      --brand-mark: var(--s7);
+      --diagram-width: var(--hero-measure);
+      --lh-current: var(--lh-body-dark);
+      --logo-color: var(--on-navy-tx);
+      --hero-btn-bg: var(--innow-blue-600);
+      --hero-btn-tx: var(--on-navy-tx);
+      --hero-btn-hover: var(--innow-blue-500);
+      --elev-current: var(--elev-0);
+      --d-hero-photo-scrim: .88;
+      --l-hero-photo-scrim: .74;
+      --hero-photo-scrim: var(--d-hero-photo-scrim);
+      --rise-field-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='430 0 470 260' preserveAspectRatio='xMidYMid meet'%3E%3Cdefs%3E%3Cfilter id='b' filterUnits='userSpaceOnUse' x='0' y='-40' width='940' height='340'%3E%3CfeGaussianBlur stdDeviation='5'/%3E%3C/filter%3E%3C/defs%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg filter='url(%23b)' opacity='.55'%3E%3Cpath stroke-width='2' d='M280 140C348 64 462 140 520 140H670C750 140 790 112 848 50M824.6 55.4L848 50L844.2 73.7'/%3E%3Cpath stroke-width='2' opacity='.38' d='M280 140C348 216 462 140 520 140M280 140C212 64 98 140 40 140M280 140C212 216 98 140 40 140'/%3E%3C/g%3E%3Cpath stroke-width='1.75' d='M280 140C348 64 462 140 520 140H670C750 140 790 112 848 50M824.6 55.4L848 50L844.2 73.7'/%3E%3Cpath stroke-width='1.75' opacity='.38' d='M280 140C348 216 462 140 520 140M280 140C212 64 98 140 40 140M280 140C212 216 98 140 40 140'/%3E%3C/g%3E%3C/svg%3E");
+      --brand-logo-mask: url("images/brand-logo-mask.png")
+    }
 
-/* ---------- Difference ---------- */
-.difference-section{background:var(--bg-panel)}
-.difference-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5)}
-.difference-card{display:flex;flex-direction:column;min-width:0;padding:var(--s5);background:var(--bg-raised);border:var(--hairline) solid var(--line-soft);border-radius:var(--r-lg)}
-.difference-card .difference-no{font-family:var(--f-display);font-size:var(--fs-cap);font-weight:var(--w-semi);color:var(--tx-accent);margin-bottom:var(--s5)}
-.difference-card h3{font-size:var(--fs-h3);margin-bottom:var(--s3);text-wrap:balance}
-.difference-card p{font-size:var(--fs-sm);color:var(--tx-muted);max-width:var(--measure)}
-.difference-card .difference-point{margin-top:auto;padding-top:var(--s5);font-size:var(--fs-cap);font-weight:var(--w-med);color:var(--tx)}
-.training-formats-section{background:var(--bg)}
-.training-formats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5)}
-.training-format{display:flex;flex-direction:column;min-width:0;min-height:100%;padding:var(--s5);background:var(--bg-raised);border:var(--hairline) solid var(--line-soft);border-radius:var(--r-lg)}
-.training-format .format-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);margin-bottom:var(--s5)}
-.training-format .format-no{font-family:var(--f-display);font-size:var(--fs-cap);font-weight:var(--w-semi);color:var(--tx-accent)}
-.training-format .format-tag{font-size:var(--fs-xs);color:var(--tx-muted);padding:var(--s1) var(--s3);border:var(--hairline) solid var(--line);border-radius:var(--r-pill);white-space:nowrap}
-.training-format h3{font-size:var(--fs-h3);margin-bottom:var(--s3);text-wrap:balance}
-.training-format p{font-size:var(--fs-sm);color:var(--tx-muted);max-width:var(--measure)}
-.training-format .format-outcome{margin-top:auto;padding-top:var(--s5);font-size:var(--fs-cap);color:var(--tx);font-weight:var(--w-med)}
-.tools-taught-section{background:var(--bg-panel)}.tools-taught-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5)}.tool-taught{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(var(--s9)*2);padding:var(--s6);background:var(--l-bg);border:var(--hairline) solid var(--l-line-soft);border-radius:var(--r-lg);text-align:center}.tool-logo-box{display:grid;place-items:center;width:var(--s8);height:var(--s8);margin-bottom:var(--s4)}.tool-logo{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}.tool-taught h3{font-size:var(--fs-h3);color:var(--l-tx);margin:0}.tool-products{margin-top:var(--s2);font-size:var(--fs-cap);line-height:var(--lh-dense);color:var(--l-tx-muted);text-wrap:balance}.tools-trademark-note{max-width:var(--measure);margin-top:var(--s4);font-size:var(--fs-xs);color:var(--tx-muted)}
-.courses-section{background:var(--bg-panel)}.track+.track{margin-top:var(--s8)}.track-head{display:flex;justify-content:space-between;gap:var(--s5);align-items:baseline;border-bottom:var(--hairline) solid var(--line);padding-bottom:var(--s5);margin-bottom:var(--s5)}.track-head h3{font-size:var(--fs-h2)}.track-head p{font-size:var(--fs-cap);color:var(--tx-muted)}.course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5)}.course-grid.developer{grid-template-columns:repeat(3,minmax(0,1fr))}.course{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s4);padding:var(--s5);background:var(--bg-raised);border:var(--hairline) solid var(--line-soft);border-radius:var(--r-lg);min-width:0}.course h4{text-wrap:pretty;overflow-wrap:break-word}.course p{font-size:var(--fs-sm);color:var(--tx-muted)}.course .course-meta{font-size:var(--fs-cap);color:var(--tx-accent)}.course-link{margin-top:auto;padding-top:var(--s3);min-height:var(--target);font-family:var(--f-display);font-size:var(--fs-sm);font-weight:var(--w-med);display:inline-flex;gap:var(--s3);align-items:center}
-.instructor-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:var(--s9);align-items:center}.portrait-frame{background:var(--bg-panel);border-radius:var(--r-lg);padding:var(--s5) var(--s5) 0;overflow:hidden}.portrait{width:100%;max-height:calc(var(--s9)*6);object-fit:contain;object-position:center bottom}.instructor-copy h2{margin-bottom:var(--s5)}.instructor-copy .credential{font-size:var(--fs-lead);color:var(--tx);margin-top:var(--s2)}.credentials{padding-left:var(--s5);margin:var(--s5) 0;display:grid;gap:var(--s3);color:var(--tx-muted)}.instructor-copy>p{max-width:var(--measure)}
-.training-note{margin-top:var(--s8);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-block:var(--hairline) solid var(--line);padding-block:var(--s6);gap:var(--s6)}.training-note h3{font-size:var(--fs-h3);margin-bottom:var(--s2)}.training-note p{font-size:var(--fs-sm);color:var(--tx-muted)}
-.contact-layout{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:var(--s9);align-items:start}.contact-copy h2{margin-bottom:var(--s5)}.contact-copy>p{margin-bottom:var(--s5)}.email-link{display:inline-flex;align-items:center;min-height:var(--target);overflow-wrap:anywhere}.quote-factors{font-size:var(--fs-sm);padding-top:var(--s5);border-top:var(--hairline) solid var(--line)}
-.contact-form{display:grid;gap:var(--s5);background:var(--bg-panel);padding:var(--s6);border:var(--hairline) solid var(--line);border-radius:var(--r-lg)}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5)}.field{display:flex;flex-direction:column;gap:var(--s2);min-width:0}.field label{font-size:var(--fs-cap);font-weight:var(--w-med);color:var(--tx-body)}.field input,.field select,.field textarea{width:100%;min-width:0;background:var(--bg);color:var(--tx);font-size:var(--field-size);min-height:var(--target);padding:var(--s3);border:var(--hairline) solid var(--line-strong);border-radius:var(--r-md);line-height:var(--lh-dense)}.field textarea{resize:vertical;min-height:var(--s9)}.field select{white-space:normal;overflow-wrap:anywhere}.field .hint{font-size:var(--fs-cap);color:var(--tx-muted)}.field input[aria-invalid="true"]{border-color:var(--crit)}.err{font-size:var(--fs-cap);color:var(--crit)}.form-note{font-size:var(--fs-cap);color:var(--tx-muted)}.form-actions{display:flex;flex-wrap:wrap;gap:var(--s3)}.form-actions .ghost{color:var(--on-navy-body)}.form-status{font-size:var(--fs-sm);color:var(--tx);min-height:var(--s5)}.email-draft{padding-top:var(--s5);border-top:var(--hairline) solid var(--line)}.email-draft h3{font-size:var(--fs-h3);margin-bottom:var(--s3)}.email-draft textarea{width:100%;min-height:calc(var(--s9)*3);padding:var(--s4);font-family:var(--f-read);font-size:var(--field-size);background:var(--bg);color:var(--tx);border:var(--hairline) solid var(--line-strong);border-radius:var(--r-md);line-height:var(--lh-body-dark)}.email-draft .button{margin-top:var(--s4)}
-#contact{position:relative;isolation:isolate;overflow:hidden;background:var(--hero-water-gradient)}
-#contact::before{content:"";position:absolute;pointer-events:none;z-index:var(--z-field);left:28.4%;top:11.9%;width:62%;aspect-ratio:470/260;background:var(--rise-field-gradient);opacity:.60;-webkit-mask-image:var(--rise-field-mask);mask-image:var(--rise-field-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%}
-#contact::after{content:"";position:absolute;pointer-events:none;z-index:var(--z-glow);left:28.4%;top:11.9%;margin-left:-4.88%;margin-top:-26.61%;width:120%;aspect-ratio:470/260;background:var(--l-stage-glow)}
-#contact>.wrap{position:relative;z-index:var(--z-content)}
-.site-footer{position:relative;padding-block:var(--s7) var(--s6);border-top:var(--hairline) solid var(--innow-navy-600);background:var(--innow-navy-900);color:var(--on-navy-body);line-height:var(--lh-body-dark)}
-.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:var(--s5);flex-wrap:wrap}.footer-inner p{font-size:var(--fs-cap)}.footer-inner a{min-height:var(--target);display:flex;align-items:center;color:var(--on-navy-accent)}.strapline{font-size:var(--fs-cap);margin-top:var(--s5);color:var(--on-navy-body);max-width:var(--measure)}
-@media(max-width:38.75rem){#contact::before{left:6%;top:56%;width:84%;opacity:.51}#contact::after{left:6%;top:56%;margin-left:14.68%;margin-top:-24.27%;width:120%}}
-html[data-font-fallback] body{line-height:var(--lh-fallback)}
-@media(min-width:64rem){:root{--gutter:var(--s5);--section-space:var(--s9)}}
-@media(max-width:64rem){.nav{gap:var(--s4)}.header-actions>.primary{display:none}.method-layout{grid-template-columns:1fr}.method-list{grid-template-columns:repeat(2,minmax(0,1fr))}.course-grid.developer{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-lower{gap:var(--s6)}.instructor-layout,.contact-layout{gap:var(--s7)}}
-@media(max-width:48rem){.difference-grid,.training-formats-grid,.tools-taught-grid{grid-template-columns:1fr}}
-@media(max-width:48rem){.menu-toggle{display:block}.nav{flex-basis:100%;order:3;justify-content:flex-start;flex-wrap:wrap;padding-block:var(--s3);border-top:var(--hairline) solid var(--line)}.nav[data-collapsed="true"]{display:none}.hero{padding-top:var(--s7)}.hero-lower,.instructor-layout,.contact-layout{grid-template-columns:1fr}.hero-copy{max-width:var(--measure)}.hero-photo{aspect-ratio:16/9}.client-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4)}.client-list li{min-height:var(--s8)}.track-head{display:block}.track-head p{margin-top:var(--s2)}.course-grid.developer{grid-template-columns:1fr}.training-note{grid-template-columns:1fr}.portrait-frame{max-width:calc(var(--s9)*4);margin-inline:auto}.portrait{max-height:calc(var(--s9)*5)}.contact-form{padding:var(--s5)}.method-list{grid-template-columns:1fr}.diagram-frame{padding-inline:0}.diagram-frame figcaption{text-align:left}}
-@media(max-width:30rem){:root{--fs-body:1rem;--fs-lead:1.1875rem;--fs-h1:1.75rem;--fs-h2:1.4375rem;--fs-h3:1.1875rem}.header-inner{gap:var(--s2)}.brand-name{font-size:var(--fs-h2)}.brand svg{width:var(--s9)}.theme,.menu-toggle{padding-inline:var(--s2)}.course-grid,.fields{grid-template-columns:1fr}.course{padding:var(--s5)}.hero-actions{gap:var(--s3)}.lockup{margin-bottom:var(--s6)}.lead-line span{display:inline}.lead-line span+span:before{content:" "}.form-actions{align-items:stretch;flex-direction:column}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:var(--reduced)!important;animation-iteration-count:1!important;transition-duration:var(--reduced)!important;scroll-behavior:auto!important}html{scroll-behavior:auto}}
-@media print{
-:root{color-scheme:light;--bg:var(--l-bg);--bg-raised:var(--l-bg-raised);--bg-panel:var(--l-bg-panel);--tx:var(--l-tx);--tx-body:var(--l-tx-body);--tx-muted:var(--l-tx-muted);--tx-link:var(--l-tx-link);--tx-accent:var(--l-tx-accent);--line:var(--l-line);--line-soft:var(--l-line-soft);--section-space:var(--s7);--logo-color:var(--innow-blue-600)}
-.on-navy{--tx:var(--l-tx);--tx-body:var(--l-tx-body);--tx-muted:var(--l-tx-muted);--tx-link:var(--l-tx-link);--tx-accent:var(--l-tx-accent);--bg:var(--l-bg);--bg-panel:var(--l-bg-panel);--line:var(--l-line);background:var(--l-bg)!important;color:var(--l-tx-body)}.site-header{position:static}.hero{--tx:var(--l-tx);--tx-body:var(--l-tx-body);--stage-accent:var(--l-tx-accent);background:var(--l-bg);color:var(--l-tx-body)}.sub-line,.hero-figure figcaption,.strapline{color:var(--l-tx-body)}.hero-figure{background:var(--l-bg-panel)}.section{break-before:auto}.course,.instructor-layout,.diagram-frame,.method-list li{break-inside:avoid}.header-actions,.nav,.hero-actions,.course-link,.contact-form,.skip,.footer-inner>a{display:none!important}.contact-layout{display:block}.hero{padding-block:var(--s6)}.lockup{margin-bottom:var(--s5)}.client-list{grid-template-columns:repeat(6,minmax(0,1fr))}.diagram svg{-webkit-print-color-adjust:exact;print-color-adjust:exact}.method-layout{grid-template-columns:1fr}.method-list{grid-template-columns:repeat(2,minmax(0,1fr))}.contact-copy h2:after{content:" — paiboon@innow.co.th";font-size:var(--fs-body)}
-}
+    @media(prefers-color-scheme:light) {
+      :root:not([data-theme="dark"]) {
+        color-scheme: light;
+        --bg: var(--l-bg);
+        --bg-raised: var(--l-bg-raised);
+        --bg-panel: var(--l-bg-panel);
+        --bg-sunken: var(--l-bg-sunken);
+        --line: var(--l-line);
+        --line-soft: var(--l-line-soft);
+        --tx: var(--l-tx);
+        --tx-body: var(--l-tx-body);
+        --tx-muted: var(--l-tx-muted);
+        --tx-subtle: var(--l-tx-subtle);
+        --tx-accent: var(--l-tx-accent);
+        --tx-link: var(--l-tx-link);
+        --focus: var(--l-focus);
+        --ok: var(--l-ok);
+        --warn: var(--l-warn);
+        --crit: var(--l-crit);
+        --chip: var(--l-chip);
+        --shadow: var(--l-shadow);
+        --section-ice-gradient: var(--l-ice);
+        --lh-current: var(--lh-body);
+        --logo-color: var(--innow-blue-600);
+        --hero-btn-bg: var(--innow-blue-400);
+        --hero-btn-tx: var(--innow-navy-900);
+        --hero-btn-hover: var(--innow-blue-300);
+        --stage-bg: var(--l-stage-bg);
+        --stage-edge: var(--l-stage-edge);
+        --stage-tx: var(--l-stage-tx);
+        --stage-body: var(--l-stage-body);
+        --stage-accent: var(--l-stage-accent);
+        --stage-rule: var(--l-stage-rule);
+        --stage-lh: var(--l-stage-lh);
+        --stage-field: var(--l-stage-field);
+        --stage-field-op: var(--l-stage-field-op);
+        --stage-glow: var(--l-stage-glow);
+        --stage-arrow: var(--l-stage-arrow);
+        --stage-st: var(--l-stage-st);
+        --stage-ct: var(--l-stage-ct);
+        --stage-pk: var(--l-stage-pk);
+        --stage-kn: var(--l-stage-kn);
+        --hero-photo-scrim: var(--l-hero-photo-scrim);
+        --elev-current: var(--elev-2)
+      }
+    }
+
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: var(--l-bg);
+      --bg-raised: var(--l-bg-raised);
+      --bg-panel: var(--l-bg-panel);
+      --bg-sunken: var(--l-bg-sunken);
+      --line: var(--l-line);
+      --line-soft: var(--l-line-soft);
+      --tx: var(--l-tx);
+      --tx-body: var(--l-tx-body);
+      --tx-muted: var(--l-tx-muted);
+      --tx-subtle: var(--l-tx-subtle);
+      --tx-accent: var(--l-tx-accent);
+      --tx-link: var(--l-tx-link);
+      --focus: var(--l-focus);
+      --ok: var(--l-ok);
+      --warn: var(--l-warn);
+      --crit: var(--l-crit);
+      --chip: var(--l-chip);
+      --shadow: var(--l-shadow);
+      --section-ice-gradient: var(--l-ice);
+      --lh-current: var(--lh-body);
+      --logo-color: var(--innow-blue-600);
+      --hero-btn-bg: var(--innow-blue-400);
+      --hero-btn-tx: var(--innow-navy-900);
+      --hero-btn-hover: var(--innow-blue-300);
+      --stage-bg: var(--l-stage-bg);
+      --stage-edge: var(--l-stage-edge);
+      --stage-tx: var(--l-stage-tx);
+      --stage-body: var(--l-stage-body);
+      --stage-accent: var(--l-stage-accent);
+      --stage-rule: var(--l-stage-rule);
+      --stage-lh: var(--l-stage-lh);
+      --stage-field: var(--l-stage-field);
+      --stage-field-op: var(--l-stage-field-op);
+      --stage-glow: var(--l-stage-glow);
+      --stage-arrow: var(--l-stage-arrow);
+      --stage-st: var(--l-stage-st);
+      --stage-ct: var(--l-stage-ct);
+      --stage-pk: var(--l-stage-pk);
+      --stage-kn: var(--l-stage-kn);
+      --hero-photo-scrim: var(--l-hero-photo-scrim);
+      --elev-current: var(--elev-2)
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark
+    }
+
+    *,
+    :before,
+    :after {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--nav-height) + var(--s5))
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx-body);
+      font-family: var(--f-read);
+      font-size: var(--fs-body);
+      font-weight: var(--w-body);
+      line-height: var(--lh-current);
+      letter-spacing: 0;
+      -webkit-text-size-adjust: 100%
+    }
+
+    [hidden] {
+      display: none !important
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto
+    }
+
+    svg {
+      max-width: 100%
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      font-family: var(--f-display);
+      font-weight: var(--w-semi);
+      line-height: var(--lh-head);
+      letter-spacing: 0;
+      color: var(--tx);
+      text-wrap: balance
+    }
+
+    h2 {
+      font-size: var(--fs-d2)
+    }
+
+    h3 {
+      font-size: var(--fs-h2)
+    }
+
+    h4 {
+      font-size: var(--fs-h3)
+    }
+
+    p,
+    figure {
+      margin: 0
+    }
+
+    p {
+      text-wrap: pretty
+    }
+
+    strong {
+      font-weight: var(--w-semi)
+    }
+
+    a {
+      color: var(--tx-link);
+      text-underline-offset: var(--s1)
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+      letter-spacing: 0
+    }
+
+    button,
+    a,
+    input,
+    select,
+    textarea {
+      -webkit-tap-highlight-color: transparent
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    a,
+    button {
+      touch-action: manipulation
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    [tabindex]:focus-visible {
+      outline: var(--focus-width) solid var(--focus);
+      outline-offset: var(--focus-width)
+    }
+
+    .wrap {
+      width: calc(100% - var(--gutter)*2);
+      max-width: var(--container);
+      margin-inline: auto
+    }
+
+    .section {
+      padding-block: var(--section-space)
+    }
+
+    .section-head {
+      max-width: var(--measure);
+      margin-bottom: var(--s7)
+    }
+
+    .section-head p {
+      margin-top: var(--s4);
+      color: var(--tx-muted)
+    }
+
+    .label {
+      font-size: var(--fs-cap);
+      font-weight: var(--w-med);
+      color: var(--tx-accent);
+      margin-bottom: var(--s3)
+    }
+
+    .skip {
+      position: fixed;
+      inset-block-start: var(--s2);
+      inset-inline-start: var(--s4);
+      padding: var(--s3) var(--s5);
+      background: var(--bg);
+      z-index: var(--z-sticky);
+      transform: translateY(-200%)
+    }
+
+    .skip:focus {
+      transform: none
+    }
+
+    .site-header {
+      background: var(--bg-raised);
+      border-bottom: var(--hairline) solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: var(--z-sticky)
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: var(--s5);
+      min-height: var(--nav-height);
+      flex-wrap: wrap;
+      padding-block: var(--s2)
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      color: var(--logo-color);
+      text-decoration: none;
+      min-height: var(--target)
+    }
+
+    .brand svg {
+      width: calc(var(--s9) + var(--s5));
+      height: auto
+    }
+
+    .brand-name {
+      font-family: var(--f-display);
+      font-size: var(--fs-h1);
+      font-weight: var(--w-semi)
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: var(--s2);
+      align-items: center
+    }
+
+    .nav {
+      display: flex;
+      gap: var(--s5);
+      align-items: center;
+      flex: 1;
+      justify-content: flex-end
+    }
+
+    .nav a {
+      font-family: var(--f-display);
+      font-weight: var(--w-med);
+      font-size: var(--fs-sm);
+      min-height: var(--target);
+      display: flex;
+      align-items: center;
+      color: var(--tx-body);
+      text-decoration: none
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+      color: var(--tx-link)
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s3);
+      min-height: var(--target);
+      padding: var(--s3) var(--s5);
+      border: var(--hairline) solid transparent;
+      border-radius: var(--r-md);
+      font-family: var(--f-display);
+      font-weight: var(--w-semi);
+      font-size: var(--field-size);
+      line-height: var(--lh-dense);
+      text-decoration: none;
+      transition: background var(--dur-hover) var(--ease-out), color var(--dur-hover) var(--ease-out), border-color var(--dur-hover) var(--ease-out), transform var(--dur-press) var(--ease-out)
+    }
+
+    .button:active {
+      transform: translateY(var(--hairline))
+    }
+
+    .button.primary {
+      color: var(--on-navy-tx);
+      background: var(--cta-water-gradient)
+    }
+
+    .button.primary:hover {
+      background: var(--innow-blue-500)
+    }
+
+    .button.ghost {
+      background: transparent;
+      border-color: var(--line-strong);
+      color: var(--tx-link)
+    }
+
+    .button.ghost:hover {
+      background: var(--chip)
+    }
+
+    .button.accent {
+      background: var(--innow-blue-400);
+      color: var(--innow-navy-900)
+    }
+
+    .button.accent:hover {
+      background: var(--innow-blue-300);
+      border-color: var(--innow-blue-600)
+    }
+
+    .theme,
+    .menu-toggle {
+      min-width: var(--target);
+      min-height: var(--target);
+      padding: var(--s2) var(--s3);
+      border: var(--hairline) solid var(--line-strong);
+      border-radius: var(--r-md);
+      background: transparent;
+      color: var(--tx-body);
+      font-size: var(--fs-cap)
+    }
+
+    .theme:hover,
+    .menu-toggle:hover {
+      background: var(--chip)
+    }
+
+    .menu-toggle {
+      display: none
+    }
+
+    .on-navy {
+      --tx: var(--on-navy-tx);
+      --tx-body: var(--on-navy-body);
+      --tx-muted: var(--on-navy-body);
+      --tx-link: var(--on-navy-accent);
+      --tx-accent: var(--on-navy-accent);
+      --focus: var(--innow-blue-400);
+      --bg: var(--innow-navy-900);
+      --bg-panel: var(--innow-navy-800);
+      --line: var(--innow-navy-600);
+      --chip: var(--d-chip);
+      --crit: var(--d-crit);
+      --lh-current: var(--lh-body-dark);
+      background: var(--innow-navy-900);
+      color: var(--tx-body);
+      line-height: var(--lh-current)
+    }
+
+    .hero {
+      --tx: var(--stage-tx);
+      --tx-body: var(--stage-body);
+      --tx-muted: var(--stage-body);
+      --tx-link: var(--stage-accent);
+      --tx-accent: var(--stage-accent);
+      --focus: var(--stage-accent);
+      padding-block: var(--s8) var(--s7);
+      background: var(--stage-bg);
+      color: var(--stage-body);
+      line-height: var(--stage-lh);
+      border-bottom: var(--hairline) solid var(--stage-edge)
+    }
+
+    .lockup {
+      --h: var(--fs-d1);
+      --ratio: .5;
+      max-width: var(--hero-measure);
+      margin-bottom: var(--s7)
+    }
+
+    .lead-line {
+      font-size: var(--h);
+      line-height: var(--lh-display);
+      font-weight: var(--w-semi);
+      letter-spacing: 0
+    }
+
+    .lead-line span {
+      display: block
+    }
+
+    .result-word {
+      font-weight: var(--w-bold);
+      text-decoration: underline;
+      text-decoration-color: var(--stage-accent);
+      text-decoration-thickness: var(--focus-width);
+      text-underline-offset: var(--s2)
+    }
+
+    .sub-line {
+      font-family: var(--f-display);
+      font-size: calc(var(--h)*var(--ratio));
+      font-weight: var(--w-med);
+      line-height: var(--lh-head);
+      margin-top: var(--s5);
+      color: var(--stage-accent)
+    }
+
+    .hero-lower {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+      gap: var(--s8);
+      align-items: center
+    }
+
+    .hero-copy p {
+      font-size: var(--fs-lead);
+      line-height: var(--stage-lh)
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: var(--s4);
+      flex-wrap: wrap;
+      margin-top: var(--s6);
+      align-items: center
+    }
+
+    .hero-actions .text-link {
+      min-height: var(--target);
+      display: inline-flex;
+      align-items: center;
+      font-size: var(--fs-sm)
+    }
+
+    .hero-copy .hero-note {
+      font-size: var(--fs-cap);
+      margin-top: var(--s5);
+      max-width: var(--measure)
+    }
+
+    .hero-figure {
+      overflow: hidden;
+      border-radius: var(--r-lg);
+      background: var(--stage-edge)
+    }
+
+    .hero-photo {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover
+    }
+
+    .hero-figure figcaption {
+      padding: var(--s3) var(--s4);
+      font-size: var(--fs-cap);
+      color: var(--stage-body)
+    }
+
+    .client-strip {
+      background: var(--l-bg);
+      color: var(--l-tx-body);
+      padding-block: var(--s6);
+      border-bottom: var(--hairline) solid var(--l-line-soft)
+    }
+
+    .client-strip p {
+      font-size: var(--fs-cap);
+      color: var(--l-tx-muted);
+      text-align: center
+    }
+
+    .client-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: var(--s6);
+      align-items: center;
+      margin: var(--s5) 0 0;
+      padding: 0
+    }
+
+    .client-list li {
+      display: grid;
+      place-items: center;
+      min-height: var(--s9);
+      padding: var(--s2)
+    }
+
+    .client-logo {
+      max-height: var(--s8);
+      width: auto;
+      object-fit: contain
+    }
+
+    .method-section {
+      background: var(--bg)
+    }
+
+    .method-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      gap: var(--s7);
+      align-items: start
+    }
+
+    .diagram-frame {
+      background: var(--l-bg);
+      border: var(--hairline) solid var(--l-line-soft);
+      border-radius: var(--r-lg);
+      padding: var(--s5) var(--s3);
+      color: var(--l-tx-body)
+    }
+
+    .diagram-frame figcaption {
+      max-width: var(--measure);
+      margin: var(--s4) auto 0;
+      padding-inline: var(--s4);
+      font-size: var(--fs-cap);
+      text-align: center
+    }
+
+    .diagram {
+      --st: var(--diagram-structure);
+      --ct: var(--diagram-content);
+      --pk: var(--diagram-peak);
+      --lb: var(--diagram-label);
+      --kn: var(--l-bg)
+    }
+
+    .diagram>svg {
+      display: block;
+      width: 100%;
+      height: auto
+    }
+
+    .diagram .st {
+      stroke: var(--st)
+    }
+
+    .diagram .dash {
+      stroke-dasharray: 7 9;
+      opacity: .55
+    }
+
+    .diagram .pk {
+      stroke: var(--pk)
+    }
+
+    .diagram .peak-dot {
+      fill: var(--pk)
+    }
+
+    .diagram .ring {
+      fill: var(--kn);
+      stroke: var(--ct)
+    }
+
+    .diagram .node {
+      fill: var(--ct)
+    }
+
+    .diagram .num {
+      fill: var(--kn);
+      font-family: var(--f-display);
+      font-size: var(--fs-sm);
+      font-weight: var(--w-semi)
+    }
+
+    .diagram .lb {
+      fill: var(--lb);
+      font-family: var(--f-read);
+      font-size: var(--fs-h3)
+    }
+
+    .diagram .lb-en {
+      fill: var(--lb);
+      font-family: var(--f-read);
+      font-size: var(--fs-2xs)
+    }
+
+    .diagram .g-st {
+      stop-color: var(--st)
+    }
+
+    .diagram .g-ct {
+      stop-color: var(--ct)
+    }
+
+    .diagram .g-pk {
+      stop-color: var(--pk)
+    }
+
+    .diagram .method-icon {
+      color: var(--ct)
+    }
+
+    .method-list {
+      counter-reset: steps;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: var(--s5)
+    }
+
+    .method-list li {
+      position: relative;
+      padding-left: var(--s7);
+      counter-increment: steps
+    }
+
+    .method-list li:before {
+      content: counter(steps, decimal-leading-zero);
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-family: var(--f-display);
+      font-size: var(--fs-h3);
+      color: var(--tx-accent)
+    }
+
+    .method-list h3 {
+      font-size: var(--fs-h3);
+      margin-bottom: var(--s1)
+    }
+
+    .method-list p {
+      font-size: var(--fs-sm)
+    }
+
+    .method-list .official {
+      font-size: var(--fs-cap);
+      color: var(--tx-muted);
+      margin-top: var(--s1)
+    }
+
+    .method-value {
+      margin-top: var(--s6);
+      border-left: var(--s1) solid var(--tx);
+      padding-left: var(--s5)
+    }
+
+    .method-value strong {
+      display: block;
+      color: var(--tx);
+      font-size: var(--fs-h3);
+      font-family: var(--f-display)
+    }
+
+    .method-value p {
+      font-size: var(--fs-sm);
+      margin-top: var(--s1)
+    }
+
+    /* ---------- Difference ---------- */
+    .difference-section {
+      background: var(--bg-panel)
+    }
+
+    .difference-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s5)
+    }
+
+    .difference-card {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: var(--s5);
+      background: var(--bg-raised);
+      border: var(--hairline) solid var(--line-soft);
+      border-radius: var(--r-lg)
+    }
+
+    .difference-card .difference-no {
+      font-family: var(--f-display);
+      font-size: var(--fs-cap);
+      font-weight: var(--w-semi);
+      color: var(--tx-accent);
+      margin-bottom: var(--s5)
+    }
+
+    .difference-card h3 {
+      font-size: var(--fs-h3);
+      margin-bottom: var(--s3);
+      text-wrap: balance
+    }
+
+    .difference-card p {
+      font-size: var(--fs-sm);
+      color: var(--tx-muted);
+      max-width: var(--measure)
+    }
+
+    .difference-card .difference-point {
+      margin-top: auto;
+      padding-top: var(--s5);
+      font-size: var(--fs-cap);
+      font-weight: var(--w-med);
+      color: var(--tx)
+    }
+
+    .training-formats-section {
+      background: var(--bg)
+    }
+
+    .training-formats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s5)
+    }
+
+    .training-format {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 100%;
+      padding: var(--s5);
+      background: var(--bg-raised);
+      border: var(--hairline) solid var(--line-soft);
+      border-radius: var(--r-lg)
+    }
+
+    .training-format .format-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s4);
+      margin-bottom: var(--s5)
+    }
+
+    .training-format .format-no {
+      font-family: var(--f-display);
+      font-size: var(--fs-cap);
+      font-weight: var(--w-semi);
+      color: var(--tx-accent)
+    }
+
+    .training-format .format-tag {
+      font-size: var(--fs-xs);
+      color: var(--tx-muted);
+      padding: var(--s1) var(--s3);
+      border: var(--hairline) solid var(--line);
+      border-radius: var(--r-pill);
+      white-space: nowrap
+    }
+
+    .training-format h3 {
+      font-size: var(--fs-h3);
+      margin-bottom: var(--s3);
+      text-wrap: balance
+    }
+
+    .training-format p {
+      font-size: var(--fs-sm);
+      color: var(--tx-muted);
+      max-width: var(--measure)
+    }
+
+    .training-format .format-outcome {
+      margin-top: auto;
+      padding-top: var(--s5);
+      font-size: var(--fs-cap);
+      color: var(--tx);
+      font-weight: var(--w-med)
+    }
+
+    .tools-taught-section {
+      background: var(--bg-panel)
+    }
+
+    .tools-taught-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s4)
+    }
+
+    .tool-taught {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--s4) var(--s5);
+      background: var(--l-bg);
+      border: var(--hairline) solid var(--l-line-soft);
+      border-radius: var(--r-lg);
+      text-align: center
+    }
+
+    .tool-logo-box {
+      display: grid;
+      place-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-bottom: var(--s3)
+    }
+
+    .tool-logo {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain
+    }
+
+    .tool-taught h3 {
+      font-size: var(--fs-h3);
+      color: var(--l-tx);
+      margin: 0
+    }
+
+    .tool-products {
+      margin-top: var(--s2);
+      font-size: var(--fs-cap);
+      line-height: var(--lh-dense);
+      color: var(--l-tx-muted);
+      text-wrap: balance
+    }
+
+    .tools-trademark-note {
+      max-width: var(--measure);
+      margin-top: var(--s4);
+      font-size: var(--fs-xs);
+      color: var(--tx-muted)
+    }
+
+    .courses-section {
+      background: var(--bg-panel)
+    }
+
+    .track+.track {
+      margin-top: var(--s8)
+    }
+
+    .track-head {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--s5);
+      align-items: baseline;
+      border-bottom: var(--hairline) solid var(--line);
+      padding-bottom: var(--s5);
+      margin-bottom: var(--s5)
+    }
+
+    .track-head h3 {
+      font-size: var(--fs-h2)
+    }
+
+    .track-head p {
+      font-size: var(--fs-cap);
+      color: var(--tx-muted)
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--s5)
+    }
+
+    .course-grid.developer {
+      grid-template-columns: repeat(3, minmax(0, 1fr))
+    }
+
+    .course {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--s4);
+      padding: var(--s5);
+      background: var(--bg-raised);
+      border: var(--hairline) solid var(--line-soft);
+      border-radius: var(--r-lg);
+      min-width: 0
+    }
+
+    .course h4 {
+      text-wrap: pretty;
+      overflow-wrap: break-word
+    }
+
+    .course p {
+      font-size: var(--fs-sm);
+      color: var(--tx-muted)
+    }
+
+    .course .course-meta {
+      font-size: var(--fs-cap);
+      color: var(--tx-accent)
+    }
+
+    .course-link {
+      margin-top: auto;
+      padding-top: var(--s3);
+      min-height: var(--target);
+      font-family: var(--f-display);
+      font-size: var(--fs-sm);
+      font-weight: var(--w-med);
+      display: inline-flex;
+      gap: var(--s3);
+      align-items: center
+    }
+
+    .instructor-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+      gap: var(--s9);
+      align-items: center
+    }
+
+    .portrait-frame {
+      background: var(--bg-panel);
+      border-radius: var(--r-lg);
+      padding: var(--s5) var(--s5) 0;
+      overflow: hidden
+    }
+
+    .portrait {
+      width: 100%;
+      max-height: calc(var(--s9)*6);
+      object-fit: contain;
+      object-position: center bottom
+    }
+
+    .instructor-copy h2 {
+      margin-bottom: var(--s5)
+    }
+
+    .instructor-copy .credential {
+      font-size: var(--fs-lead);
+      color: var(--tx);
+      margin-top: var(--s2)
+    }
+
+    .credentials {
+      padding-left: var(--s5);
+      margin: var(--s5) 0;
+      display: grid;
+      gap: var(--s3);
+      color: var(--tx-muted)
+    }
+
+    .instructor-copy>p {
+      max-width: var(--measure)
+    }
+
+    .training-note {
+      margin-top: var(--s8);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-block: var(--hairline) solid var(--line);
+      padding-block: var(--s6);
+      gap: var(--s6)
+    }
+
+    .training-note h3 {
+      font-size: var(--fs-h3);
+      margin-bottom: var(--s2)
+    }
+
+    .training-note p {
+      font-size: var(--fs-sm);
+      color: var(--tx-muted)
+    }
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+      gap: var(--s9);
+      align-items: start
+    }
+
+    .contact-copy h2 {
+      margin-bottom: var(--s5)
+    }
+
+    .contact-copy>p {
+      margin-bottom: var(--s5)
+    }
+
+    .email-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--target);
+      overflow-wrap: anywhere
+    }
+
+    .quote-factors {
+      font-size: var(--fs-sm);
+      padding-top: var(--s5);
+      border-top: var(--hairline) solid var(--line)
+    }
+
+    .contact-form {
+      display: grid;
+      gap: var(--s5);
+      background: var(--bg-panel);
+      padding: var(--s6);
+      border: var(--hairline) solid var(--line);
+      border-radius: var(--r-lg)
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--s5)
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      min-width: 0
+    }
+
+    .field label {
+      font-size: var(--fs-cap);
+      font-weight: var(--w-med);
+      color: var(--tx-body)
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-width: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font-size: var(--field-size);
+      min-height: var(--target);
+      padding: var(--s3);
+      border: var(--hairline) solid var(--line-strong);
+      border-radius: var(--r-md);
+      line-height: var(--lh-dense)
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: var(--s9)
+    }
+
+    .field select {
+      white-space: normal;
+      overflow-wrap: anywhere
+    }
+
+    .field .hint {
+      font-size: var(--fs-cap);
+      color: var(--tx-muted)
+    }
+
+    .field input[aria-invalid="true"] {
+      border-color: var(--crit)
+    }
+
+    .err {
+      font-size: var(--fs-cap);
+      color: var(--crit)
+    }
+
+    .form-note {
+      font-size: var(--fs-cap);
+      color: var(--tx-muted)
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s3)
+    }
+
+    .form-actions .ghost {
+      color: var(--on-navy-body)
+    }
+
+    .form-status {
+      font-size: var(--fs-sm);
+      color: var(--tx);
+      min-height: var(--s5)
+    }
+
+    .email-draft {
+      padding-top: var(--s5);
+      border-top: var(--hairline) solid var(--line)
+    }
+
+    .email-draft h3 {
+      font-size: var(--fs-h3);
+      margin-bottom: var(--s3)
+    }
+
+    .email-draft textarea {
+      width: 100%;
+      min-height: calc(var(--s9)*3);
+      padding: var(--s4);
+      font-family: var(--f-read);
+      font-size: var(--field-size);
+      background: var(--bg);
+      color: var(--tx);
+      border: var(--hairline) solid var(--line-strong);
+      border-radius: var(--r-md);
+      line-height: var(--lh-body-dark)
+    }
+
+    .email-draft .button {
+      margin-top: var(--s4)
+    }
+
+    #contact {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      background: var(--hero-water-gradient)
+    }
+
+    #contact::before {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      z-index: var(--z-field);
+      left: 28.4%;
+      top: 11.9%;
+      width: 62%;
+      aspect-ratio: 470/260;
+      background: var(--rise-field-gradient);
+      opacity: .60;
+      -webkit-mask-image: var(--rise-field-mask);
+      mask-image: var(--rise-field-mask);
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-size: 100% 100%;
+      mask-size: 100% 100%
+    }
+
+    #contact::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      z-index: var(--z-glow);
+      left: 28.4%;
+      top: 11.9%;
+      margin-left: -4.88%;
+      margin-top: -26.61%;
+      width: 120%;
+      aspect-ratio: 470/260;
+      background: var(--l-stage-glow)
+    }
+
+    #contact>.wrap {
+      position: relative;
+      z-index: var(--z-content)
+    }
+
+    .site-footer {
+      position: relative;
+      padding-block: var(--s7) var(--s6);
+      border-top: var(--hairline) solid var(--innow-navy-600);
+      background: var(--innow-navy-900);
+      color: var(--on-navy-body);
+      line-height: var(--lh-body-dark)
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s5);
+      flex-wrap: wrap
+    }
+
+    .footer-inner p {
+      font-size: var(--fs-cap)
+    }
+
+    .footer-inner a {
+      min-height: var(--target);
+      display: flex;
+      align-items: center;
+      color: var(--on-navy-accent)
+    }
+
+    .strapline {
+      font-size: var(--fs-cap);
+      margin-top: var(--s5);
+      color: var(--on-navy-body);
+      max-width: var(--measure)
+    }
+
+    @media(max-width:38.75rem) {
+      #contact::before {
+        left: 6%;
+        top: 56%;
+        width: 84%;
+        opacity: .51
+      }
+
+      #contact::after {
+        left: 6%;
+        top: 56%;
+        margin-left: 14.68%;
+        margin-top: -24.27%;
+        width: 120%
+      }
+    }
+
+    html[data-font-fallback] body {
+      line-height: var(--lh-fallback)
+    }
+
+    @media(min-width:64rem) {
+      :root {
+        --gutter: var(--s5);
+        --section-space: var(--s9)
+      }
+    }
+
+    @media(max-width:64rem) {
+      .nav {
+        gap: var(--s4)
+      }
+
+      .header-actions>.primary {
+        display: none
+      }
+
+      .method-layout {
+        grid-template-columns: 1fr
+      }
+
+      .method-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .course-grid.developer {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .hero-lower {
+        gap: var(--s6)
+      }
+
+      .instructor-layout,
+      .contact-layout {
+        gap: var(--s7)
+      }
+    }
+
+    @media(max-width:48rem) {
+
+      .difference-grid,
+      .training-formats-grid {
+        grid-template-columns: 1fr
+      }
+
+      .tools-taught-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--s3)
+      }
+
+      .tool-taught {
+        padding: var(--s3) var(--s3)
+      }
+
+      .tool-logo-box {
+        width: 2rem;
+        height: 2rem;
+        margin-bottom: var(--s2)
+      }
+
+      .tool-taught h3 {
+        font-size: var(--fs-cap)
+      }
+
+      .tool-products {
+        font-size: var(--fs-xs)
+      }
+    }
+
+    @media(max-width:48rem) {
+      .menu-toggle {
+        display: block
+      }
+
+      .nav {
+        flex-basis: 100%;
+        order: 3;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        padding-block: var(--s3);
+        border-top: var(--hairline) solid var(--line)
+      }
+
+      .nav[data-collapsed="true"] {
+        display: none
+      }
+
+      .hero {
+        padding-top: var(--s7)
+      }
+
+      .hero-lower,
+      .instructor-layout,
+      .contact-layout {
+        grid-template-columns: 1fr
+      }
+
+      .hero-copy {
+        max-width: var(--measure)
+      }
+
+      .hero-photo {
+        aspect-ratio: 16/9
+      }
+
+      .client-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--s4)
+      }
+
+      .client-list li {
+        min-height: var(--s8)
+      }
+
+      .track-head {
+        display: block
+      }
+
+      .track-head p {
+        margin-top: var(--s2)
+      }
+
+      .course-grid.developer {
+        grid-template-columns: 1fr
+      }
+
+      .training-note {
+        grid-template-columns: 1fr
+      }
+
+      .portrait-frame {
+        max-width: calc(var(--s9)*4);
+        margin-inline: auto
+      }
+
+      .portrait {
+        max-height: calc(var(--s9)*5)
+      }
+
+      .contact-form {
+        padding: var(--s5)
+      }
+
+      .method-list {
+        grid-template-columns: 1fr
+      }
+
+      .diagram-frame {
+        padding-inline: 0
+      }
+
+      .diagram-frame figcaption {
+        text-align: left
+      }
+    }
+
+    @media(max-width:30rem) {
+      :root {
+        --fs-body: 1rem;
+        --fs-lead: 1.1875rem;
+        --fs-h1: 1.75rem;
+        --fs-h2: 1.4375rem;
+        --fs-h3: 1.1875rem
+      }
+
+      .header-inner {
+        gap: var(--s2)
+      }
+
+      .brand-name {
+        font-size: var(--fs-h2)
+      }
+
+      .brand svg {
+        width: var(--s9)
+      }
+
+      .theme,
+      .menu-toggle {
+        padding-inline: var(--s2)
+      }
+
+      .course-grid,
+      .fields {
+        grid-template-columns: 1fr
+      }
+
+      .course {
+        padding: var(--s5)
+      }
+
+      .hero-actions {
+        gap: var(--s3)
+      }
+
+      .lockup {
+        margin-bottom: var(--s6)
+      }
+
+      .lead-line span {
+        display: inline
+      }
+
+      .lead-line span+span:before {
+        content: " "
+      }
+
+      .form-actions {
+        align-items: stretch;
+        flex-direction: column
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      *,
+      *:before,
+      *:after {
+        animation-duration: var(--reduced) !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: var(--reduced) !important;
+        scroll-behavior: auto !important
+      }
+
+      html {
+        scroll-behavior: auto
+      }
+    }
+
+    @media print {
+      :root {
+        color-scheme: light;
+        --bg: var(--l-bg);
+        --bg-raised: var(--l-bg-raised);
+        --bg-panel: var(--l-bg-panel);
+        --tx: var(--l-tx);
+        --tx-body: var(--l-tx-body);
+        --tx-muted: var(--l-tx-muted);
+        --tx-link: var(--l-tx-link);
+        --tx-accent: var(--l-tx-accent);
+        --line: var(--l-line);
+        --line-soft: var(--l-line-soft);
+        --section-space: var(--s7);
+        --logo-color: var(--innow-blue-600)
+      }
+
+      .on-navy {
+        --tx: var(--l-tx);
+        --tx-body: var(--l-tx-body);
+        --tx-muted: var(--l-tx-muted);
+        --tx-link: var(--l-tx-link);
+        --tx-accent: var(--l-tx-accent);
+        --bg: var(--l-bg);
+        --bg-panel: var(--l-bg-panel);
+        --line: var(--l-line);
+        background: var(--l-bg) !important;
+        color: var(--l-tx-body)
+      }
+
+      .site-header {
+        position: static
+      }
+
+      .hero {
+        --tx: var(--l-tx);
+        --tx-body: var(--l-tx-body);
+        --stage-accent: var(--l-tx-accent);
+        background: var(--l-bg);
+        color: var(--l-tx-body)
+      }
+
+      .sub-line,
+      .hero-figure figcaption,
+      .strapline {
+        color: var(--l-tx-body)
+      }
+
+      .hero-figure {
+        background: var(--l-bg-panel)
+      }
+
+      .section {
+        break-before: auto
+      }
+
+      .course,
+      .instructor-layout,
+      .diagram-frame,
+      .method-list li {
+        break-inside: avoid
+      }
+
+      .header-actions,
+      .nav,
+      .hero-actions,
+      .course-link,
+      .contact-form,
+      .skip,
+      .footer-inner>a {
+        display: none !important
+      }
+
+      .contact-layout {
+        display: block
+      }
+
+      .hero {
+        padding-block: var(--s6)
+      }
+
+      .lockup {
+        margin-bottom: var(--s5)
+      }
+
+      .client-list {
+        grid-template-columns: repeat(6, minmax(0, 1fr))
+      }
+
+      .diagram svg {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact
+      }
+
+      .method-layout {
+        grid-template-columns: 1fr
+      }
+
+      .method-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .contact-copy h2:after {
+        content: " — paiboon@innow.co.th";
+        font-size: var(--fs-body)
+      }
+    }
 
 
-/* Training photographs and user-supplied Method artwork. */
-.method-layout{grid-template-columns:minmax(0,1fr)}
-.method-artwork{padding:0;overflow:hidden}
-.method-artwork img{width:100%;height:auto}
-.method-layout .method-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s5)}
-.method-layout .method-list li{padding-left:0;padding-top:var(--s6)}
-.method-layout .method-value{margin-top:var(--s6)}
-.gallery-section{background:var(--bg-panel)}
-.training-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);align-items:start}
-.training-photo{margin:0;background:var(--bg-raised);border:var(--hairline) solid var(--line-soft);border-radius:var(--r-lg);overflow:hidden;break-inside:avoid}
-.training-photo img{display:block;width:100%;height:auto}
-.training-photo figcaption{padding:var(--s4) var(--s5);font-family:var(--f-read);font-size:var(--fs-sm);line-height:var(--lh-dense);color:var(--tx-body)}
-@media(max-width:64rem){.training-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.method-layout .method-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:48rem){.training-gallery{grid-template-columns:minmax(0,1fr)}.method-layout .method-list{grid-template-columns:minmax(0,1fr)}}
-@media print{.training-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.method-layout .method-list{grid-template-columns:repeat(2,minmax(0,1fr))}.method-artwork{break-inside:avoid}}
+    /* Training photographs and user-supplied Method artwork. */
+    .method-layout {
+      grid-template-columns: minmax(0, 1fr)
+    }
 
-/* Design System v2.3: hero Rise Field follows the documented stage tokens. */
-@media screen{
-.hero{position:relative;isolation:isolate;overflow:hidden}
-.hero::before{content:"";position:absolute;pointer-events:none;z-index:var(--z-field);left:28.4%;top:11.9%;width:62%;aspect-ratio:470/260;background:var(--stage-field);opacity:var(--stage-field-op);-webkit-mask-image:var(--rise-field-mask);mask-image:var(--rise-field-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%}
-.course-grid{align-items:stretch;grid-auto-rows:1fr}.course{height:100%}.course-grid.developer .course{min-height:calc(var(--s9)*3)}@media(max-width:48rem){.course-grid.developer .course{min-height:0}}
-}
-.image-trigger{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;cursor:zoom-in;text-align:inherit}
-.training-photo .image-trigger{background:var(--bg-sunken);aspect-ratio:4/3;overflow:hidden}
-.training-photo img{width:100%;height:100%;aspect-ratio:auto;object-fit:cover;object-position:center}
-.training-photo figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3)}.photo-caption-copy{display:flex;flex-direction:column;gap:var(--s05);min-width:0}.photo-org{color:var(--tx-body)}.photo-type{font-size:var(--fs-cap);line-height:1.45;color:var(--tx-muted)}
-.photo-expand{font-size:var(--fs-sm);color:var(--tx-link);flex-shrink:0}
-.training-photo:focus-within{outline:var(--focus-width) solid var(--focus);outline-offset:var(--s1)}
-.image-trigger:hover .photo-expand{text-decoration:underline}
-.photo-dialog{margin:auto;padding:var(--s5);width:calc(100% - var(--s6));max-width:var(--container);max-height:calc(100dvh - var(--s6));border:var(--hairline) solid var(--line-strong);border-radius:var(--r-lg);background:var(--d-bg);color:var(--on-navy-tx);box-shadow:var(--elev-0);overflow:auto;color-scheme:dark}
-.photo-dialog::backdrop{background:var(--innow-navy-900);opacity:var(--l-stage-field-op)}
-.photo-dialog[open]{display:flex;flex-direction:column;gap:var(--s4)}
-.photo-dialog header,.photo-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
-.photo-dialog h2{font-size:var(--fs-h3);color:var(--on-navy-tx);margin:0}
-.photo-dialog button{min-height:var(--target);min-width:var(--target);padding:var(--s2) var(--s4);border:var(--hairline) solid var(--line-strong);border-radius:var(--r-md);background:var(--d-bg-panel);color:var(--on-navy-tx);cursor:pointer}
-.photo-dialog button:hover{background:var(--innow-blue-600)}
-.photo-dialog button:focus-visible{outline-color:var(--innow-blue-400)}
-.photo-stage{display:flex;justify-content:center;align-items:center;min-height:0;background:var(--d-bg-sunken)}
-.photo-stage img{display:block;max-width:100%;width:auto;height:auto;max-height:calc(100dvh - var(--s9)*3);object-fit:contain}
-.photo-caption{font-size:var(--fs-sm);color:var(--on-navy-body);text-align:center;margin:0}
-.photo-count{font-size:var(--fs-sm);color:var(--on-navy-body)}
-html:has(.photo-dialog[open]){overflow:hidden}
-@media(max-width:48rem){.photo-dialog{padding:var(--s4);width:calc(100% - var(--s4));max-height:calc(100dvh - var(--s4))}.photo-dialog footer{gap:var(--s2)}.photo-dialog button{padding-inline:var(--s3)}}
-@media print{.photo-dialog,.photo-expand{display:none!important}.training-photo img{aspect-ratio:auto}}
+    .method-artwork {
+      padding: 0;
+      overflow: hidden
+    }
 
-/* Hero photography: photo is content; stage gradient + Rise Field remain the brand layers. */
-.hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:clamp(36rem,72vh,50rem);padding-block:clamp(var(--s8),8vw,var(--s9));background:var(--stage-bg);border-bottom:var(--hairline) solid var(--stage-edge);color:var(--stage-body);line-height:var(--stage-lh)}
-.hero-carousel,.hero-scrim{position:absolute;inset:0;pointer-events:none}
-.hero-carousel{z-index:var(--z-glow);background:var(--stage-bg)}
-.hero-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;transition:opacity var(--dur-draw) var(--ease-out);will-change:opacity}
-.hero-slide.is-active{opacity:1}
-.hero-scrim{z-index:var(--z-glow);background:var(--stage-bg);opacity:var(--hero-photo-scrim)}
-.hero-content{position:relative;z-index:var(--z-content)}
-.hero .label{color:var(--stage-accent)}
-.hero .lead-line{color:var(--stage-tx)}
-.hero .result-word{text-decoration-color:var(--stage-accent)}
-.hero .sub-line{color:var(--stage-accent)}
-.hero-lower{display:block;max-width:42rem}
-.hero-copy p{color:var(--stage-body)}
-.hero-copy .hero-note{color:var(--stage-body)}
-.hero .text-link{color:var(--stage-accent);text-decoration-color:var(--stage-rule)}
-.hero .text-link:hover{color:var(--stage-tx)}
-@media(max-width:48rem){.hero{min-height:clamp(38rem,78svh,46rem);padding-block:var(--s8)}.hero-slide{object-position:center center}}
-@media print{.hero-carousel,.hero-scrim{display:none}.hero{min-height:auto;background:var(--bg);color:var(--tx-body)}.hero .lead-line,.hero-copy p{color:var(--tx)}}
+    .method-artwork img {
+      width: 100%;
+      height: auto
+    }
 
-/* Client marquee: fixed light surface per logo-wall rule; one row + manual controls. */
-.client-strip .wrap{max-width:none;padding-inline:clamp(var(--s3),3vw,var(--s7))}
-.client-marquee-shell{display:grid;grid-template-columns:var(--target) minmax(0,1fr) var(--target);gap:var(--s3);align-items:center;margin-top:var(--s5)}
-.client-viewport{min-width:0;overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;scroll-behavior:auto;scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-x;cursor:grab}
-.client-viewport::-webkit-scrollbar{display:none}
-.client-viewport:active{cursor:grabbing}
-.client-track{display:flex;align-items:center;gap:var(--s6);width:max-content;min-width:100%}
-.client-list{list-style:none;display:flex!important;grid-template-columns:none!important;flex:none;align-items:center;gap:var(--s6)!important;margin:0!important;padding:0!important;white-space:nowrap}
-.client-list li{display:flex!important;place-items:unset!important;align-items:center;justify-content:center;flex:0 0 auto;width:calc(var(--s9) + var(--s8) + var(--s2));min-height:var(--s9)!important;padding:var(--s2)!important}
-.client-logo{display:block;max-width:calc(var(--s9) + var(--s7) + var(--s2))!important;max-height:calc(var(--s7) + var(--s3))!important;width:auto;height:auto;object-fit:contain}
-.client-scroll-btn{display:grid;place-items:center;width:var(--target);height:var(--target);min-width:var(--target);padding:0;border:var(--hairline) solid var(--line-strong);border-radius:var(--r-pill);background:var(--l-bg);color:var(--innow-blue-600);font:inherit;cursor:pointer;transition:background var(--dur-hover) var(--ease-out),border-color var(--dur-hover) var(--ease-out),transform var(--dur-press) var(--ease-out)}
-.client-scroll-btn span{font-family:var(--f-display);font-size:var(--fs-h2);line-height:1}
-.client-scroll-btn:hover{background:var(--l-bg-panel);border-color:var(--innow-blue-600)}
-.client-scroll-btn:active{transform:translateY(var(--hairline))}
-@media(max-width:48rem){.client-marquee-shell{grid-template-columns:var(--target) minmax(0,1fr) var(--target);gap:var(--s2)}.client-list li{width:calc(var(--s9) + var(--s6) + var(--s3))}.client-logo{max-width:calc(var(--s9) + var(--s6))!important;max-height:calc(var(--s7) + var(--s1))!important}.client-track,.client-list{gap:var(--s4)!important}}
-</style>
-<style>
-/* Supplied brand/client marks + full-card gallery trigger */
-.brand .brand-logo{display:block;width:calc(var(--s9) + var(--s4));max-width:32vw;aspect-ratio:1961/802;background:var(--logo-color);-webkit-mask-image:var(--brand-logo-mask);mask-image:var(--brand-logo-mask);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;-webkit-mask-size:contain;mask-size:contain}
-.client-logo{max-width:100%}
-.training-photo[data-gallery="training"]{cursor:zoom-in;transition:border-color var(--dur-hover) var(--ease-out)}
-.training-photo[data-gallery="training"]:hover{border-color:var(--line-strong)}
-.training-photo[data-gallery="training"]:hover .photo-expand{text-decoration:underline}
-.training-photo[data-gallery="training"]:focus{outline:var(--focus-width) solid var(--focus);outline-offset:var(--s1)}
-.training-photo .image-trigger{cursor:inherit}
-</style></head>
+    .method-layout .method-list {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--s5)
+    }
+
+    .method-layout .method-list li {
+      padding-left: 0;
+      padding-top: var(--s6)
+    }
+
+    .method-layout .method-value {
+      margin-top: var(--s6)
+    }
+
+    .gallery-section {
+      background: var(--bg-panel)
+    }
+
+    .training-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s5);
+      align-items: start
+    }
+
+    .training-photo {
+      margin: 0;
+      background: var(--bg-raised);
+      border: var(--hairline) solid var(--line-soft);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      break-inside: avoid
+    }
+
+    .training-photo img {
+      display: block;
+      width: 100%;
+      height: auto
+    }
+
+    .training-photo figcaption {
+      padding: var(--s4) var(--s5);
+      font-family: var(--f-read);
+      font-size: var(--fs-sm);
+      line-height: var(--lh-dense);
+      color: var(--tx-body)
+    }
+
+    @media(max-width:64rem) {
+      .training-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .method-layout .method-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+    }
+
+    @media(max-width:48rem) {
+      .training-gallery {
+        grid-template-columns: minmax(0, 1fr)
+      }
+
+      .method-layout .method-list {
+        grid-template-columns: minmax(0, 1fr)
+      }
+    }
+
+    @media print {
+      .training-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .method-layout .method-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .method-artwork {
+        break-inside: avoid
+      }
+    }
+
+    /* Design System v2.3: hero Rise Field follows the documented stage tokens. */
+    @media screen {
+      .hero {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+        z-index: var(--z-field);
+        left: 28.4%;
+        top: 11.9%;
+        width: 62%;
+        aspect-ratio: 470/260;
+        background: var(--stage-field);
+        opacity: var(--stage-field-op);
+        -webkit-mask-image: var(--rise-field-mask);
+        mask-image: var(--rise-field-mask);
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: 100% 100%;
+        mask-size: 100% 100%
+      }
+
+      .course-grid {
+        align-items: stretch;
+        grid-auto-rows: 1fr
+      }
+
+      .course {
+        height: 100%
+      }
+
+      .course-grid.developer .course {
+        min-height: calc(var(--s9)*3)
+      }
+
+      @media(max-width:48rem) {
+        .course-grid.developer .course {
+          min-height: 0
+        }
+      }
+    }
+
+    .image-trigger {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: zoom-in;
+      text-align: inherit
+    }
+
+    .training-photo .image-trigger {
+      background: var(--bg-sunken);
+      aspect-ratio: 4/3;
+      overflow: hidden
+    }
+
+    .training-photo img {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: auto;
+      object-fit: cover;
+      object-position: center
+    }
+
+    .training-photo figcaption {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--s3)
+    }
+
+    .photo-caption-copy {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s05);
+      min-width: 0
+    }
+
+    .photo-org {
+      color: var(--tx-body)
+    }
+
+    .photo-type {
+      font-size: var(--fs-cap);
+      line-height: 1.45;
+      color: var(--tx-muted)
+    }
+
+    .photo-expand {
+      font-size: var(--fs-sm);
+      color: var(--tx-link);
+      flex-shrink: 0
+    }
+
+    .training-photo:focus-within {
+      outline: var(--focus-width) solid var(--focus);
+      outline-offset: var(--s1)
+    }
+
+    .image-trigger:hover .photo-expand {
+      text-decoration: underline
+    }
+
+    .photo-dialog {
+      margin: auto;
+      padding: var(--s2);
+      width: calc(100% - var(--s4));
+      max-width: none;
+      height: calc(100dvh - var(--s4));
+      max-height: calc(100dvh - var(--s4));
+      border: var(--hairline) solid var(--line-strong);
+      border-radius: var(--r-lg);
+      background: var(--d-bg);
+      color: var(--on-navy-tx);
+      box-shadow: var(--elev-0);
+      overflow: auto;
+      color-scheme: dark
+    }
+
+    .photo-dialog::backdrop {
+      background: var(--innow-navy-900);
+      opacity: var(--l-stage-field-op)
+    }
+
+    .photo-dialog[open] {
+      display: grid;
+      grid-template-columns: var(--target) minmax(0, 1fr) var(--target);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas: "head head head" "prev image next" "foot foot foot";
+      gap: var(--s2)
+    }
+
+    .photo-dialog header {
+      grid-area: head;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s3);
+      padding-left: var(--s2)
+    }
+
+    .photo-dialog h2 {
+      font-size: var(--fs-sm);
+      color: var(--on-navy-tx);
+      margin: 0
+    }
+
+    .photo-dialog button {
+      min-height: var(--target);
+      min-width: var(--target);
+      padding: var(--s2);
+      border: var(--hairline) solid var(--line-strong);
+      border-radius: var(--r-md);
+      background: var(--d-bg-panel);
+      color: var(--on-navy-tx);
+      cursor: pointer
+    }
+
+    .photo-dialog button:hover {
+      background: var(--innow-blue-600)
+    }
+
+    .photo-dialog button:focus-visible {
+      outline-color: var(--innow-blue-400)
+    }
+
+    #photo-prev {
+      grid-area: prev;
+      align-self: center
+    }
+
+    #photo-next {
+      grid-area: next;
+      align-self: center
+    }
+
+    .photo-stage {
+      grid-area: image;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 0;
+      min-height: 0;
+      background: var(--d-bg-sunken)
+    }
+
+    .photo-stage img {
+      display: block;
+      max-width: 100%;
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      object-fit: contain
+    }
+
+    .photo-dialog footer {
+      grid-area: foot;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s4);
+      padding: var(--s2);
+      flex-wrap: wrap
+    }
+
+    .photo-caption {
+      font-size: var(--fs-cap);
+      line-height: var(--lh-dense);
+      color: var(--on-navy-body);
+      text-align: center;
+      margin: 0
+    }
+
+    .photo-count {
+      font-size: var(--fs-cap);
+      color: var(--on-navy-body);
+      white-space: nowrap
+    }
+
+    html:has(.photo-dialog[open]) {
+      overflow: hidden
+    }
+
+    @media(max-width:48rem) {
+      .photo-dialog {
+        padding: var(--s2);
+        width: 100%;
+        max-height: 100dvh;
+        height: 100dvh;
+        border-radius: 0
+      }
+
+      .photo-dialog[open] {
+        grid-template-areas: "prev head next" "image image image" "foot foot foot"
+      }
+
+      .photo-dialog header {
+        justify-content: center;
+        padding: 0
+      }
+
+      .photo-dialog h2 {
+        display: none
+      }
+
+      .photo-dialog footer {
+        gap: var(--s2);
+        flex-direction: column
+      }
+    }
+
+    @media print {
+
+      .photo-dialog,
+      .photo-expand {
+        display: none !important
+      }
+
+      .training-photo img {
+        aspect-ratio: auto
+      }
+    }
+
+    /* Hero photography: photo is content; stage gradient + Rise Field remain the brand layers. */
+    .hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      min-height: clamp(36rem, 72vh, 50rem);
+      padding-block: clamp(var(--s8), 8vw, var(--s9));
+      background: var(--stage-bg);
+      border-bottom: var(--hairline) solid var(--stage-edge);
+      color: var(--stage-body);
+      line-height: var(--stage-lh)
+    }
+
+    .hero-carousel,
+    .hero-scrim {
+      position: absolute;
+      inset: 0;
+      pointer-events: none
+    }
+
+    .hero-carousel {
+      z-index: var(--z-glow);
+      background: var(--stage-bg)
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      opacity: 0;
+      transition: opacity var(--dur-draw) var(--ease-out);
+      will-change: opacity
+    }
+
+    .hero-slide.is-active {
+      opacity: 1
+    }
+
+    .hero-scrim {
+      z-index: var(--z-glow);
+      background: var(--stage-bg);
+      opacity: var(--hero-photo-scrim)
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: var(--z-content)
+    }
+
+    .hero .label {
+      color: var(--stage-accent)
+    }
+
+    .hero .lead-line {
+      color: var(--stage-tx)
+    }
+
+    .hero .result-word {
+      text-decoration-color: var(--stage-accent)
+    }
+
+    .hero .sub-line {
+      color: var(--stage-accent)
+    }
+
+    .hero-lower {
+      display: block;
+      max-width: 42rem
+    }
+
+    .hero-copy p {
+      color: var(--stage-body)
+    }
+
+    .hero-copy .hero-note {
+      color: var(--stage-body)
+    }
+
+    .hero .text-link {
+      color: var(--stage-accent);
+      text-decoration-color: var(--stage-rule)
+    }
+
+    .hero .text-link:hover {
+      color: var(--stage-tx)
+    }
+
+    @media(max-width:48rem) {
+      .hero {
+        min-height: clamp(38rem, 78svh, 46rem);
+        padding-block: var(--s8)
+      }
+
+      .hero-slide {
+        object-position: center center
+      }
+    }
+
+    @media print {
+
+      .hero-carousel,
+      .hero-scrim {
+        display: none
+      }
+
+      .hero {
+        min-height: auto;
+        background: var(--bg);
+        color: var(--tx-body)
+      }
+
+      .hero .lead-line,
+      .hero-copy p {
+        color: var(--tx)
+      }
+    }
+
+    /* Client marquee: fixed light surface per logo-wall rule; one row + manual controls. */
+    .client-strip .wrap {
+      max-width: none;
+      padding-inline: clamp(var(--s3), 3vw, var(--s7))
+    }
+
+    .client-marquee-shell {
+      display: grid;
+      grid-template-columns: var(--target) minmax(0, 1fr) var(--target);
+      gap: var(--s3);
+      align-items: center;
+      margin-top: var(--s5)
+    }
+
+    .client-viewport {
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-inline: contain;
+      scroll-behavior: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      touch-action: pan-x;
+      cursor: grab
+    }
+
+    .client-viewport::-webkit-scrollbar {
+      display: none
+    }
+
+    .client-viewport:active {
+      cursor: grabbing
+    }
+
+    .client-track {
+      display: flex;
+      align-items: center;
+      gap: var(--s6);
+      width: max-content;
+      min-width: 100%
+    }
+
+    .client-list {
+      list-style: none;
+      display: flex !important;
+      grid-template-columns: none !important;
+      flex: none;
+      align-items: center;
+      gap: var(--s6) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      white-space: nowrap
+    }
+
+    .client-list li {
+      display: flex !important;
+      place-items: unset !important;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: calc(var(--s9) + var(--s8) + var(--s2));
+      min-height: var(--s9) !important;
+      padding: var(--s2) !important
+    }
+
+    .client-logo {
+      display: block;
+      max-width: calc(var(--s9) + var(--s7) + var(--s2)) !important;
+      max-height: calc(var(--s7) + var(--s3)) !important;
+      width: auto;
+      height: auto;
+      object-fit: contain
+    }
+
+    .client-scroll-btn {
+      display: grid;
+      place-items: center;
+      width: var(--target);
+      height: var(--target);
+      min-width: var(--target);
+      padding: 0;
+      border: var(--hairline) solid var(--line-strong);
+      border-radius: var(--r-pill);
+      background: var(--l-bg);
+      color: var(--innow-blue-600);
+      font: inherit;
+      cursor: pointer;
+      transition: background var(--dur-hover) var(--ease-out), border-color var(--dur-hover) var(--ease-out), transform var(--dur-press) var(--ease-out)
+    }
+
+    .client-scroll-btn span {
+      font-family: var(--f-display);
+      font-size: var(--fs-h2);
+      line-height: 1
+    }
+
+    .client-scroll-btn:hover {
+      background: var(--l-bg-panel);
+      border-color: var(--innow-blue-600)
+    }
+
+    .client-scroll-btn:active {
+      transform: translateY(var(--hairline))
+    }
+
+    @media(max-width:48rem) {
+      .client-marquee-shell {
+        grid-template-columns: var(--target) minmax(0, 1fr) var(--target);
+        gap: var(--s2)
+      }
+
+      .client-list li {
+        width: calc(var(--s9) + var(--s6) + var(--s3))
+      }
+
+      .client-logo {
+        max-width: calc(var(--s9) + var(--s6)) !important;
+        max-height: calc(var(--s7) + var(--s1)) !important
+      }
+
+      .client-track,
+      .client-list {
+        gap: var(--s4) !important
+      }
+    }
+  </style>
+  <style>
+    /* Supplied brand/client marks + full-card gallery trigger */
+    .brand .brand-logo {
+      display: block;
+      width: calc(var(--s9) + var(--s4));
+      max-width: 32vw;
+      aspect-ratio: 1961/802;
+      background: var(--logo-color);
+      -webkit-mask-image: var(--brand-logo-mask);
+      mask-image: var(--brand-logo-mask);
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      mask-size: contain
+    }
+
+    .client-logo {
+      max-width: 100%
+    }
+
+    .training-photo[data-gallery="training"] {
+      cursor: zoom-in;
+      transition: border-color var(--dur-hover) var(--ease-out)
+    }
+
+    .training-photo[data-gallery="training"]:hover {
+      border-color: var(--line-strong)
+    }
+
+    .training-photo[data-gallery="training"]:hover .photo-expand {
+      text-decoration: underline
+    }
+
+    .training-photo[data-gallery="training"]:focus {
+      outline: var(--focus-width) solid var(--focus);
+      outline-offset: var(--s1)
+    }
+
+    .training-photo .image-trigger {
+      cursor: inherit
+    }
+  </style>
+</head>
+
 <body>
-<a class="skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
-<header class="site-header"><div class="wrap header-inner">
-<a aria-label="Innow หน้าแรก" class="brand" href="#main"><span class="brand-logo" aria-hidden="true"></span></a>
-<nav aria-label="เมนูหลัก" class="nav" id="navigation"><a href="#difference">จุดต่าง</a><a href="#method">วิธีทำงาน</a><a href="#courses">หลักสูตร</a><a href="#instructor">ผู้สอน</a><a href="#training-gallery">ภาพการอบรม</a><a href="#contact">ติดต่อ</a></nav>
-<div class="header-actions"><button aria-pressed="false" class="theme" hidden="" id="theme-toggle" type="button">ธีม: <span id="theme-state">สว่าง</span></button><button aria-controls="navigation" aria-expanded="false" class="menu-toggle" hidden="" id="menu-toggle" type="button">เมนู</button><a class="button primary" href="#contact">ขอใบเสนอราคา</a></div>
-</div></header>
-<main id="main">
-<section aria-labelledby="hero-heading" class="hero">
-<div aria-hidden="true" class="hero-carousel" id="hero-carousel">
-<img alt="" class="hero-slide is-active" data-source="image25.jpg" decoding="async" fetchpriority="high" src="images/image25.jpg"/>
-</div>
-<div aria-hidden="true" class="hero-scrim"></div>
-<div class="wrap hero-content">
-<p class="label">หลักสูตรอบรมองค์กรด้าน AI และ Secure Coding</p>
-<div class="lockup"><h1 class="lead-line" id="hero-heading" lang="th"><span>เปลี่ยนวิสัยทัศน์ผู้บริหาร</span><span>ให้เป็น<span class="result-word" style="display:inline">ความสามารถ</span>ของคนทั้งองค์กร</span></h1><p class="sub-line" lang="en">From Vision to Capability</p></div>
-<div class="hero-lower"><div class="hero-copy"><p>เริ่มจากงานที่ทีมคุณทำอยู่<br/>แล้วฝึกให้ใช้ AI และพัฒนาซอฟต์แวร์อย่างปลอดภัยได้จริง</p><div class="hero-actions"><a class="button primary" href="#contact">ขอใบเสนอราคา</a><a class="text-link" href="#courses">ดูหลักสูตรทั้งหมด</a></div><p class="hero-note">สำหรับหน่วยงานภาครัฐ รัฐวิสาหกิจ สถาบันการเงิน และบริษัทมหาชน</p></div></div>
-</div>
-</section>
-<section aria-label="องค์กรที่เคยจัดอบรม" class="client-strip"><div class="wrap"><p>ส่วนหนึ่งขององค์กรที่เคยจัดอบรมกับเรา</p><div class="client-marquee-shell"><button class="client-scroll-btn client-scroll-prev" type="button" aria-label="เลื่อนรายชื่อลูกค้าไปทางซ้าย" data-client-scroll="-1"><span aria-hidden="true">‹</span></button><div class="client-viewport" tabindex="0" aria-label="รายชื่อลูกค้า เลื่อนแนวนอนได้"><div class="client-track"><ul class="client-list"><li><img alt="สำนักงานปรมาณูเพื่อสันติ" class="client-logo" decoding="async" loading="lazy" src="images/customer-oab.png"/></li><li><img alt="KGI" class="client-logo" decoding="async" loading="lazy" src="images/customer-kgi.png"/></li><li><img alt="ThaiBev" class="client-logo" decoding="async" loading="lazy" src="images/customer-thaibev.png"/></li><li><img alt="Software Park Thailand" class="client-logo" decoding="async" loading="lazy" src="images/software-park.png"/></li><li><img alt="ธนาคารอาคารสงเคราะห์" class="client-logo" decoding="async" loading="lazy" src="images/customer-ghb.png"/></li><li><img alt="Quick Transformation" class="client-logo" decoding="async" loading="lazy" src="images/customer-quick-transformation.png"/></li><li><img alt="วิทยุการบินแห่งประเทศไทย" class="client-logo" decoding="async" loading="lazy" src="images/customer-aeronatical.png"/></li><li><img alt="กรุงเทพประกันชีวิต" class="client-logo" decoding="async" loading="lazy" src="images/customer-bangkok-life.png"/></li><li><img alt="บูรพา เทคนิคอล เอ็นจิเนียริ่ง / ETE Group" class="client-logo" decoding="async" loading="lazy" src="images/customer-ete-group.png"/></li><li><img alt="การเคหะแห่งชาติ" class="client-logo" decoding="async" loading="lazy" src="images/custormer-nha.png"/></li><li><img alt="UOB" class="client-logo" decoding="async" loading="lazy" src="images/custormer-uob.png"/></li><li><img alt="National ITMX" class="client-logo" decoding="async" loading="lazy" src="images/custormer-itmx.png"/></li><li><img alt="กระทรวงสาธารณสุข" class="client-logo" decoding="async" loading="lazy" src="images/custormer-moph.png"/></li><li><img alt="Noble" class="client-logo" decoding="async" loading="lazy" src="images/custormer-noble.png"/></li><li><img alt="เถ้าแก่น้อย" class="client-logo" decoding="async" loading="lazy" src="images/custormer-tao-kae-noi.png"/></li></ul></div></div><button class="client-scroll-btn client-scroll-next" type="button" aria-label="เลื่อนรายชื่อลูกค้าไปทางขวา" data-client-scroll="1"><span aria-hidden="true">›</span></button></div></div></section>
-<section aria-labelledby="difference-heading" class="section difference-section" id="difference"><div class="wrap">
-<div class="section-head"><p class="label">จุดต่างของวิธีทำงาน</p><h2 id="difference-heading">เราต่างจากที่อื่นอย่างไร</h2><p>จุดต่างของเราไม่อยู่ที่จำนวนเครื่องมือที่สอน แต่อยู่ที่การเริ่มจากงานจริงของทีม และกำหนดให้ชัดว่าหลังจบหลักสูตรผู้เรียนต้องทำอะไรได้</p></div>
-<div class="difference-grid">
-<article class="difference-card"><span class="difference-no">01</span><h3>พูดจากสิ่งที่ทำมาก่อน</h3><p>เนื้อหาเชื่อมกับประสบการณ์ที่ทำงานด้านซอฟต์แวร์ การพัฒนาทีม และการอบรมองค์กรจริง เราใช้สิ่งที่เคยทำเป็นฐาน มากกว่าการนำฟีเจอร์ใหม่มาเล่าต่อ</p><p class="difference-point">ประสบการณ์จริง → สิ่งที่สอน</p></article>
-<article class="difference-card"><span class="difference-no">02</span><h3>เริ่มจากงานจริงของทีม</h3><p>เราเริ่มจากงาน บทบาท และโจทย์ที่ทีมต้องเจอ แล้วค่อยเลือก AI เครื่องมือ และแบบฝึกหัดที่เหมาะ เพื่อให้ผู้เรียนเชื่อมสิ่งที่เรียนกลับไปใช้กับงานของตัวเองได้</p><p class="difference-point">งานจริงของทีม → แบบฝึกหัด</p></article>
-<article class="difference-card"><span class="difference-no">03</span><h3>วัดจากสิ่งที่ทำได้หลังจบ</h3><p>ก่อนออกแบบคลาส เรากำหนดปลายทางให้ชัดว่าผู้เรียนต้องทำอะไรได้ แล้วเลือกเนื้อหาเท่าที่จำเป็นเพื่อพาไปถึงจุดนั้น เป้าหมายคือ Capability ที่นำไปใช้ต่อได้ ไม่ใช่จำนวนหัวข้อในสไลด์</p><p class="difference-point">ทำได้หลังจบหลักสูตร → Capability</p></article>
-</div></div></section>
-<section aria-labelledby="method-heading" class="section method-section" id="method"><div class="wrap">
-<div class="section-head"><p class="label">วิธีทำงานของเรา</p><h2 id="method-heading">การอบรมจบได้<br/>การพัฒนาทีมต้องไปต่อ</h2><p>Innow Method เชื่อมการค้นหาโจทย์ ออกแบบ ลงมือใช้ วัดผล และปรับปรุงเข้าด้วยกัน ห้าขั้นที่วนกลับมาเรียนรู้จากงานจริงขององค์กร</p></div>
-<div class="method-layout"><figure class="diagram-frame method-artwork"><button aria-label="ขยายแผนภาพ Innow Method" class="image-trigger" data-gallery="method" type="button"><img alt="Innow Method: Discover และ Design อยู่ห่วงซ้าย Enable และ Track อยู่ห่วงขวา Improve อยู่จุดตัดกลาง และลูกศรชี้ขึ้นสู่ Business Value ซึ่งเป็นปลายทาง ไม่ใช่ขั้นที่หก" decoding="async" height="674" loading="lazy" src="images/main-diagram.png" width="1200"/></button></figure><div><ol class="method-list"><li><h3 lang="en">Discover</h3><p>หาความต้องการ ความเสี่ยง และโอกาสที่มีอยู่จริง</p><p class="official" lang="en">Find real needs, risks and opportunities</p></li><li><h3 lang="en">Design</h3><p>ออกแบบนโยบายและวิธีทำให้เกิดขึ้นจริง</p><p class="official" lang="en">Design policy and practice solutions</p></li><li><h3 lang="en">Enable</h3><p>สื่อสารและฝังลงในเครื่องมือ ทักษะ และกระบวนการทำงาน</p><p class="official" lang="en">Communicate and embed in tools, skills and workflows</p></li><li><h3 lang="en">Track</h3><p>วัดการใช้งานจริง ผลลัพธ์ และการปฏิบัติตาม</p><p class="official" lang="en">Measure adoption, outcomes and compliance</p></li><li><h3 lang="en">Improve</h3><p>เรียนรู้จากของจริงแล้วปรับต่อเนื่อง</p><p class="official" lang="en">Learn from experience and refine continuously</p></li></ol><div class="method-value"><strong lang="en">Business Value</strong><p>ผลลัพธ์ทางธุรกิจที่วัดได้ คือปลายทางของห้าขั้น</p></div></div></div>
-</div></section>
-<section aria-labelledby="training-formats-heading" class="section training-formats-section" id="training-formats"><div class="wrap">
-<div class="section-head"><p class="label">รูปแบบการอบรม</p><h2 id="training-formats-heading">เลือกวิธีเรียนให้เหมาะกับเป้าหมาย</h2><p>หัวข้อเดียวกันสามารถออกแบบรูปแบบการเรียนได้ต่างกันตามเวลา ระดับผู้เรียน และผลลัพธ์ที่องค์กรต้องการ</p></div>
-<div class="training-formats-grid">
-<article class="training-format"><div class="format-top"><span class="format-no">01</span><span class="format-tag">Short &amp; Focused</span></div><h3>Workshop ระยะสั้น</h3><p>โฟกัสหัวข้อเฉพาะ ทดลองใช้กับงานจริงของทีม และนำแนวทางกลับไปใช้งานต่อได้ทันที เหมาะกับการอัปสกิลแบบกระชับหรือเริ่มต้นหัวข้อใหม่</p><p class="format-outcome">เป้าหมาย: เข้าใจและเริ่มใช้ได้จริง</p></article>
-<article class="training-format"><div class="format-top"><span class="format-no">02</span><span class="format-tag">Output-driven</span></div><h3>Bootcamp</h3><p>เรียนแบบลงมือทำต่อเนื่องจากโจทย์จริงขององค์กร โดยมีผู้สอนช่วยรีวิวและปรับระหว่างทาง เพื่อให้จบการอบรมด้วยผลงานที่นำไปต่อยอดได้</p><p class="format-outcome">เป้าหมาย: ได้ผลงานจับต้องได้หลังจบ</p></article>
-<article class="training-format"><div class="format-top"><span class="format-no">03</span><span class="format-tag">Executive</span></div><h3>คอร์สสำหรับผู้บริหาร C-Level</h3><p>เน้นมุมมองเชิงกลยุทธ์ การตัดสินใจ การกำกับดูแล และการกำหนดทิศทางการใช้ AI ให้เชื่อมกับเป้าหมาย ความเสี่ยง และความสามารถขององค์กร</p><p class="format-outcome">เป้าหมาย: ตัดสินใจและกำหนดทิศทางได้ชัดเจน</p></article>
-</div></div></section>
-<section aria-labelledby="tools-taught-heading" class="section tools-taught-section" id="tools-taught"><div class="wrap">
-<div class="section-head"><p class="label">เครื่องมือที่ใช้ในการอบรม</p><h2 id="tools-taught-heading">ฝึกกับเครื่องมือที่เหมาะกับงานของทีม</h2><p>เราเลือกเครื่องมือให้ตรงกับงานของผู้เรียนและบริบทขององค์กร โดยครอบคลุม ChatGPT, ChatGPT Work, Codex, Claude, Claude Cowork, Claude Code และ Gemini ตามโจทย์ที่ต้องลงมือทำจริง</p></div>
-<div class="tools-taught-grid">
-<article class="tool-taught"><div class="tool-logo-box"><img alt="ChatGPT" class="tool-logo" decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/500px-ChatGPT_logo.svg.png"/></div><h3 lang="en">ChatGPT</h3><p class="tool-products" lang="en">ChatGPT · ChatGPT Work · Codex</p></article>
-<article class="tool-taught"><div class="tool-logo-box"><img alt="Claude" class="tool-logo" decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Claude_AI_symbol.svg/500px-Claude_AI_symbol.svg.png"/></div><h3 lang="en">Claude</h3><p class="tool-products" lang="en">Claude · Claude Cowork · Claude Code</p></article>
-<article class="tool-taught"><div class="tool-logo-box"><img alt="Gemini" class="tool-logo" decoding="async" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Google_Gemini_icon_2025.svg/500px-Google_Gemini_icon_2025.svg.png"/></div><h3 lang="en">Gemini</h3><p class="tool-products" lang="en">Gemini</p></article>
-</div>
-<p class="tools-trademark-note">ชื่อผลิตภัณฑ์และเครื่องหมายการค้าเป็นของเจ้าของแต่ละราย การแสดงโลโก้ในส่วนนี้หมายถึงเครื่องมือที่ใช้ประกอบการอบรม ไม่ได้สื่อถึงการรับรองหรือความร่วมมือกับเจ้าของผลิตภัณฑ์</p>
-</div></section>
-<section aria-labelledby="courses-heading" class="section courses-section" id="courses"><div class="wrap">
-<div class="section-head"><p class="label">การอบรมสำหรับองค์กร</p><h2 id="courses-heading">เลือกจากงานที่ทีมต้องทำได้</h2><p>แยกหลักสูตรตามบทบาทของผู้เรียน เพื่อให้คุณเลือกได้ตรงกับทั้งเป้าหมายขององค์กรและพื้นฐานของทีม</p></div>
-<div class="track"><div class="track-head"><h3>สายธุรกิจและผู้บริหาร</h3><p>สำหรับผู้บริหาร หัวหน้าทีม และคนทำงานในองค์กร</p></div><div class="course-grid"><article class="course" id="course-0"><p class="course-meta">2 วัน · ออนไลน์ / ในสถานที่</p><h4 lang="en">ChatGPT &amp; AI Mastery</h4><p>เขียน prompt สำหรับงานเอกสารและงานวิเคราะห์ วางขั้นตอนทำงานร่วมกับ AI ในทีม และรู้ขอบเขตความปลอดภัยของข้อมูลองค์กร</p><a aria-label="ขอรายละเอียดหลักสูตร ChatGPT &amp; AI Mastery" class="course-link" data-course="ChatGPT &amp; AI Mastery" href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a></article><article class="course" id="course-1"><h4 lang="en">ChatGPT Astra : Road to AGI</h4></article><article class="course" id="course-2"><p class="course-meta">2 วัน · ออนไลน์ / ในสถานที่</p><h4 lang="en">Claude Cowork: Connect, Automate, and Collaborate with AI</h4><p>สร้างขั้นตอนทำงานอัตโนมัติเฉพาะแผนก เชื่อมข้อมูลหลายแหล่ง และวางกรอบการใช้ AI ที่ตรวจสอบได้</p><a aria-label="ขอรายละเอียดหลักสูตร Claude Cowork: Connect, Automate, and Collaborate with AI" class="course-link" data-course="Claude Cowork: Connect, Automate, and Collaborate with AI" href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a></article><article class="course" id="course-3"><h4 lang="en">AI Decision System for Leaders</h4><p>นำมาตรฐานการตัดสินใจของผู้บริหารมาสร้างเป็นเครื่องมือที่ทีมใช้เองได้</p><a aria-label="ขอรายละเอียดหลักสูตร AI Decision System for Leaders" class="course-link" data-course="AI Decision System for Leaders" href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a></article></div></div>
-<div class="track"><div class="track-head"><h3>สายนักพัฒนา</h3><p>สำหรับทีมไอที ทีมพัฒนา</p></div><div class="course-grid developer"><article class="course" id="course-4"><h4 lang="en">AI-Powered Software Development Mastery</h4><a aria-label="ขอรายละเอียดหลักสูตร AI-Powered Software Development Mastery" class="course-link" data-course="AI-Powered Software Development Mastery" href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a></article><article class="course" id="course-5"><p class="course-meta">3 วัน · ในสถานที่</p><h4 lang="en">Claude Code Intensive</h4><p>พา Web App จาก prototype ขึ้น production ออกแบบ Agent System และต่อระบบชำระเงิน พร้อมเขียนโค้ดตามมาตรฐาน OWASP</p><a aria-label="ขอรายละเอียดหลักสูตร Claude Code Intensive" class="course-link" data-course="Claude Code Intensive" href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a></article><article class="course" id="course-6"><p class="course-meta">2 วัน · ในสถานที่</p><h4 lang="en">Secure Coding</h4><p>รีวิวโค้ดจริงของทีม รู้จักช่องโหว่ที่พบบ่อย และใช้เกณฑ์ที่ผู้ตรวจสอบใช้จริง</p><a aria-label="ขอรายละเอียดหลักสูตร Secure Coding" class="course-link" data-course="Secure Coding" href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a></article></div></div>
-</div></section>
-<section aria-labelledby="instructor-heading" class="section" id="instructor"><div class="wrap">
-<div class="instructor-layout"><figure class="portrait-frame"><img alt="ไพบูลย์ พนัสบดี ผู้สอนของ Innow" class="portrait" decoding="async" height="989" loading="lazy" src="images/instructor.png" width="720"/></figure><div class="instructor-copy"><p class="label">ผู้สอน</p><h2 id="instructor-heading">สอนจากประสบการณ์<br/>ที่ลงมือทำมาแล้ว</h2><h3>ไพบูลย์ พนัสบดี</h3><p class="credential" lang="en">CEO, Innow Co., Ltd.</p><ul class="credentials"><li>อดีตนายกสมาคมโปรแกรมเมอร์ไทย</li><li>อดีต Program Director ของ Software Park Thailand Code Camp</li><li>ผู้ก่อตั้งงาน National Coding Day</li></ul><p>ก่อนอบรม เราคุยกับ HR และหัวหน้าทีมเพื่อเลือกเคสจากงานที่ทำอยู่ แล้วให้ผู้เรียนลงมือทำในคลาสจนได้สิ่งที่นำกลับไปใช้ต่อได้</p></div></div>
-<div class="training-note"><div><h3>เลือกสถานที่ได้</h3><p>ออนไลน์ ในสถานที่ขององค์กร หรือนอกสถานที่ ตามรูปแบบของหลักสูตร</p></div><div><h3>มีคนช่วยระหว่างลงมือทำ</h3><p>ทุก 10 คนมีผู้ช่วยสอนหนึ่งคน ไม่จำกัดจำนวนผู้เรียน</p></div><div><h3>ประเมินจากโจทย์ของทีม</h3><p>จำนวนวัน จำนวนผู้เรียน รูปแบบการอบรม และสิ่งที่รวมอยู่ในหลักสูตร เป็นข้อมูลสำหรับประเมินราคา</p></div></div>
-</div></section>
-<section aria-labelledby="gallery-heading" class="section gallery-section" id="training-gallery"><div class="wrap"><div class="section-head"><p class="label">ภาพจากห้องอบรม</p><h2 id="gallery-heading">การอบรมที่ผ่านมา</h2><p>บรรยากาศการอบรมของทีมจากหน่วยงานภาครัฐ รัฐวิสาหกิจ สถาบันการเงิน และบริษัทเอกชน</p></div><div class="training-gallery"><figure aria-label="ขยายภาพ สำนักงานปรมาณูเพื่อสันติ" class="training-photo" data-gallery="training" data-source="image26.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — สำนักงานปรมาณูเพื่อสันติ" decoding="async" height="675" loading="lazy" src="images/image26.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">สำนักงานปรมาณูเพื่อสันติ</span><span class="photo-type">หน่วยงานภาครัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ KGI" class="training-photo" data-gallery="training" data-source="image17.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — KGI" decoding="async" height="900" loading="lazy" src="images/image17.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">KGI</span><span class="photo-type">สถาบันการเงิน</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ ThaiBev" class="training-photo" data-gallery="training" data-source="image22.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ThaiBev" decoding="async" height="900" loading="lazy" src="images/image22.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">ThaiBev</span><span class="photo-type">ภาคเอกชน</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ Software Park Thailand" class="training-photo" data-gallery="training" data-source="image16.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Software Park Thailand" decoding="async" height="675" loading="lazy" src="images/image16.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">Software Park Thailand</span><span class="photo-type">หน่วยงานภาครัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — แผนกไอที" class="training-photo" data-gallery="training" data-source="image25.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — แผนกไอที" decoding="async" height="675" loading="lazy" src="images/image25.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ — แผนกไอที</span><span class="photo-type">สถาบันการเงินเฉพาะกิจของรัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ Quick Transformation" class="training-photo" data-gallery="training" data-source="image14.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Quick Transformation" decoding="async" height="675" loading="lazy" src="images/image14.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">Quick Transformation</span><span class="photo-type">บริษัทมหาชน</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ วิทยุการบินแห่งประเทศไทย" class="training-photo" data-gallery="training" data-source="image29.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — วิทยุการบินแห่งประเทศไทย" decoding="async" height="900" loading="lazy" src="images/image29.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">วิทยุการบินแห่งประเทศไทย</span><span class="photo-type">รัฐวิสาหกิจ</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ กรุงเทพประกันชีวิต" class="training-photo" data-gallery="training" data-source="image27.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — กรุงเทพประกันชีวิต" decoding="async" height="675" loading="lazy" src="images/image27.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">กรุงเทพประกันชีวิต</span><span class="photo-type">ภาคเอกชน</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ" class="training-photo" data-gallery="training" data-source="image30.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ" decoding="async" height="675" loading="lazy" src="images/image30.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ</span><span class="photo-type">สถาบันการเงินเฉพาะกิจของรัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ บูรพา เทคนิคอล เอ็นจิเนียริ่ง" class="training-photo" data-gallery="training" data-source="image31.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — บูรพา เทคนิคอล เอ็นจิเนียริ่ง" decoding="async" height="546" loading="lazy" src="images/image31.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">บูรพา เทคนิคอล เอ็นจิเนียริ่ง</span><span class="photo-type">บริษัทมหาชน · งานวิศวกรรม</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure><figure aria-label="ขยายภาพ การเคหะแห่งชาติ" class="training-photo" data-gallery="training" data-source="image32.jpg" role="button" tabindex="0"><div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — การเคหะแห่งชาติ" decoding="async" height="675" loading="lazy" src="images/image32.jpg" width="1200"/></div><figcaption><span class="photo-caption-copy"><span class="photo-org">การเคหะแห่งชาติ</span><span class="photo-type">รัฐวิสาหกิจ</span></span><span aria-hidden="true" class="photo-expand">↗</span></figcaption></figure></div></div></section>
-<section aria-labelledby="contact-heading" class="section on-navy" id="contact"><div class="wrap contact-layout"><div class="contact-copy"><p class="label">เริ่มคุยกันจากโจทย์ของคุณ</p><h2 id="contact-heading">ทีมคุณอยากทำอะไร<br/>ให้ได้หลังอบรม</h2><p>บอกชื่อองค์กร หลักสูตรที่สนใจ และจำนวนผู้เรียนโดยประมาณ เราจะใช้ข้อมูลนี้คุยต่อเรื่องรูปแบบและใบเสนอราคา</p><a class="email-link" href="mailto:paiboon@innow.co.th" lang="en">paiboon@innow.co.th</a><p class="quote-factors">ยังเลือกหลักสูตรไม่ได้ก็ส่งโจทย์มาได้ เราจะช่วยดูว่าทีมควรเริ่มจากตรงไหน</p></div>
-<form class="contact-form" id="quote-form" novalidate="">
-<div class="field"><label for="organization">ชื่อองค์กร <span aria-hidden="true">*</span></label><input aria-describedby="organization-error" autocomplete="organization" id="organization" maxlength="160" name="organization" required=""/><p class="err" hidden="" id="organization-error">กรอกชื่อองค์กรก่อนเตรียมอีเมล</p></div>
-<div class="field"><label for="course">หลักสูตรที่สนใจ</label><select id="course" name="course"><option value="ยังไม่แน่ใจ อยากให้ช่วยแนะนำ">ยังไม่แน่ใจ อยากให้ช่วยแนะนำ</option><optgroup label="สายธุรกิจและผู้บริหาร"><option>ChatGPT &amp; AI Mastery</option><option>ChatGPT Astra : Road to AGI</option><option>Claude Cowork: Connect, Automate, and Collaborate with AI</option><option>AI Decision System for Leaders</option></optgroup><optgroup label="สายนักพัฒนา"><option>AI-Powered Software Development Mastery</option><option>Claude Code Intensive</option><option>Secure Coding</option></optgroup></select><p aria-live="polite" class="hint" id="course-choice"></p></div>
-<div class="field"><label for="learners">จำนวนผู้เรียนโดยประมาณ <span aria-hidden="true">*</span></label><input aria-describedby="learners-hint learners-error" id="learners" inputmode="numeric" min="1" name="learners" required="" step="1" type="number"/><p class="hint" id="learners-hint">ใช้ประเมินรูปแบบห้องและจำนวนผู้ช่วยสอน</p><p class="err" hidden="" id="learners-error">กรอกจำนวนผู้เรียนเป็นจำนวนเต็มตั้งแต่ 1 คน</p></div>
-<p class="form-note" id="email-explainer">ปุ่มนี้จะเปิดร่างในแอปอีเมลของคุณ ข้อมูลจะถึงเราหลังจากคุณกดส่งอีเมล</p>
-<div class="form-actions"><button aria-describedby="email-explainer" class="button primary" id="draft-button" type="submit">เตรียมอีเมลขอใบเสนอราคา</button></div>
-<p aria-live="polite" class="form-status" id="form-status" role="status"></p>
-<div class="email-draft" hidden="" id="email-draft"><h3>ข้อความสำหรับส่งอีเมล</h3><p class="form-note">หากแอปอีเมลไม่เปิด คัดลอกข้อความด้านล่างแล้วส่งถึง paiboon@innow.co.th</p><label class="form-note" for="draft-text">ร่างอีเมลที่เตรียมไว้</label><textarea id="draft-text" readonly=""></textarea><button class="button ghost" id="copy-draft" type="button">คัดลอกข้อความ</button></div>
-<noscript><p>กรุณาเปิด JavaScript เพื่อเตรียมร่างอีเมลอัตโนมัติ หรือส่งชื่อองค์กร หลักสูตร และจำนวนผู้เรียนมาที่ <a href="mailto:paiboon@innow.co.th">paiboon@innow.co.th</a></p></noscript>
-</form></div></section>
-</main>
-<footer class="site-footer on-navy"><div class="wrap"><div class="footer-inner"><p>Innow · หลักสูตรอบรมองค์กรด้าน AI และ Secure Coding</p><a href="#main">กลับด้านบน</a></div><p class="strapline" lang="en">From policy to practice — powered by people, skills, AI and workflow</p></div></footer>
-<dialog aria-describedby="photo-caption" aria-labelledby="photo-dialog-title" class="photo-dialog" id="photo-dialog"><header><h2 id="photo-dialog-title">ภาพการอบรม</h2><button aria-label="ปิดภาพขยาย" autofocus="" id="photo-close" type="button">ปิด ×</button></header><div class="photo-stage"><img alt="" id="photo-full"/></div><p aria-live="polite" class="photo-caption" id="photo-caption"></p><footer><button aria-label="ภาพก่อนหน้า" id="photo-prev" type="button">← ก่อนหน้า</button><span aria-live="polite" class="photo-count" id="photo-count"></span><button aria-label="ภาพถัดไป" id="photo-next" type="button">ถัดไป →</button></footer></dialog>
-<script>
-(() => {
-  'use strict';
-  const root = document.documentElement;
-  const mode = window.matchMedia('(prefers-color-scheme: light)');
-  const small = window.matchMedia('(max-width: 48rem)');
-  const themeButton = document.getElementById('theme-toggle');
-  const themeState = document.getElementById('theme-state');
-  const menuButton = document.getElementById('menu-toggle');
-  const nav = document.getElementById('navigation');
-  function currentTheme() { return root.dataset.theme || (mode.matches ? 'light' : 'dark'); }
-  function paintTheme() {
-    const dark = currentTheme() === 'dark';
-    themeButton.setAttribute('aria-pressed', String(dark));
-    themeState.textContent = dark ? 'เข้ม' : 'สว่าง';
-  }
-  themeButton.hidden = false;
-  themeButton.addEventListener('click', () => {
-    root.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
-    try { localStorage.setItem('innow-theme', root.dataset.theme); } catch (_) {}
-    paintTheme();
-  });
-  mode.addEventListener('change', paintTheme);
-  paintTheme();
-  menuButton.hidden = false;
-  function setMenu(open) {
-    menuButton.setAttribute('aria-expanded', String(open));
-    nav.dataset.collapsed = String(small.matches && !open);
-  }
-  menuButton.addEventListener('click', () => setMenu(menuButton.getAttribute('aria-expanded') !== 'true'));
-  small.addEventListener('change', () => setMenu(false));
-  nav.addEventListener('click', event => { if (event.target.closest('a')) setMenu(false); });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && small.matches && menuButton.getAttribute('aria-expanded') === 'true') {
-      setMenu(false); menuButton.focus();
-    }
-  });
-  setMenu(false);
-  const form = document.getElementById('quote-form');
-  const organization = document.getElementById('organization');
-  const learners = document.getElementById('learners');
-  const course = document.getElementById('course');
-  const selectedLabel = document.getElementById('course-choice');
-  const button = document.getElementById('draft-button');
-  const status = document.getElementById('form-status');
-  const draft = document.getElementById('draft-text');
-  const draftPanel = document.getElementById('email-draft');
-  function showCourse() { selectedLabel.textContent = 'เลือก: ' + course.value; }
-  course.addEventListener('change', showCourse);
-  document.querySelectorAll('[data-course]').forEach(link => {
-    link.addEventListener('click', () => { course.value = link.dataset.course; showCourse(); });
-  });
-  function markInvalid(input, invalid) {
-    input.setAttribute('aria-invalid', String(invalid));
-    document.getElementById(input.id + '-error').hidden = !invalid;
-  }
-  [organization, learners].forEach(input => input.addEventListener('input', () => {
-    if (input.getAttribute('aria-invalid') === 'true') markInvalid(input, false);
-  }));
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    if (button.disabled) return;
-    const org = organization.value.trim();
-    const count = Number(learners.value);
-    const badOrg = !org;
-    const badCount = !learners.value.trim() || !Number.isSafeInteger(count) || count < 1;
-    markInvalid(organization, badOrg);
-    markInvalid(learners, badCount);
-    if (badOrg || badCount) {
-      status.textContent = 'ตรวจข้อมูลที่ระบุไว้ก่อนเตรียมอีเมล';
-      (badOrg ? organization : learners).focus();
-      return;
-    }
-    button.disabled = true;
-    button.setAttribute('aria-busy', 'true');
-    button.textContent = 'กำลังเตรียมอีเมล…';
-    const subject = 'ขอใบเสนอราคาอบรม — ' + org.replace(/[\r\n]+/g, ' ');
-    const body = [
-      'เรียน ทีม Innow', '',
-      'ต้องการขอรายละเอียดหลักสูตรและใบเสนอราคาอบรมสำหรับองค์กร', '',
-      'ชื่อองค์กร: ' + org,
-      'หลักสูตรที่สนใจ: ' + course.value,
-      'จำนวนผู้เรียนโดยประมาณ: ' + count + ' คน', '',
-      'กรุณาส่งรายละเอียดหลักสูตร รูปแบบการอบรม และข้อมูลสำหรับจัดทำใบเสนอราคากลับทางอีเมลนี้', '',
-      'ขอบคุณครับ/ค่ะ'
-    ].join('\r\n');
-    draft.value = 'ถึง: paiboon@innow.co.th\nเรื่อง: ' + subject + '\n\n' + body;
-    draftPanel.hidden = false;
-    try {
-      window.location.href = 'mailto:paiboon@innow.co.th?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-      status.textContent = 'เตรียมร่างแล้ว ตรวจข้อมูลและกดส่งในแอปอีเมล หากแอปไม่เปิด ใช้ข้อความด้านล่างได้';
-    } catch (_) {
-      status.textContent = 'เปิดแอปอีเมลไม่ได้ คัดลอกข้อความด้านล่างแล้วส่งถึง paiboon@innow.co.th';
-    } finally {
-      button.disabled = false;
-      button.removeAttribute('aria-busy');
-      button.textContent = 'เตรียมอีเมลขอใบเสนอราคา';
-    }
-  });
-  document.getElementById('copy-draft').addEventListener('click', async () => {
-    try {
-      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-      await navigator.clipboard.writeText(draft.value);
-      status.textContent = 'คัดลอกข้อความแล้ว นำไปวางในอีเมลและส่งถึง paiboon@innow.co.th';
-    } catch (_) {
-      draft.focus(); draft.select();
-      status.textContent = 'เลือกข้อความไว้แล้ว กดคัดลอกบนอุปกรณ์ของคุณ';
-    }
-  });
-  if (document.fonts) {
-    Promise.all([
-      document.fonts.load('600 1rem Anuphan', 'ความสามารถ'),
-      document.fonts.load('400 1rem "IBM Plex Sans Thai"', 'องค์กร')
-    ]).then(results => { if (results.some(fonts => !fonts.length)) root.dataset.fontFallback = 'true'; })
-      .catch(() => { root.dataset.fontFallback = 'true'; });
-  }
-})();
+  <a class="skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a aria-label="Innow หน้าแรก" class="brand" href="#main"><span class="brand-logo" aria-hidden="true"></span></a>
+      <nav aria-label="เมนูหลัก" class="nav" id="navigation"><a href="#difference">จุดต่าง</a><a
+          href="#method">วิธีทำงาน</a><a href="#courses">หลักสูตร</a><a href="#instructor">ผู้สอน</a><a
+          href="#training-gallery">ภาพการอบรม</a><a href="#contact">ติดต่อ</a></nav>
+      <div class="header-actions"><button aria-pressed="false" class="theme" hidden="" id="theme-toggle"
+          type="button">ธีม: <span id="theme-state">สว่าง</span></button><button aria-controls="navigation"
+          aria-expanded="false" class="menu-toggle" hidden="" id="menu-toggle" type="button">เมนู</button><a
+          class="button primary" href="#contact">ขอใบเสนอราคา</a></div>
+    </div>
+  </header>
+  <main id="main">
+    <section aria-labelledby="hero-heading" class="hero">
+      <div aria-hidden="true" class="hero-carousel" id="hero-carousel">
+        <img alt="" class="hero-slide is-active" data-source="image25.jpg" decoding="async" fetchpriority="high"
+          src="images/image25.jpg" />
+      </div>
+      <div aria-hidden="true" class="hero-scrim"></div>
+      <div class="wrap hero-content">
+        <p class="label">หลักสูตรอบรมองค์กรด้าน AI และ Secure Coding</p>
+        <div class="lockup">
+          <h1 class="lead-line" id="hero-heading" lang="th"><span>เปลี่ยนวิสัยทัศน์ผู้บริหาร</span><span>ให้เป็น<span
+                class="result-word" style="display:inline">ความสามารถ</span>ของคนทั้งองค์กร</span></h1>
+          <p class="sub-line" lang="en">From Vision to Capability</p>
+        </div>
+        <div class="hero-lower">
+          <div class="hero-copy">
+            <p>เริ่มจากงานที่ทีมคุณทำอยู่<br />แล้วฝึกให้ใช้ AI และพัฒนาซอฟต์แวร์อย่างปลอดภัยได้จริง</p>
+            <div class="hero-actions"><a class="button primary" href="#contact">ขอใบเสนอราคา</a><a class="text-link"
+                href="#courses">ดูหลักสูตรทั้งหมด</a></div>
+            <p class="hero-note">สำหรับหน่วยงานภาครัฐ รัฐวิสาหกิจ สถาบันการเงิน และบริษัทมหาชน</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section aria-label="องค์กรที่เคยจัดอบรม" class="client-strip">
+      <div class="wrap">
+        <p>ส่วนหนึ่งขององค์กรที่เคยจัดอบรมกับเรา</p>
+        <div class="client-marquee-shell"><button class="client-scroll-btn client-scroll-prev" type="button"
+            aria-label="เลื่อนรายชื่อลูกค้าไปทางซ้าย" data-client-scroll="-1"><span aria-hidden="true">‹</span></button>
+          <div class="client-viewport" tabindex="0" aria-label="รายชื่อลูกค้า เลื่อนแนวนอนได้">
+            <div class="client-track">
+              <ul class="client-list">
+                <li><img alt="สำนักงานปรมาณูเพื่อสันติ" class="client-logo" decoding="async" loading="lazy"
+                    src="images/customer-oab.png" /></li>
+                <li><img alt="KGI" class="client-logo" decoding="async" loading="lazy" src="images/customer-kgi.png" />
+                </li>
+                <li><img alt="ThaiBev" class="client-logo" decoding="async" loading="lazy"
+                    src="images/customer-thaibev.png" /></li>
+                <li><img alt="Software Park Thailand" class="client-logo" decoding="async" loading="lazy"
+                    src="images/software-park.png" /></li>
+                <li><img alt="ธนาคารอาคารสงเคราะห์" class="client-logo" decoding="async" loading="lazy"
+                    src="images/customer-ghb.png" /></li>
+                <li><img alt="Quick Transformation" class="client-logo" decoding="async" loading="lazy"
+                    src="images/customer-quick-transformation.png" /></li>
+                <li><img alt="วิทยุการบินแห่งประเทศไทย" class="client-logo" decoding="async" loading="lazy"
+                    src="images/customer-aeronatical.png" /></li>
+                <li><img alt="กรุงเทพประกันชีวิต" class="client-logo" decoding="async" loading="lazy"
+                    src="images/customer-bangkok-life.png" /></li>
+                <li><img alt="บูรพา เทคนิคอล เอ็นจิเนียริ่ง / ETE Group" class="client-logo" decoding="async"
+                    loading="lazy" src="images/customer-ete-group.png" /></li>
+                <li><img alt="การเคหะแห่งชาติ" class="client-logo" decoding="async" loading="lazy"
+                    src="images/custormer-nha.png" /></li>
+                <li><img alt="UOB" class="client-logo" decoding="async" loading="lazy" src="images/custormer-uob.png" />
+                </li>
+                <li><img alt="National ITMX" class="client-logo" decoding="async" loading="lazy"
+                    src="images/custormer-itmx.png" /></li>
+                <li><img alt="กระทรวงสาธารณสุข" class="client-logo" decoding="async" loading="lazy"
+                    src="images/custormer-moph.png" /></li>
+                <li><img alt="Noble" class="client-logo" decoding="async" loading="lazy"
+                    src="images/custormer-noble.png" /></li>
+                <li><img alt="เถ้าแก่น้อย" class="client-logo" decoding="async" loading="lazy"
+                    src="images/custormer-tao-kae-noi.png" /></li>
+              </ul>
+            </div>
+          </div><button class="client-scroll-btn client-scroll-next" type="button"
+            aria-label="เลื่อนรายชื่อลูกค้าไปทางขวา" data-client-scroll="1"><span aria-hidden="true">›</span></button>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="difference-heading" class="section difference-section" id="difference">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="label">จุดต่างของวิธีทำงาน</p>
+          <h2 id="difference-heading">เราต่างจากที่อื่นอย่างไร</h2>
+          <p>จุดต่างของเราไม่อยู่ที่จำนวนเครื่องมือที่สอน แต่อยู่ที่การเริ่มจากงานจริงของทีม
+            และกำหนดให้ชัดว่าหลังจบหลักสูตรผู้เรียนต้องทำอะไรได้</p>
+        </div>
+        <div class="difference-grid">
+          <article class="difference-card"><span class="difference-no">01</span>
+            <h3>พูดจากสิ่งที่ทำมาก่อน</h3>
+            <p>เนื้อหาเชื่อมกับประสบการณ์ที่ทำงานด้านซอฟต์แวร์ การพัฒนาทีม และการอบรมองค์กรจริง
+              เราใช้สิ่งที่เคยทำเป็นฐาน มากกว่าการนำฟีเจอร์ใหม่มาเล่าต่อ</p>
+            <p class="difference-point">ประสบการณ์จริง → สิ่งที่สอน</p>
+          </article>
+          <article class="difference-card"><span class="difference-no">02</span>
+            <h3>เริ่มจากงานจริงของทีม</h3>
+            <p>เราเริ่มจากงาน บทบาท และโจทย์ที่ทีมต้องเจอ แล้วค่อยเลือก AI เครื่องมือ และแบบฝึกหัดที่เหมาะ
+              เพื่อให้ผู้เรียนเชื่อมสิ่งที่เรียนกลับไปใช้กับงานของตัวเองได้</p>
+            <p class="difference-point">งานจริงของทีม → แบบฝึกหัด</p>
+          </article>
+          <article class="difference-card"><span class="difference-no">03</span>
+            <h3>วัดจากสิ่งที่ทำได้หลังจบ</h3>
+            <p>ก่อนออกแบบคลาส เรากำหนดปลายทางให้ชัดว่าผู้เรียนต้องทำอะไรได้
+              แล้วเลือกเนื้อหาเท่าที่จำเป็นเพื่อพาไปถึงจุดนั้น เป้าหมายคือ Capability ที่นำไปใช้ต่อได้
+              ไม่ใช่จำนวนหัวข้อในสไลด์</p>
+            <p class="difference-point">ทำได้หลังจบหลักสูตร → Capability</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="method-heading" class="section method-section" id="method">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="label">วิธีทำงานของเรา</p>
+          <h2 id="method-heading">การอบรมจบได้<br />การพัฒนาทีมต้องไปต่อ</h2>
+          <p>Innow Method เชื่อมการค้นหาโจทย์ ออกแบบ ลงมือใช้ วัดผล และปรับปรุงเข้าด้วยกัน
+            ห้าขั้นที่วนกลับมาเรียนรู้จากงานจริงขององค์กร</p>
+        </div>
+        <div class="method-layout">
+          <figure class="diagram-frame method-artwork"><button aria-label="ขยายแผนภาพ Innow Method"
+              class="image-trigger" data-gallery="method" type="button"><img
+                alt="Innow Method: Discover และ Design อยู่ห่วงซ้าย Enable และ Track อยู่ห่วงขวา Improve อยู่จุดตัดกลาง และลูกศรชี้ขึ้นสู่ Business Value ซึ่งเป็นปลายทาง ไม่ใช่ขั้นที่หก"
+                decoding="async" height="674" loading="lazy" src="images/main-diagram.png" width="1200" /></button>
+          </figure>
+          <div>
+            <ol class="method-list">
+              <li>
+                <h3 lang="en">Discover</h3>
+                <p>หาความต้องการ ความเสี่ยง และโอกาสที่มีอยู่จริง</p>
+                <p class="official" lang="en">Find real needs, risks and opportunities</p>
+              </li>
+              <li>
+                <h3 lang="en">Design</h3>
+                <p>ออกแบบนโยบายและวิธีทำให้เกิดขึ้นจริง</p>
+                <p class="official" lang="en">Design policy and practice solutions</p>
+              </li>
+              <li>
+                <h3 lang="en">Enable</h3>
+                <p>สื่อสารและฝังลงในเครื่องมือ ทักษะ และกระบวนการทำงาน</p>
+                <p class="official" lang="en">Communicate and embed in tools, skills and workflows</p>
+              </li>
+              <li>
+                <h3 lang="en">Track</h3>
+                <p>วัดการใช้งานจริง ผลลัพธ์ และการปฏิบัติตาม</p>
+                <p class="official" lang="en">Measure adoption, outcomes and compliance</p>
+              </li>
+              <li>
+                <h3 lang="en">Improve</h3>
+                <p>เรียนรู้จากของจริงแล้วปรับต่อเนื่อง</p>
+                <p class="official" lang="en">Learn from experience and refine continuously</p>
+              </li>
+            </ol>
+            <div class="method-value"><strong lang="en">Business Value</strong>
+              <p>ผลลัพธ์ทางธุรกิจที่วัดได้ คือปลายทางของห้าขั้น</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="training-formats-heading" class="section training-formats-section" id="training-formats">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="label">รูปแบบการอบรม</p>
+          <h2 id="training-formats-heading">เลือกวิธีเรียนให้เหมาะกับเป้าหมาย</h2>
+          <p>หัวข้อเดียวกันสามารถออกแบบรูปแบบการเรียนได้ต่างกันตามเวลา ระดับผู้เรียน และผลลัพธ์ที่องค์กรต้องการ</p>
+        </div>
+        <div class="training-formats-grid">
+          <article class="training-format">
+            <div class="format-top"><span class="format-no">01</span><span class="format-tag">Short &amp; Focused</span>
+            </div>
+            <h3>Workshop ระยะสั้น</h3>
+            <p>โฟกัสหัวข้อเฉพาะ ทดลองใช้กับงานจริงของทีม และนำแนวทางกลับไปใช้งานต่อได้ทันที
+              เหมาะกับการอัปสกิลแบบกระชับหรือเริ่มต้นหัวข้อใหม่</p>
+            <p class="format-outcome">เป้าหมาย: เข้าใจและเริ่มใช้ได้จริง</p>
+          </article>
+          <article class="training-format">
+            <div class="format-top"><span class="format-no">02</span><span class="format-tag">Output-driven</span></div>
+            <h3>Bootcamp</h3>
+            <p>เรียนแบบลงมือทำต่อเนื่องจากโจทย์จริงขององค์กร โดยมีผู้สอนช่วยรีวิวและปรับระหว่างทาง
+              เพื่อให้จบการอบรมด้วยผลงานที่นำไปต่อยอดได้</p>
+            <p class="format-outcome">เป้าหมาย: ได้ผลงานจับต้องได้หลังจบ</p>
+          </article>
+          <article class="training-format">
+            <div class="format-top"><span class="format-no">03</span><span class="format-tag">Executive</span></div>
+            <h3>คอร์สสำหรับผู้บริหาร C-Level</h3>
+            <p>เน้นมุมมองเชิงกลยุทธ์ การตัดสินใจ การกำกับดูแล และการกำหนดทิศทางการใช้ AI ให้เชื่อมกับเป้าหมาย ความเสี่ยง
+              และความสามารถขององค์กร</p>
+            <p class="format-outcome">เป้าหมาย: ตัดสินใจและกำหนดทิศทางได้ชัดเจน</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="tools-taught-heading" class="section tools-taught-section" id="tools-taught">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="label">เครื่องมือที่ใช้ในการอบรม</p>
+          <h2 id="tools-taught-heading">ฝึกกับเครื่องมือที่เหมาะกับงานของทีม</h2>
+          <p>เราเลือกเครื่องมือให้ตรงกับงานของผู้เรียนและบริบทขององค์กร โดยครอบคลุม ChatGPT, ChatGPT Work, Codex,
+            Claude, Claude Cowork, Claude Code และ Gemini ตามโจทย์ที่ต้องลงมือทำจริง</p>
+        </div>
+        <div class="tools-taught-grid">
+          <article class="tool-taught">
+            <div class="tool-logo-box"><img alt="ChatGPT" class="tool-logo" decoding="async" loading="lazy"
+                src="images/tool-chatgpt.png" width="500" height="500" />
+            </div>
+            <h3 lang="en">ChatGPT</h3>
+            <p class="tool-products" lang="en">ChatGPT · ChatGPT Work · Codex</p>
+          </article>
+          <article class="tool-taught">
+            <div class="tool-logo-box"><img alt="Claude" class="tool-logo" decoding="async" loading="lazy"
+                src="images/tool-claude.png" width="500" height="500" />
+            </div>
+            <h3 lang="en">Claude</h3>
+            <p class="tool-products" lang="en">Claude · Claude Cowork · Claude Code</p>
+          </article>
+          <article class="tool-taught">
+            <div class="tool-logo-box"><img alt="Gemini" class="tool-logo" decoding="async" loading="lazy"
+                src="images/tool-gemini.png" width="500" height="500" />
+            </div>
+            <h3 lang="en">Gemini</h3>
+            <p class="tool-products" lang="en">Gemini</p>
+          </article>
+        </div>
+        <p class="tools-trademark-note">ชื่อผลิตภัณฑ์และเครื่องหมายการค้าเป็นของเจ้าของแต่ละราย
+          การแสดงโลโก้ในส่วนนี้หมายถึงเครื่องมือที่ใช้ประกอบการอบรม
+          ไม่ได้สื่อถึงการรับรองหรือความร่วมมือกับเจ้าของผลิตภัณฑ์</p>
+      </div>
+    </section>
+    <section aria-labelledby="courses-heading" class="section courses-section" id="courses">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="label">การอบรมสำหรับองค์กร</p>
+          <h2 id="courses-heading">เลือกจากงานที่ทีมต้องทำได้</h2>
+          <p>แยกหลักสูตรตามบทบาทของผู้เรียน เพื่อให้คุณเลือกได้ตรงกับทั้งเป้าหมายขององค์กรและพื้นฐานของทีม</p>
+        </div>
+        <div class="track">
+          <div class="track-head">
+            <h3>สายธุรกิจและผู้บริหาร</h3>
+            <p>สำหรับผู้บริหาร หัวหน้าทีม และคนทำงานในองค์กร</p>
+          </div>
+          <div class="course-grid">
+            <article class="course" id="course-0">
+              <p class="course-meta">2 วัน · ออนไลน์ / ในสถานที่</p>
+              <h4 lang="en">ChatGPT &amp; AI Mastery</h4>
+              <p>เขียน prompt สำหรับงานเอกสารและงานวิเคราะห์ วางขั้นตอนทำงานร่วมกับ AI ในทีม
+                และรู้ขอบเขตความปลอดภัยของข้อมูลองค์กร</p><a aria-label="ขอรายละเอียดหลักสูตร ChatGPT &amp; AI Mastery"
+                class="course-link" data-course="ChatGPT &amp; AI Mastery" href="#contact">ขอรายละเอียดหลักสูตร <span
+                  aria-hidden="true">↗</span></a>
+            </article>
+            <article class="course" id="course-1">
+              <h4 lang="en">ChatGPT Astra : Road to AGI</h4>
+            </article>
+            <article class="course" id="course-2">
+              <p class="course-meta">2 วัน · ออนไลน์ / ในสถานที่</p>
+              <h4 lang="en">Claude Cowork: Connect, Automate, and Collaborate with AI</h4>
+              <p>สร้างขั้นตอนทำงานอัตโนมัติเฉพาะแผนก เชื่อมข้อมูลหลายแหล่ง และวางกรอบการใช้ AI ที่ตรวจสอบได้</p><a
+                aria-label="ขอรายละเอียดหลักสูตร Claude Cowork: Connect, Automate, and Collaborate with AI"
+                class="course-link" data-course="Claude Cowork: Connect, Automate, and Collaborate with AI"
+                href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a>
+            </article>
+            <article class="course" id="course-3">
+              <h4 lang="en">AI Decision System for Leaders</h4>
+              <p>นำมาตรฐานการตัดสินใจของผู้บริหารมาสร้างเป็นเครื่องมือที่ทีมใช้เองได้</p><a
+                aria-label="ขอรายละเอียดหลักสูตร AI Decision System for Leaders" class="course-link"
+                data-course="AI Decision System for Leaders" href="#contact">ขอรายละเอียดหลักสูตร <span
+                  aria-hidden="true">↗</span></a>
+            </article>
+          </div>
+        </div>
+        <div class="track">
+          <div class="track-head">
+            <h3>สายนักพัฒนา</h3>
+            <p>สำหรับทีมไอที ทีมพัฒนา</p>
+          </div>
+          <div class="course-grid developer">
+            <article class="course" id="course-4">
+              <h4 lang="en">AI-Powered Software Development Mastery</h4><a
+                aria-label="ขอรายละเอียดหลักสูตร AI-Powered Software Development Mastery" class="course-link"
+                data-course="AI-Powered Software Development Mastery" href="#contact">ขอรายละเอียดหลักสูตร <span
+                  aria-hidden="true">↗</span></a>
+            </article>
+            <article class="course" id="course-5">
+              <p class="course-meta">3 วัน · ในสถานที่</p>
+              <h4 lang="en">Claude Code Intensive</h4>
+              <p>พา Web App จาก prototype ขึ้น production ออกแบบ Agent System และต่อระบบชำระเงิน
+                พร้อมเขียนโค้ดตามมาตรฐาน OWASP</p><a aria-label="ขอรายละเอียดหลักสูตร Claude Code Intensive"
+                class="course-link" data-course="Claude Code Intensive" href="#contact">ขอรายละเอียดหลักสูตร <span
+                  aria-hidden="true">↗</span></a>
+            </article>
+            <article class="course" id="course-6">
+              <p class="course-meta">2 วัน · ในสถานที่</p>
+              <h4 lang="en">Secure Coding</h4>
+              <p>รีวิวโค้ดจริงของทีม รู้จักช่องโหว่ที่พบบ่อย และใช้เกณฑ์ที่ผู้ตรวจสอบใช้จริง</p><a
+                aria-label="ขอรายละเอียดหลักสูตร Secure Coding" class="course-link" data-course="Secure Coding"
+                href="#contact">ขอรายละเอียดหลักสูตร <span aria-hidden="true">↗</span></a>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="instructor-heading" class="section" id="instructor">
+      <div class="wrap">
+        <div class="instructor-layout">
+          <figure class="portrait-frame"><img alt="ไพบูลย์ พนัสบดี ผู้สอนของ Innow" class="portrait" decoding="async"
+              height="989" loading="lazy" src="images/instructor.png" width="720" /></figure>
+          <div class="instructor-copy">
+            <p class="label">ผู้สอน</p>
+            <h2 id="instructor-heading">สอนจากประสบการณ์<br />ที่ลงมือทำมาแล้ว</h2>
+            <h3>ไพบูลย์ พนัสบดี</h3>
+            <p class="credential" lang="en">CEO, Innow Co., Ltd.</p>
+            <ul class="credentials">
+              <li>อดีตนายกสมาคมโปรแกรมเมอร์ไทย</li>
+              <li>อดีต Program Director ของ Software Park Thailand Code Camp</li>
+              <li>ผู้ก่อตั้งงาน National Coding Day</li>
+            </ul>
+            <p>ก่อนอบรม เราคุยกับ HR และหัวหน้าทีมเพื่อเลือกเคสจากงานที่ทำอยู่
+              แล้วให้ผู้เรียนลงมือทำในคลาสจนได้สิ่งที่นำกลับไปใช้ต่อได้</p>
+          </div>
+        </div>
+        <div class="training-note">
+          <div>
+            <h3>เลือกสถานที่ได้</h3>
+            <p>ออนไลน์ ในสถานที่ขององค์กร หรือนอกสถานที่ ตามรูปแบบของหลักสูตร</p>
+          </div>
+          <div>
+            <h3>มีคนช่วยระหว่างลงมือทำ</h3>
+            <p>ทุก 10 คนมีผู้ช่วยสอนหนึ่งคน ไม่จำกัดจำนวนผู้เรียน</p>
+          </div>
+          <div>
+            <h3>ประเมินจากโจทย์ของทีม</h3>
+            <p>จำนวนวัน จำนวนผู้เรียน รูปแบบการอบรม และสิ่งที่รวมอยู่ในหลักสูตร เป็นข้อมูลสำหรับประเมินราคา</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="gallery-heading" class="section gallery-section" id="training-gallery">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="label">ภาพจากห้องอบรม</p>
+          <h2 id="gallery-heading">การอบรมที่ผ่านมา</h2>
+          <p>บรรยากาศการอบรมของทีมจากหน่วยงานภาครัฐ รัฐวิสาหกิจ สถาบันการเงิน และบริษัทเอกชน</p>
+        </div>
+        <div class="training-gallery">
+          <figure aria-label="ขยายภาพ สำนักงานปรมาณูเพื่อสันติ" class="training-photo" data-gallery="training"
+            data-source="image26.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — สำนักงานปรมาณูเพื่อสันติ" decoding="async"
+                height="675" loading="lazy" src="images/image26.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">สำนักงานปรมาณูเพื่อสันติ</span><span
+                  class="photo-type">หน่วยงานภาครัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ KGI" class="training-photo" data-gallery="training" data-source="image17.jpg"
+            role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — KGI" decoding="async" height="900" loading="lazy"
+                src="images/image17.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">KGI</span><span
+                  class="photo-type">สถาบันการเงิน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ ThaiBev" class="training-photo" data-gallery="training" data-source="image22.jpg"
+            role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ThaiBev" decoding="async" height="900"
+                loading="lazy" src="images/image22.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">ThaiBev</span><span
+                  class="photo-type">ภาคเอกชน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ Software Park Thailand" class="training-photo" data-gallery="training"
+            data-source="image16.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Software Park Thailand" decoding="async"
+                height="675" loading="lazy" src="images/image16.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">Software Park Thailand</span><span
+                  class="photo-type">หน่วยงานภาครัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — แผนกไอที" class="training-photo" data-gallery="training"
+            data-source="image25.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — แผนกไอที" decoding="async"
+                height="675" loading="lazy" src="images/image25.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ —
+                  แผนกไอที</span><span class="photo-type">สถาบันการเงินเฉพาะกิจของรัฐ</span></span><span
+                aria-hidden="true" class="photo-expand">↗</span></figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ Quick Transformation" class="training-photo" data-gallery="training"
+            data-source="image14.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Quick Transformation" decoding="async"
+                height="675" loading="lazy" src="images/image14.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">Quick Transformation</span><span
+                  class="photo-type">บริษัทมหาชน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ วิทยุการบินแห่งประเทศไทย" class="training-photo" data-gallery="training"
+            data-source="image29.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — วิทยุการบินแห่งประเทศไทย" decoding="async"
+                height="900" loading="lazy" src="images/image29.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">วิทยุการบินแห่งประเทศไทย</span><span
+                  class="photo-type">รัฐวิสาหกิจ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ กรุงเทพประกันชีวิต" class="training-photo" data-gallery="training"
+            data-source="image27.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — กรุงเทพประกันชีวิต" decoding="async" height="675"
+                loading="lazy" src="images/image27.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">กรุงเทพประกันชีวิต</span><span
+                  class="photo-type">ภาคเอกชน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ" class="training-photo" data-gallery="training"
+            data-source="image30.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ"
+                decoding="async" height="675" loading="lazy" src="images/image30.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ —
+                  ทีมตรวจสอบ</span><span class="photo-type">สถาบันการเงินเฉพาะกิจของรัฐ</span></span><span
+                aria-hidden="true" class="photo-expand">↗</span></figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ บูรพา เทคนิคอล เอ็นจิเนียริ่ง" class="training-photo" data-gallery="training"
+            data-source="image31.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — บูรพา เทคนิคอล เอ็นจิเนียริ่ง" decoding="async"
+                height="546" loading="lazy" src="images/image31.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">บูรพา เทคนิคอล
+                  เอ็นจิเนียริ่ง</span><span class="photo-type">บริษัทมหาชน · งานวิศวกรรม</span></span><span
+                aria-hidden="true" class="photo-expand">↗</span></figcaption>
+          </figure>
+          <figure aria-label="ขยายภาพ การเคหะแห่งชาติ" class="training-photo" data-gallery="training"
+            data-source="image32.jpg" role="button" tabindex="0">
+            <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — การเคหะแห่งชาติ" decoding="async" height="675"
+                loading="lazy" src="images/image32.jpg" width="1200" /></div>
+            <figcaption><span class="photo-caption-copy"><span class="photo-org">การเคหะแห่งชาติ</span><span
+                  class="photo-type">รัฐวิสาหกิจ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+    <section aria-labelledby="contact-heading" class="section on-navy" id="contact">
+      <div class="wrap contact-layout">
+        <div class="contact-copy">
+          <p class="label">เริ่มคุยกันจากโจทย์ของคุณ</p>
+          <h2 id="contact-heading">ทีมคุณอยากทำอะไร<br />ให้ได้หลังอบรม</h2>
+          <p>บอกชื่อองค์กร หลักสูตรที่สนใจ และจำนวนผู้เรียนโดยประมาณ เราจะใช้ข้อมูลนี้คุยต่อเรื่องรูปแบบและใบเสนอราคา
+          </p><a class="email-link" href="mailto:paiboon@innow.co.th" lang="en">paiboon@innow.co.th</a>
+          <p class="quote-factors">ยังเลือกหลักสูตรไม่ได้ก็ส่งโจทย์มาได้ เราจะช่วยดูว่าทีมควรเริ่มจากตรงไหน</p>
+        </div>
+        <form class="contact-form" id="quote-form" novalidate="">
+          <div class="field"><label for="organization">ชื่อองค์กร <span aria-hidden="true">*</span></label><input
+              aria-describedby="organization-error" autocomplete="organization" id="organization" maxlength="160"
+              name="organization" required="" />
+            <p class="err" hidden="" id="organization-error">กรอกชื่อองค์กรก่อนเตรียมอีเมล</p>
+          </div>
+          <div class="field"><label for="course">หลักสูตรที่สนใจ</label><select id="course" name="course">
+              <option value="ยังไม่แน่ใจ อยากให้ช่วยแนะนำ">ยังไม่แน่ใจ อยากให้ช่วยแนะนำ</option>
+              <optgroup label="สายธุรกิจและผู้บริหาร">
+                <option>ChatGPT &amp; AI Mastery</option>
+                <option>ChatGPT Astra : Road to AGI</option>
+                <option>Claude Cowork: Connect, Automate, and Collaborate with AI</option>
+                <option>AI Decision System for Leaders</option>
+              </optgroup>
+              <optgroup label="สายนักพัฒนา">
+                <option>AI-Powered Software Development Mastery</option>
+                <option>Claude Code Intensive</option>
+                <option>Secure Coding</option>
+              </optgroup>
+            </select>
+            <p aria-live="polite" class="hint" id="course-choice"></p>
+          </div>
+          <div class="field"><label for="learners">จำนวนผู้เรียนโดยประมาณ <span
+                aria-hidden="true">*</span></label><input aria-describedby="learners-hint learners-error" id="learners"
+              inputmode="numeric" min="1" name="learners" required="" step="1" type="number" />
+            <p class="hint" id="learners-hint">ใช้ประเมินรูปแบบห้องและจำนวนผู้ช่วยสอน</p>
+            <p class="err" hidden="" id="learners-error">กรอกจำนวนผู้เรียนเป็นจำนวนเต็มตั้งแต่ 1 คน</p>
+          </div>
+          <p class="form-note" id="email-explainer">ปุ่มนี้จะเปิดร่างในแอปอีเมลของคุณ ข้อมูลจะถึงเราหลังจากคุณกดส่งอีเมล
+          </p>
+          <div class="form-actions"><button aria-describedby="email-explainer" class="button primary" id="draft-button"
+              type="submit">เตรียมอีเมลขอใบเสนอราคา</button></div>
+          <p aria-live="polite" class="form-status" id="form-status" role="status"></p>
+          <div class="email-draft" hidden="" id="email-draft">
+            <h3>ข้อความสำหรับส่งอีเมล</h3>
+            <p class="form-note">หากแอปอีเมลไม่เปิด คัดลอกข้อความด้านล่างแล้วส่งถึง paiboon@innow.co.th</p><label
+              class="form-note" for="draft-text">ร่างอีเมลที่เตรียมไว้</label><textarea id="draft-text"
+              readonly=""></textarea><button class="button ghost" id="copy-draft" type="button">คัดลอกข้อความ</button>
+          </div>
+          <noscript>
+            <p>กรุณาเปิด JavaScript เพื่อเตรียมร่างอีเมลอัตโนมัติ หรือส่งชื่อองค์กร หลักสูตร และจำนวนผู้เรียนมาที่ <a
+                href="mailto:paiboon@innow.co.th">paiboon@innow.co.th</a></p>
+          </noscript>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer on-navy">
+    <div class="wrap">
+      <div class="footer-inner">
+        <p>Innow · หลักสูตรอบรมองค์กรด้าน AI และ Secure Coding</p><a href="#main">กลับด้านบน</a>
+      </div>
+      <p class="strapline" lang="en">From policy to practice — powered by people, skills, AI and workflow</p>
+    </div>
+  </footer>
+  <dialog aria-describedby="photo-caption" aria-labelledby="photo-dialog-title" class="photo-dialog" id="photo-dialog">
+    <header>
+      <h2 id="photo-dialog-title">ภาพการอบรม</h2><button aria-label="ปิดภาพขยาย" autofocus="" id="photo-close"
+        type="button">X</button>
+    </header><button aria-label="ภาพก่อนหน้า" id="photo-prev" type="button">←</button>
+    <div class="photo-stage"><img alt="" id="photo-full" /></div><button aria-label="ภาพถัดไป" id="photo-next"
+      type="button">→</button>
+    <footer>
+      <p aria-live="polite" class="photo-caption" id="photo-caption"></p><span aria-live="polite" class="photo-count"
+        id="photo-count"></span>
+    </footer>
+  </dialog>
+  <script>
+    (() => {
+      'use strict';
+      const root = document.documentElement;
+      const mode = window.matchMedia('(prefers-color-scheme: light)');
+      const small = window.matchMedia('(max-width: 48rem)');
+      const themeButton = document.getElementById('theme-toggle');
+      const themeState = document.getElementById('theme-state');
+      const menuButton = document.getElementById('menu-toggle');
+      const nav = document.getElementById('navigation');
+      function currentTheme() { return root.dataset.theme || (mode.matches ? 'light' : 'dark'); }
+      function paintTheme() {
+        const dark = currentTheme() === 'dark';
+        themeButton.setAttribute('aria-pressed', String(dark));
+        themeState.textContent = dark ? 'เข้ม' : 'สว่าง';
+      }
+      themeButton.hidden = false;
+      themeButton.addEventListener('click', () => {
+        root.dataset.theme = currentTheme() === 'dark' ? 'light' : 'dark';
+        try { localStorage.setItem('innow-theme', root.dataset.theme); } catch (_) { }
+        paintTheme();
+      });
+      mode.addEventListener('change', paintTheme);
+      paintTheme();
+      menuButton.hidden = false;
+      function setMenu(open) {
+        menuButton.setAttribute('aria-expanded', String(open));
+        nav.dataset.collapsed = String(small.matches && !open);
+      }
+      menuButton.addEventListener('click', () => setMenu(menuButton.getAttribute('aria-expanded') !== 'true'));
+      small.addEventListener('change', () => setMenu(false));
+      nav.addEventListener('click', event => { if (event.target.closest('a')) setMenu(false); });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && small.matches && menuButton.getAttribute('aria-expanded') === 'true') {
+          setMenu(false); menuButton.focus();
+        }
+      });
+      setMenu(false);
+      const form = document.getElementById('quote-form');
+      const organization = document.getElementById('organization');
+      const learners = document.getElementById('learners');
+      const course = document.getElementById('course');
+      const selectedLabel = document.getElementById('course-choice');
+      const button = document.getElementById('draft-button');
+      const status = document.getElementById('form-status');
+      const draft = document.getElementById('draft-text');
+      const draftPanel = document.getElementById('email-draft');
+      function showCourse() { selectedLabel.textContent = 'เลือก: ' + course.value; }
+      course.addEventListener('change', showCourse);
+      document.querySelectorAll('[data-course]').forEach(link => {
+        link.addEventListener('click', () => { course.value = link.dataset.course; showCourse(); });
+      });
+      function markInvalid(input, invalid) {
+        input.setAttribute('aria-invalid', String(invalid));
+        document.getElementById(input.id + '-error').hidden = !invalid;
+      }
+      [organization, learners].forEach(input => input.addEventListener('input', () => {
+        if (input.getAttribute('aria-invalid') === 'true') markInvalid(input, false);
+      }));
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (button.disabled) return;
+        const org = organization.value.trim();
+        const count = Number(learners.value);
+        const badOrg = !org;
+        const badCount = !learners.value.trim() || !Number.isSafeInteger(count) || count < 1;
+        markInvalid(organization, badOrg);
+        markInvalid(learners, badCount);
+        if (badOrg || badCount) {
+          status.textContent = 'ตรวจข้อมูลที่ระบุไว้ก่อนเตรียมอีเมล';
+          (badOrg ? organization : learners).focus();
+          return;
+        }
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+        button.textContent = 'กำลังเตรียมอีเมล…';
+        const subject = 'ขอใบเสนอราคาอบรม — ' + org.replace(/[\r\n]+/g, ' ');
+        const body = [
+          'เรียน ทีม Innow', '',
+          'ต้องการขอรายละเอียดหลักสูตรและใบเสนอราคาอบรมสำหรับองค์กร', '',
+          'ชื่อองค์กร: ' + org,
+          'หลักสูตรที่สนใจ: ' + course.value,
+          'จำนวนผู้เรียนโดยประมาณ: ' + count + ' คน', '',
+          'กรุณาส่งรายละเอียดหลักสูตร รูปแบบการอบรม และข้อมูลสำหรับจัดทำใบเสนอราคากลับทางอีเมลนี้', '',
+          'ขอบคุณครับ/ค่ะ'
+        ].join('\r\n');
+        draft.value = 'ถึง: paiboon@innow.co.th\nเรื่อง: ' + subject + '\n\n' + body;
+        draftPanel.hidden = false;
+        try {
+          window.location.href = 'mailto:paiboon@innow.co.th?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+          status.textContent = 'เตรียมร่างแล้ว ตรวจข้อมูลและกดส่งในแอปอีเมล หากแอปไม่เปิด ใช้ข้อความด้านล่างได้';
+        } catch (_) {
+          status.textContent = 'เปิดแอปอีเมลไม่ได้ คัดลอกข้อความด้านล่างแล้วส่งถึง paiboon@innow.co.th';
+        } finally {
+          button.disabled = false;
+          button.removeAttribute('aria-busy');
+          button.textContent = 'เตรียมอีเมลขอใบเสนอราคา';
+        }
+      });
+      document.getElementById('copy-draft').addEventListener('click', async () => {
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+          await navigator.clipboard.writeText(draft.value);
+          status.textContent = 'คัดลอกข้อความแล้ว นำไปวางในอีเมลและส่งถึง paiboon@innow.co.th';
+        } catch (_) {
+          draft.focus(); draft.select();
+          status.textContent = 'เลือกข้อความไว้แล้ว กดคัดลอกบนอุปกรณ์ของคุณ';
+        }
+      });
+      if (document.fonts) {
+        Promise.all([
+          document.fonts.load('600 1rem Anuphan', 'ความสามารถ'),
+          document.fonts.load('400 1rem "IBM Plex Sans Thai"', 'องค์กร')
+        ]).then(results => { if (results.some(fonts => !fonts.length)) root.dataset.fontFallback = 'true'; })
+          .catch(() => { root.dataset.fontFallback = 'true'; });
+      }
+    })();
 
 
-(() => {
-  'use strict';
-  const carousel = document.getElementById('hero-carousel');
-  if (!carousel) return;
+    (() => {
+      'use strict';
+      const carousel = document.getElementById('hero-carousel');
+      if (!carousel) return;
 
-  const seed = carousel.querySelector('.hero-slide');
-  const sources = Array.from(document.querySelectorAll('.training-photo')).map(figure => ({
-    source: figure.dataset.source || '',
-    image: figure.querySelector('img')
-  })).filter(item => item.image);
+      const seed = carousel.querySelector('.hero-slide');
+      const sources = Array.from(document.querySelectorAll('.training-photo')).map(figure => ({
+        source: figure.dataset.source || '',
+        image: figure.querySelector('img')
+      })).filter(item => item.image);
 
-  // Hero carousel: training/event photography only; exclude standalone portraits.
-  sources.forEach(({source, image}) => {
-    if (source === seed?.dataset.source) return;
-    const slide = document.createElement('img');
-    slide.className = 'hero-slide';
-    slide.dataset.source = source;
-    slide.src = image.currentSrc || image.src;
-    slide.alt = '';
-    slide.decoding = 'async';
-    slide.setAttribute('aria-hidden', 'true');
-    carousel.appendChild(slide);
-  });
+      // Hero carousel: training/event photography only; exclude standalone portraits.
+      sources.forEach(({ source, image }) => {
+        if (source === seed?.dataset.source) return;
+        const slide = document.createElement('img');
+        slide.className = 'hero-slide';
+        slide.dataset.source = source;
+        slide.src = image.currentSrc || image.src;
+        slide.alt = '';
+        slide.decoding = 'async';
+        slide.setAttribute('aria-hidden', 'true');
+        carousel.appendChild(slide);
+      });
 
-  const slides = Array.from(carousel.querySelectorAll('.hero-slide'));
-  if (slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const slides = Array.from(carousel.querySelectorAll('.hero-slide'));
+      if (slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  // Sequence: hold current image -> fade it fully out -> 1s empty frame -> fade next image in.
-  const tokenMs = (name, fallback) => {
-    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    const parsed = Number.parseFloat(value);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
-  const FADE_MS = tokenMs('--dur-draw', 420);
-  const HOLD_MS = FADE_MS * 10;
-  const BLANK_MS = 1000; // explicit content beat requested for the photo carousel
-  let active = 0;
-  let timer = 0;
+      // Sequence: hold current image -> fade it fully out -> 1s empty frame -> fade next image in.
+      const tokenMs = (name, fallback) => {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        const parsed = Number.parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : fallback;
+      };
+      const FADE_MS = tokenMs('--dur-draw', 420);
+      const HOLD_MS = FADE_MS * 10;
+      const BLANK_MS = 1000; // explicit content beat requested for the photo carousel
+      let active = 0;
+      let timer = 0;
 
-  const scheduleFadeOut = (delay = HOLD_MS) => {
-    window.clearTimeout(timer);
-    timer = window.setTimeout(() => {
-      if (document.hidden) { scheduleFadeOut(BLANK_MS); return; }
-      slides[active].classList.remove('is-active');
-      timer = window.setTimeout(() => {
+      const scheduleFadeOut = (delay = HOLD_MS) => {
+        window.clearTimeout(timer);
         timer = window.setTimeout(() => {
-          active = (active + 1) % slides.length;
-          slides[active].classList.add('is-active');
-          // Wait for fade-in to finish, then hold the fully visible image.
-          scheduleFadeOut(FADE_MS + HOLD_MS);
-        }, BLANK_MS);
-      }, FADE_MS);
-    }, delay);
-  };
+          if (document.hidden) { scheduleFadeOut(BLANK_MS); return; }
+          slides[active].classList.remove('is-active');
+          timer = window.setTimeout(() => {
+            timer = window.setTimeout(() => {
+              active = (active + 1) % slides.length;
+              slides[active].classList.add('is-active');
+              // Wait for fade-in to finish, then hold the fully visible image.
+              scheduleFadeOut(FADE_MS + HOLD_MS);
+            }, BLANK_MS);
+          }, FADE_MS);
+        }, delay);
+      };
 
-  scheduleFadeOut();
-})();
+      scheduleFadeOut();
+    })();
 
 
-(() => {
-  const dialog = document.getElementById('photo-dialog');
-  const photo = document.getElementById('photo-full');
-  const caption = document.getElementById('photo-caption');
-  const count = document.getElementById('photo-count');
-  const previous = document.getElementById('photo-prev');
-  const next = document.getElementById('photo-next');
-  const training = Array.from(document.querySelectorAll('[data-gallery="training"]'));
-  let collection = training, index = 0, opener;
-  function render() {
-    const image = collection[index].querySelector('img');
-    photo.src = image.src;
-    photo.alt = image.alt;
-    caption.textContent = collection[index].closest('figure').querySelector('figcaption')?.textContent.replace('↗','').trim() || 'Innow Method — ห้าขั้นสู่ผลลัพธ์ทางธุรกิจ';
-    count.textContent = (index + 1) + ' / ' + collection.length;
-    previous.hidden = next.hidden = collection.length < 2;
-  }
-  function move(direction) { index = (index + direction + collection.length) % collection.length; render(); }
-  document.querySelectorAll('[data-gallery]').forEach(trigger => trigger.addEventListener('click', () => {
-    opener = trigger;
-    collection = trigger.dataset.gallery === 'method' ? [trigger] : training;
-    index = trigger.dataset.gallery === 'hero' ? training.findIndex(item => item.closest('figure').dataset.source === 'image25.jpg') : collection.indexOf(trigger);
-    index = Math.max(0, index);
-    document.getElementById('photo-dialog-title').textContent = collection === training ? 'ภาพการอบรม' : 'วิธีทำงานของเรา';
-    render(); dialog.showModal();
-  }));
-  previous.addEventListener('click', () => move(-1));
-  next.addEventListener('click', () => move(1));
-  document.getElementById('photo-close').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('keydown', event => {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); move(event.key === 'ArrowLeft' ? -1 : 1); }
-  });
-  dialog.addEventListener('click', event => {
-    const bounds = dialog.getBoundingClientRect();
-    if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) dialog.close();
-  });
-  dialog.addEventListener('close', () => { photo.removeAttribute('src'); opener?.focus({preventScroll:true}); });
-})();
-</script>
-<!-- Embedded font licenses
+    (() => {
+      const dialog = document.getElementById('photo-dialog');
+      const photo = document.getElementById('photo-full');
+      const caption = document.getElementById('photo-caption');
+      const count = document.getElementById('photo-count');
+      const previous = document.getElementById('photo-prev');
+      const next = document.getElementById('photo-next');
+      const training = Array.from(document.querySelectorAll('[data-gallery="training"]'));
+      let collection = training, index = 0, opener;
+      function render() {
+        const image = collection[index].querySelector('img');
+        photo.src = image.src;
+        photo.alt = image.alt;
+        caption.textContent = Array.from(collection[index].closest('figure').querySelectorAll('.photo-org, .photo-type')).map(item => item.textContent.trim()).join(' · ') || 'Innow Method — ห้าขั้นสู่ผลลัพธ์ทางธุรกิจ';
+        count.textContent = (index + 1) + ' / ' + collection.length;
+        previous.hidden = next.hidden = collection.length < 2;
+      }
+      function move(direction) { index = (index + direction + collection.length) % collection.length; render(); }
+      document.querySelectorAll('[data-gallery]').forEach(trigger => trigger.addEventListener('click', () => {
+        opener = trigger;
+        collection = trigger.dataset.gallery === 'method' ? [trigger] : training;
+        index = trigger.dataset.gallery === 'hero' ? training.findIndex(item => item.closest('figure').dataset.source === 'image25.jpg') : collection.indexOf(trigger);
+        index = Math.max(0, index);
+        document.getElementById('photo-dialog-title').textContent = collection === training ? 'ภาพการอบรม' : 'วิธีทำงานของเรา';
+        render(); dialog.showModal();
+      }));
+      previous.addEventListener('click', () => move(-1));
+      next.addEventListener('click', () => move(1));
+      document.getElementById('photo-close').addEventListener('click', () => dialog.close());
+      dialog.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); move(event.key === 'ArrowLeft' ? -1 : 1); }
+      });
+      dialog.addEventListener('click', event => {
+        const bounds = dialog.getBoundingClientRect();
+        if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) dialog.close();
+      });
+      dialog.addEventListener('close', () => { photo.removeAttribute('src'); opener?.focus({ preventScroll: true }); });
+    })();
+  </script>
+  <!-- Embedded font licenses
 Copyright 2019 The Anuphan Project Authors (https://github.com/cadsondemak/Anuphan)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
@@ -877,102 +3547,103 @@ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 
 -->
-<script>
-(() => {
-  document.querySelectorAll('.training-photo[data-gallery="training"][role="button"]').forEach(card => {
-    card.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        card.click();
-      }
-    });
-  });
-})();
-</script>
-<script>
-(() => {
-  const viewport = document.querySelector('.client-viewport');
-  const track = viewport && viewport.querySelector('.client-track');
-  const original = track && track.querySelector('.client-list');
-  if (!viewport || !track || !original) return;
-
-  const clone = original.cloneNode(true);
-  clone.setAttribute('aria-hidden', 'true');
-  clone.querySelectorAll('img').forEach(img => { img.alt = ''; });
-  track.appendChild(clone);
-
-  // Keep auto-scroll independent from CSS smooth scrolling.
-  // This is more reliable in WebKit/file previews where very small smooth scroll
-  // updates can be swallowed and look completely stationary.
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let pauseUntil = performance.now() + 700;
-  let last = performance.now();
-  let virtualX = viewport.scrollLeft;
-  const speed = 24; // px/s — deliberately slow, but visibly moving
-
-  const cycleWidth = () => clone.offsetLeft - original.offsetLeft;
-  const wrap = x => {
-    const w = cycleWidth();
-    if (!w) return x;
-    while (x >= w) x -= w;
-    while (x < 0) x += w;
-    return x;
-  };
-  const syncFromViewport = () => { virtualX = wrap(viewport.scrollLeft); };
-  const pause = (ms = 3200) => {
-    syncFromViewport();
-    pauseUntil = Math.max(pauseUntil, performance.now() + ms);
-  };
-
-  function tick(now) {
-    const dt = Math.min((now - last) / 1000, .08);
-    last = now;
-
-    if (now >= pauseUntil && !document.hidden && !reducedMotion.matches) {
-      const w = cycleWidth();
-      if (w > 0) {
-        virtualX = wrap(virtualX + speed * dt);
-        viewport.scrollLeft = virtualX;
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
-
-  // Any manual interaction pauses auto-scroll; it resumes after a short idle period.
-  viewport.addEventListener('wheel', () => pause(3000), {passive:true});
-  viewport.addEventListener('touchstart', () => pause(3500), {passive:true});
-  viewport.addEventListener('pointerdown', () => pause(3500), {passive:true});
-  viewport.addEventListener('scroll', () => {
-    if (performance.now() < pauseUntil) syncFromViewport();
-  }, {passive:true});
-  viewport.addEventListener('keydown', event => {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End') pause(4500);
-  });
-
-  document.querySelectorAll('[data-client-scroll]').forEach(button => {
-    button.addEventListener('click', () => {
-      const dir = Number(button.dataset.clientScroll) || 1;
-      const w = cycleWidth();
-      if (dir < 0 && viewport.scrollLeft < 8 && w) viewport.scrollLeft = w;
-      if (dir > 0 && w && viewport.scrollLeft > w - 8) viewport.scrollLeft -= w;
-      pause(3200);
-      viewport.scrollBy({
-        left: dir * Math.max(220, viewport.clientWidth * .62),
-        behavior: 'smooth'
+  <script>
+    (() => {
+      document.querySelectorAll('.training-photo[data-gallery="training"][role="button"]').forEach(card => {
+        card.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            card.click();
+          }
+        });
       });
-      // Pick up the final manual position before auto-scroll resumes.
-      setTimeout(syncFromViewport, 650);
-    });
-  });
+    })();
+  </script>
+  <script>
+    (() => {
+      const viewport = document.querySelector('.client-viewport');
+      const track = viewport && viewport.querySelector('.client-track');
+      const original = track && track.querySelector('.client-list');
+      if (!viewport || !track || !original) return;
 
-  document.addEventListener('visibilitychange', () => {
-    last = performance.now();
-    if (!document.hidden) syncFromViewport();
-  });
-  reducedMotion.addEventListener('change', syncFromViewport);
-  window.addEventListener('resize', syncFromViewport, {passive:true});
-})();
-</script>
+      const clone = original.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.querySelectorAll('img').forEach(img => { img.alt = ''; });
+      track.appendChild(clone);
+
+      // Keep auto-scroll independent from CSS smooth scrolling.
+      // This is more reliable in WebKit/file previews where very small smooth scroll
+      // updates can be swallowed and look completely stationary.
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let pauseUntil = performance.now() + 700;
+      let last = performance.now();
+      let virtualX = viewport.scrollLeft;
+      const speed = 24; // px/s — deliberately slow, but visibly moving
+
+      const cycleWidth = () => clone.offsetLeft - original.offsetLeft;
+      const wrap = x => {
+        const w = cycleWidth();
+        if (!w) return x;
+        while (x >= w) x -= w;
+        while (x < 0) x += w;
+        return x;
+      };
+      const syncFromViewport = () => { virtualX = wrap(viewport.scrollLeft); };
+      const pause = (ms = 3200) => {
+        syncFromViewport();
+        pauseUntil = Math.max(pauseUntil, performance.now() + ms);
+      };
+
+      function tick(now) {
+        const dt = Math.min((now - last) / 1000, .08);
+        last = now;
+
+        if (now >= pauseUntil && !document.hidden && !reducedMotion.matches) {
+          const w = cycleWidth();
+          if (w > 0) {
+            virtualX = wrap(virtualX + speed * dt);
+            viewport.scrollLeft = virtualX;
+          }
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+
+      // Any manual interaction pauses auto-scroll; it resumes after a short idle period.
+      viewport.addEventListener('wheel', () => pause(3000), { passive: true });
+      viewport.addEventListener('touchstart', () => pause(3500), { passive: true });
+      viewport.addEventListener('pointerdown', () => pause(3500), { passive: true });
+      viewport.addEventListener('scroll', () => {
+        if (performance.now() < pauseUntil) syncFromViewport();
+      }, { passive: true });
+      viewport.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight' || event.key === 'Home' || event.key === 'End') pause(4500);
+      });
+
+      document.querySelectorAll('[data-client-scroll]').forEach(button => {
+        button.addEventListener('click', () => {
+          const dir = Number(button.dataset.clientScroll) || 1;
+          const w = cycleWidth();
+          if (dir < 0 && viewport.scrollLeft < 8 && w) viewport.scrollLeft = w;
+          if (dir > 0 && w && viewport.scrollLeft > w - 8) viewport.scrollLeft -= w;
+          pause(3200);
+          viewport.scrollBy({
+            left: dir * Math.max(220, viewport.clientWidth * .62),
+            behavior: 'smooth'
+          });
+          // Pick up the final manual position before auto-scroll resumes.
+          setTimeout(syncFromViewport, 650);
+        });
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        last = performance.now();
+        if (!document.hidden) syncFromViewport();
+      });
+      reducedMotion.addEventListener('change', syncFromViewport);
+      window.addEventListener('resize', syncFromViewport, { passive: true });
+    })();
+  </script>
 </body>
+
 </html>
