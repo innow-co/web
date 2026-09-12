@@ -2673,6 +2673,27 @@
     .training-photo .image-trigger {
       cursor: inherit
     }
+    /* Keep each organization's mark physically attached to its training photo. */
+    .training-photo .training-identity {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 4.75rem;
+      padding: .65rem 1rem;
+      background: #fff;
+      border-bottom: var(--hairline) solid var(--line-soft);
+    }
+
+    .training-photo .training-identity img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: min(100%, 11rem);
+      max-height: 3.15rem;
+      object-fit: contain;
+    }
+
+
   </style>
 </head>
 
@@ -3032,6 +3053,7 @@
         <div class="training-gallery" id="training-gallery-grid">
           <figure aria-label="ขยายภาพ สำนักงานปรมาณูเพื่อสันติ" class="training-photo" data-category="public"
             data-gallery="training" data-source="image26.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-oab.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — สำนักงานปรมาณูเพื่อสันติ" decoding="async"
                 height="675" loading="lazy" src="images/image26.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">สำนักงานปรมาณูเพื่อสันติ</span><span
@@ -3040,6 +3062,7 @@
           </figure>
           <figure aria-label="ขยายภาพ KGI" class="training-photo" data-category="finance" data-gallery="training"
             data-source="image17.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-kgi.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — KGI" decoding="async" height="900" loading="lazy"
                 src="images/image17.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">KGI</span><span
@@ -3048,6 +3071,7 @@
           </figure>
           <figure aria-label="ขยายภาพ ThaiBev" class="training-photo" data-category="private" data-gallery="training"
             data-source="image22.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-thaibev.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ThaiBev" decoding="async" height="900"
                 loading="lazy" src="images/image22.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">ThaiBev</span><span
@@ -3056,6 +3080,7 @@
           </figure>
           <figure aria-label="ขยายภาพ Software Park Thailand" class="training-photo" data-category="public"
             data-gallery="training" data-source="image16.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/software-park.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Software Park Thailand" decoding="async"
                 height="675" loading="lazy" src="images/image16.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">Software Park Thailand</span><span
@@ -3064,6 +3089,7 @@
           </figure>
           <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — แผนกไอที" class="training-photo" data-category="finance"
             data-gallery="training" data-source="image25.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-ghb.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — แผนกไอที" decoding="async"
                 height="675" loading="lazy" src="images/image25.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ —
@@ -3072,6 +3098,7 @@
           </figure>
           <figure aria-label="ขยายภาพ Quick Transformation" class="training-photo" data-category="private"
             data-gallery="training" data-source="image14.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-quick-transformation.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Quick Transformation" decoding="async"
                 height="675" loading="lazy" src="images/image14.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">Quick Transformation</span><span
@@ -3080,6 +3107,7 @@
           </figure>
           <figure aria-label="ขยายภาพ วิทยุการบินแห่งประเทศไทย" class="training-photo" data-category="public"
             data-gallery="training" data-source="image29.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-aeronatical.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — วิทยุการบินแห่งประเทศไทย" decoding="async"
                 height="900" loading="lazy" src="images/image29.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">วิทยุการบินแห่งประเทศไทย</span><span
@@ -3088,6 +3116,7 @@
           </figure>
           <figure aria-label="ขยายภาพ กรุงเทพประกันชีวิต" class="training-photo" data-category="finance"
             data-gallery="training" data-source="image27.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-bangkok-life.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — กรุงเทพประกันชีวิต" decoding="async" height="675"
                 loading="lazy" src="images/image27.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">กรุงเทพประกันชีวิต</span><span
@@ -3096,6 +3125,7 @@
           </figure>
           <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ" class="training-photo" data-category="finance"
             data-gallery="training" data-source="image30.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-ghb.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ"
                 decoding="async" height="675" loading="lazy" src="images/image30.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ —
@@ -3104,6 +3134,7 @@
           </figure>
           <figure aria-label="ขยายภาพ บูรพา เทคนิคอล เอ็นจิเนียริ่ง" class="training-photo" data-category="private"
             data-gallery="training" data-source="image31.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/customer-ete-group.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — บูรพา เทคนิคอล เอ็นจิเนียริ่ง" decoding="async"
                 height="546" loading="lazy" src="images/image31.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">บูรพา เทคนิคอล
@@ -3112,6 +3143,7 @@
           </figure>
           <figure aria-label="ขยายภาพ การเคหะแห่งชาติ" class="training-photo" data-category="public"
             data-gallery="training" data-source="image32.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/custormer-nha.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — การเคหะแห่งชาติ" decoding="async" height="675"
                 loading="lazy" src="images/image32.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">การเคหะแห่งชาติ</span><span
@@ -3120,6 +3152,7 @@
           </figure>
           <figure aria-label="ขยายภาพ CIO Executive Program โดย Software Park" class="training-photo"
             data-category="public" data-gallery="training" data-source="image33.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/software-park.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — CIO Executive Program โดย Software Park"
                 decoding="async" height="675" loading="lazy" src="images/image33.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">CIO Executive Program</span><span
@@ -3128,6 +3161,7 @@
           </figure>
           <figure aria-label="ขยายภาพ CIO Executive Program โดย Software Park" class="training-photo"
             data-category="public" data-gallery="training" data-source="image34.jpg" role="button" tabindex="0">
+            <div class="training-identity" aria-hidden="true"><img src="images/software-park.png" alt="" loading="lazy" decoding="async" /></div>
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — CIO Executive Program โดย Software Park"
                 decoding="async" height="675" loading="lazy" src="images/image34.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">CIO Executive Program</span><span
@@ -3342,7 +3376,7 @@
       const seed = carousel.querySelector('.hero-slide');
       const sources = Array.from(document.querySelectorAll('.training-photo')).map(figure => ({
         source: figure.dataset.source || '',
-        image: figure.querySelector('img')
+        image: figure.querySelector('.image-trigger img')
       })).filter(item => item.image);
 
       // Hero carousel: training/event photography only; exclude standalone portraits.
@@ -3448,7 +3482,7 @@
       const training = Array.from(document.querySelectorAll('[data-gallery="training"]'));
       let collection = training, index = 0, opener;
       function render() {
-        const image = collection[index].querySelector('img');
+        const image = collection[index].querySelector('.image-trigger img');
         photo.src = image.src;
         photo.alt = image.alt;
         caption.textContent = Array.from(collection[index].closest('figure').querySelectorAll('.photo-org, .photo-type')).map(item => item.textContent.trim()).join(' · ') || 'Innow Method — ห้าขั้นสู่ผลลัพธ์ทางธุรกิจ';
