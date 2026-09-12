@@ -603,6 +603,18 @@
       margin-bottom: var(--s3)
     }
 
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0
+    }
+
     .skip {
       position: fixed;
       inset-block-start: var(--s2);
@@ -2031,6 +2043,40 @@
       color: var(--tx-body)
     }
 
+    .gallery-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s3);
+      margin-bottom: var(--s6)
+    }
+
+    .gallery-filter {
+      border: var(--hairline) solid var(--line-strong);
+      background: var(--bg-raised);
+      color: var(--tx-body);
+      padding: var(--s2) var(--s5);
+      border-radius: 999px;
+      font-family: var(--f-read);
+      font-size: var(--fs-sm);
+      font-weight: var(--w-med);
+      transition: background var(--dur-hover) var(--ease-out), color var(--dur-hover) var(--ease-out), border-color var(--dur-hover) var(--ease-out)
+    }
+
+    .gallery-filter:hover {
+      background: var(--chip)
+    }
+
+    .gallery-filter.is-active {
+      background: var(--cta-water-gradient);
+      border-color: transparent;
+      color: var(--on-navy-tx)
+    }
+
+    .gallery-show-more {
+      margin: var(--s7) auto 0;
+      border-radius: 999px
+    }
+
     @media(max-width:64rem) {
       .training-gallery {
         grid-template-columns: repeat(2, minmax(0, 1fr))
@@ -2976,89 +3022,96 @@
           <h2 id="gallery-heading">การอบรมที่ผ่านมา</h2>
           <p>บรรยากาศการอบรมของทีมจากหน่วยงานภาครัฐ รัฐวิสาหกิจ สถาบันการเงิน และบริษัทเอกชน</p>
         </div>
-        <div class="training-gallery">
-          <figure aria-label="ขยายภาพ สำนักงานปรมาณูเพื่อสันติ" class="training-photo" data-gallery="training"
-            data-source="image26.jpg" role="button" tabindex="0">
+        <div aria-label="เลือกประเภทองค์กร" class="gallery-filters" role="group">
+          <button aria-pressed="true" class="gallery-filter is-active" data-filter="all" type="button">ทั้งหมด</button>
+          <button aria-pressed="false" class="gallery-filter" data-filter="finance" type="button">สถาบันการเงิน</button>
+          <button aria-pressed="false" class="gallery-filter" data-filter="public" type="button">ภาครัฐและรัฐวิสาหกิจ</button>
+          <button aria-pressed="false" class="gallery-filter" data-filter="private" type="button">ภาคเอกชน</button>
+        </div>
+        <p aria-live="polite" class="sr-only" id="gallery-status"></p>
+        <div class="training-gallery" id="training-gallery-grid">
+          <figure aria-label="ขยายภาพ สำนักงานปรมาณูเพื่อสันติ" class="training-photo" data-category="public"
+            data-gallery="training" data-source="image26.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — สำนักงานปรมาณูเพื่อสันติ" decoding="async"
                 height="675" loading="lazy" src="images/image26.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">สำนักงานปรมาณูเพื่อสันติ</span><span
                   class="photo-type">หน่วยงานภาครัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ KGI" class="training-photo" data-gallery="training" data-source="image17.jpg"
-            role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ KGI" class="training-photo" data-category="finance" data-gallery="training"
+            data-source="image17.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — KGI" decoding="async" height="900" loading="lazy"
                 src="images/image17.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">KGI</span><span
                   class="photo-type">สถาบันการเงิน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ ThaiBev" class="training-photo" data-gallery="training" data-source="image22.jpg"
-            role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ ThaiBev" class="training-photo" data-category="private" data-gallery="training"
+            data-source="image22.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ThaiBev" decoding="async" height="900"
                 loading="lazy" src="images/image22.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">ThaiBev</span><span
                   class="photo-type">ภาคเอกชน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ Software Park Thailand" class="training-photo" data-gallery="training"
-            data-source="image16.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ Software Park Thailand" class="training-photo" data-category="public"
+            data-gallery="training" data-source="image16.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Software Park Thailand" decoding="async"
                 height="675" loading="lazy" src="images/image16.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">Software Park Thailand</span><span
                   class="photo-type">หน่วยงานภาครัฐ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — แผนกไอที" class="training-photo" data-gallery="training"
-            data-source="image25.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — แผนกไอที" class="training-photo" data-category="finance"
+            data-gallery="training" data-source="image25.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — แผนกไอที" decoding="async"
                 height="675" loading="lazy" src="images/image25.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ —
                   แผนกไอที</span><span class="photo-type">สถาบันการเงินเฉพาะกิจของรัฐ</span></span><span
                 aria-hidden="true" class="photo-expand">↗</span></figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ Quick Transformation" class="training-photo" data-gallery="training"
-            data-source="image14.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ Quick Transformation" class="training-photo" data-category="private"
+            data-gallery="training" data-source="image14.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — Quick Transformation" decoding="async"
                 height="675" loading="lazy" src="images/image14.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">Quick Transformation</span><span
                   class="photo-type">บริษัทมหาชน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ วิทยุการบินแห่งประเทศไทย" class="training-photo" data-gallery="training"
-            data-source="image29.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ วิทยุการบินแห่งประเทศไทย" class="training-photo" data-category="public"
+            data-gallery="training" data-source="image29.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — วิทยุการบินแห่งประเทศไทย" decoding="async"
                 height="900" loading="lazy" src="images/image29.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">วิทยุการบินแห่งประเทศไทย</span><span
                   class="photo-type">รัฐวิสาหกิจ</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ กรุงเทพประกันชีวิต" class="training-photo" data-gallery="training"
-            data-source="image27.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ กรุงเทพประกันชีวิต" class="training-photo" data-category="finance"
+            data-gallery="training" data-source="image27.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — กรุงเทพประกันชีวิต" decoding="async" height="675"
                 loading="lazy" src="images/image27.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">กรุงเทพประกันชีวิต</span><span
                   class="photo-type">ภาคเอกชน</span></span><span aria-hidden="true" class="photo-expand">↗</span>
             </figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ" class="training-photo" data-gallery="training"
-            data-source="image30.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ" class="training-photo" data-category="finance"
+            data-gallery="training" data-source="image30.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — ธนาคารอาคารสงเคราะห์ — ทีมตรวจสอบ"
                 decoding="async" height="675" loading="lazy" src="images/image30.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">ธนาคารอาคารสงเคราะห์ —
                   ทีมตรวจสอบ</span><span class="photo-type">สถาบันการเงินเฉพาะกิจของรัฐ</span></span><span
                 aria-hidden="true" class="photo-expand">↗</span></figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ บูรพา เทคนิคอล เอ็นจิเนียริ่ง" class="training-photo" data-gallery="training"
-            data-source="image31.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ บูรพา เทคนิคอล เอ็นจิเนียริ่ง" class="training-photo" data-category="private"
+            data-gallery="training" data-source="image31.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — บูรพา เทคนิคอล เอ็นจิเนียริ่ง" decoding="async"
                 height="546" loading="lazy" src="images/image31.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">บูรพา เทคนิคอล
                   เอ็นจิเนียริ่ง</span><span class="photo-type">บริษัทมหาชน · งานวิศวกรรม</span></span><span
                 aria-hidden="true" class="photo-expand">↗</span></figcaption>
           </figure>
-          <figure aria-label="ขยายภาพ การเคหะแห่งชาติ" class="training-photo" data-gallery="training"
-            data-source="image32.jpg" role="button" tabindex="0">
+          <figure aria-label="ขยายภาพ การเคหะแห่งชาติ" class="training-photo" data-category="public"
+            data-gallery="training" data-source="image32.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — การเคหะแห่งชาติ" decoding="async" height="675"
                 loading="lazy" src="images/image32.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">การเคหะแห่งชาติ</span><span
@@ -3066,7 +3119,7 @@
             </figcaption>
           </figure>
           <figure aria-label="ขยายภาพ CIO Executive Program โดย Software Park" class="training-photo"
-            data-gallery="training" data-source="image33.jpg" role="button" tabindex="0">
+            data-category="public" data-gallery="training" data-source="image33.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — CIO Executive Program โดย Software Park"
                 decoding="async" height="675" loading="lazy" src="images/image33.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">CIO Executive Program</span><span
@@ -3074,7 +3127,7 @@
                 class="photo-expand">↗</span></figcaption>
           </figure>
           <figure aria-label="ขยายภาพ CIO Executive Program โดย Software Park" class="training-photo"
-            data-gallery="training" data-source="image34.jpg" role="button" tabindex="0">
+            data-category="public" data-gallery="training" data-source="image34.jpg" role="button" tabindex="0">
             <div class="image-trigger"><img alt="ภาพการอบรมที่ผ่านมา — CIO Executive Program โดย Software Park"
                 decoding="async" height="675" loading="lazy" src="images/image34.jpg" width="1200" /></div>
             <figcaption><span class="photo-caption-copy"><span class="photo-org">CIO Executive Program</span><span
@@ -3082,6 +3135,8 @@
                 class="photo-expand">↗</span></figcaption>
           </figure>
         </div>
+        <button aria-expanded="false" class="button ghost gallery-show-more" id="gallery-show-more"
+          type="button">ดูการอบรมทั้งหมด <span aria-hidden="true">＋</span></button>
       </div>
     </section>
     <section aria-labelledby="contact-heading" class="section on-navy" id="contact">
@@ -3335,6 +3390,51 @@
       };
 
       scheduleFadeOut();
+    })();
+
+
+    (() => {
+      'use strict';
+      const grid = document.getElementById('training-gallery-grid');
+      const filters = Array.from(document.querySelectorAll('.gallery-filter'));
+      const showMore = document.getElementById('gallery-show-more');
+      const status = document.getElementById('gallery-status');
+      if (!grid || !showMore) return;
+      const photos = Array.from(grid.querySelectorAll('.training-photo'));
+      const VISIBLE_COUNT = 3;
+      let activeFilter = 'all';
+      let expanded = false;
+
+      function render() {
+        const matches = photos.filter(photo => activeFilter === 'all' || photo.dataset.category === activeFilter);
+        const visible = expanded ? matches : matches.slice(0, VISIBLE_COUNT);
+        photos.forEach(photo => { photo.hidden = !visible.includes(photo); });
+        showMore.hidden = matches.length <= VISIBLE_COUNT;
+        showMore.setAttribute('aria-expanded', String(expanded));
+        showMore.innerHTML = expanded
+          ? 'แสดงน้อยลง <span aria-hidden="true">−</span>'
+          : `ดูการอบรมทั้งหมด (${matches.length}) <span aria-hidden="true">＋</span>`;
+        status.textContent = `แสดง ${visible.length} จาก ${matches.length} รายการ`;
+      }
+
+      filters.forEach(button => button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        expanded = false;
+        filters.forEach(item => {
+          const active = item === button;
+          item.classList.toggle('is-active', active);
+          item.setAttribute('aria-pressed', String(active));
+        });
+        render();
+      }));
+
+      showMore.addEventListener('click', () => {
+        expanded = !expanded;
+        render();
+        if (!expanded) document.querySelector('.gallery-filters').scrollIntoView({ block: 'start' });
+      });
+
+      render();
     })();
 
 
