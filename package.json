@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1163.0",
+    "@vercel/oidc-aws-credentials-provider": "^3.3.19"
+  }
+}

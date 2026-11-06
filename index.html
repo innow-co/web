@@ -1141,7 +1141,7 @@
 
     .training-formats-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: var(--s5)
     }
 
@@ -1484,7 +1484,8 @@
       color: var(--tx-muted)
     }
 
-    .field input[aria-invalid="true"] {
+    .field input[aria-invalid="true"],
+    .field select[aria-invalid="true"] {
       border-color: var(--crit)
     }
 
@@ -2970,32 +2971,37 @@
         <div class="section-head">
           <p class="label">รูปแบบการอบรม</p>
           <h2 id="training-formats-heading">เลือกวิธีเรียนให้เหมาะกับเป้าหมาย</h2>
-          <p>หัวข้อเดียวกันสามารถออกแบบรูปแบบการเรียนได้ต่างกันตามเวลา ระดับผู้เรียน และผลลัพธ์ที่องค์กรต้องการ</p>
+          <p>เลือกรูปแบบตามเวลาและผลลัพธ์ที่องค์กรต้องการ หรือบอกโจทย์ของคุณเพื่อให้เราช่วยออกแบบการอบรม</p>
         </div>
         <div class="training-formats-grid">
           <article class="training-format">
-            <div class="format-top"><span class="format-no">01</span><span class="format-tag">Short &amp; Focused</span>
+            <div class="format-top"><span class="format-no">01</span><span class="format-tag">ครึ่งวัน–1 วัน</span>
             </div>
-            <h3>Workshop ระยะสั้น</h3>
-            <p>โฟกัสหัวข้อเฉพาะ ทดลองใช้กับงานจริงของทีม และนำแนวทางกลับไปใช้งานต่อได้ทันที
-              เหมาะกับการอัปสกิลแบบกระชับหรือเริ่มต้นหัวข้อใหม่</p>
-            <p class="format-outcome">เป้าหมาย: เข้าใจและเริ่มใช้ได้จริง</p>
+            <h3>บรรยาย</h3>
+            <p>เน้นถ่ายทอดความรู้และมุมมองในหัวข้อที่สนใจ พร้อมกิจกรรม Workshop เล็กน้อยเพื่อประกอบความเข้าใจ</p>
+            <p class="format-outcome">เป้าหมาย: สร้างความเข้าใจร่วมกัน</p>
           </article>
           <article class="training-format">
-            <div class="format-top"><span class="format-no">02</span><span class="format-tag">Output-driven</span></div>
+            <div class="format-top"><span class="format-no">02</span><span class="format-tag">2 วัน</span></div>
+            <h3>Workshop ระยะสั้น</h3>
+            <p>เน้นลงมือทำกับโจทย์และงานจริงของทีม องค์กรสามารถระบุหัวข้อ Workshop ที่ต้องการให้เราออกแบบได้</p>
+            <p class="format-outcome">เป้าหมาย: ฝึกทำและนำไปใช้กับงานจริง</p>
+          </article>
+          <article class="training-format">
+            <div class="format-top"><span class="format-no">03</span><span class="format-tag">Output-driven</span></div>
             <h3>Bootcamp</h3>
-            <p>เรียนแบบลงมือทำต่อเนื่องจากโจทย์จริงขององค์กร โดยมีผู้สอนช่วยรีวิวและปรับระหว่างทาง
-              เพื่อให้จบการอบรมด้วยผลงานที่นำไปต่อยอดได้</p>
+            <p>เรียนแบบลงมือทำต่อเนื่องจากโจทย์จริง โดยมีผู้สอนช่วยรีวิวและปรับระหว่างทาง
+              เพื่อให้ได้ผลงานที่จับต้องได้หลากหลายตามเป้าหมายของทีม</p>
             <p class="format-outcome">เป้าหมาย: ได้ผลงานจับต้องได้หลังจบ</p>
           </article>
           <article class="training-format">
-            <div class="format-top"><span class="format-no">03</span><span class="format-tag">Executive</span></div>
-            <h3>คอร์สสำหรับผู้บริหาร C-Level</h3>
-            <p>เน้นมุมมองเชิงกลยุทธ์ การตัดสินใจ การกำกับดูแล และการกำหนดทิศทางการใช้ AI ให้เชื่อมกับเป้าหมาย ความเสี่ยง
-              และความสามารถขององค์กร</p>
-            <p class="format-outcome">เป้าหมาย: ตัดสินใจและกำหนดทิศทางได้ชัดเจน</p>
+            <div class="format-top"><span class="format-no">04</span><span class="format-tag">1 วัน · Executive</span></div>
+            <h3>หลักสูตรขั้นสูงสำหรับผู้บริหาร</h3>
+            <p>เจาะประเด็น Governance และ Policy Control เพื่อช่วยผู้บริหารกำหนดแนวทางการใช้ AI ให้เหมาะกับองค์กร</p>
+            <p class="format-outcome">เป้าหมาย: วางแนวทางและกำกับดูแลได้ชัดเจน</p>
           </article>
         </div>
+        <p class="quote-factors">ต้องการรูปแบบอื่น? <a href="#contact">บอกโจทย์และความคาดหวังของคุณ</a> เพื่อให้เราช่วยออกแบบการอบรม</p>
       </div>
     </section>
     <section aria-labelledby="tools-taught-heading" class="section tools-taught-section" id="tools-taught">
@@ -3305,8 +3311,14 @@
           <div class="field"><label for="organization">ชื่อองค์กร <span aria-hidden="true">*</span></label><input
               aria-describedby="organization-error" autocomplete="organization" id="organization" maxlength="160"
               name="organization" required="" />
-            <p class="err" hidden="" id="organization-error">กรอกชื่อองค์กรก่อนเตรียมอีเมล</p>
+            <p class="err" hidden="" id="organization-error">กรอกชื่อองค์กร</p>
           </div>
+          <div class="field"><label for="contact-email">อีเมลติดต่อ <span aria-hidden="true">*</span></label><input
+              aria-describedby="contact-email-error" autocomplete="email" id="contact-email" maxlength="254"
+              name="email" required="" type="email" />
+            <p class="err" hidden="" id="contact-email-error">กรอกอีเมลติดต่อให้ถูกต้อง</p>
+          </div>
+          <div hidden="" aria-hidden="true"><label for="website">เว็บไซต์</label><input id="website" name="website" tabindex="-1" autocomplete="off" /></div>
           <div class="field"><label for="course">หลักสูตรที่สนใจ</label><select id="course" name="course">
               <option value="ยังไม่แน่ใจ อยากให้ช่วยแนะนำ">ยังไม่แน่ใจ อยากให้ช่วยแนะนำ</option>
               <optgroup label="สายธุรกิจและผู้บริหาร">
@@ -3323,25 +3335,32 @@
             </select>
             <p aria-live="polite" class="hint" id="course-choice"></p>
           </div>
+          <div class="field"><label for="expectation">รูปแบบและความคาดหวัง <span aria-hidden="true">*</span></label><select
+              id="expectation" name="expectation" required="" aria-describedby="expectation-error">
+              <option value="">เลือกรูปแบบที่ต้องการ</option>
+              <option>บรรยาย ครึ่งวัน–1 วัน มี Workshop เล็กน้อย</option>
+              <option>Workshop ระยะสั้น 2 วัน เน้นลงมือทำจริงและขอหัวข้อที่ต้องการได้</option>
+              <option>Bootcamp มุ่งสร้างผลงานที่จับต้องได้หลังเรียนจบ</option>
+              <option>หลักสูตรขั้นสูงสำหรับผู้บริหาร เช่น Governance / Policy Control 1 วัน</option>
+              <option>อื่นๆ</option>
+            </select>
+            <p class="err" hidden="" id="expectation-error">เลือกรูปแบบที่ต้องการ</p>
+          </div>
+          <div class="field"><label for="expectation-details">รายละเอียดเพิ่มเติมหรือหัวข้อ Workshop ที่ต้องการ</label>
+            <textarea id="expectation-details" name="details" maxlength="2000" rows="3"></textarea>
+          </div>
           <div class="field"><label for="learners">จำนวนผู้เรียนโดยประมาณ <span
                 aria-hidden="true">*</span></label><input aria-describedby="learners-hint learners-error" id="learners"
               inputmode="numeric" min="1" name="learners" required="" step="1" type="number" />
             <p class="hint" id="learners-hint">ใช้ประเมินรูปแบบห้องและจำนวนผู้ช่วยสอน</p>
-            <p class="err" hidden="" id="learners-error">กรอกจำนวนผู้เรียนเป็นจำนวนเต็มตั้งแต่ 1 คน</p>
+            <p class="err" hidden="" id="learners-error">กรอกจำนวนผู้เรียนเป็นจำนวนเต็มตั้งแต่ 1 ถึง 100,000 คน</p>
           </div>
-          <p class="form-note" id="email-explainer">ปุ่มนี้จะเปิดร่างในแอปอีเมลของคุณ ข้อมูลจะถึงเราหลังจากคุณกดส่งอีเมล
-          </p>
+          <p class="form-note" id="email-explainer">เราจะใช้ข้อมูลนี้ติดต่อกลับเพื่อจัดทำใบเสนอราคา</p>
           <div class="form-actions"><button aria-describedby="email-explainer" class="button primary" id="draft-button"
-              type="submit">เตรียมอีเมลขอใบเสนอราคา</button></div>
+              type="submit">ส่งคำขอใบเสนอราคา</button></div>
           <p aria-live="polite" class="form-status" id="form-status" role="status"></p>
-          <div class="email-draft" hidden="" id="email-draft">
-            <h3>ข้อความสำหรับส่งอีเมล</h3>
-            <p class="form-note">หากแอปอีเมลไม่เปิด คัดลอกข้อความด้านล่างแล้วส่งถึง ask@innow.co.th</p><label
-              class="form-note" for="draft-text">ร่างอีเมลที่เตรียมไว้</label><textarea id="draft-text"
-              readonly=""></textarea><button class="button ghost" id="copy-draft" type="button">คัดลอกข้อความ</button>
-          </div>
           <noscript>
-            <p>กรุณาเปิด JavaScript เพื่อเตรียมร่างอีเมลอัตโนมัติ หรือส่งชื่อองค์กร หลักสูตร และจำนวนผู้เรียนมาที่ <a
+            <p>กรุณาเปิด JavaScript เพื่อส่งแบบฟอร์ม หรือส่งชื่อองค์กร หลักสูตร และจำนวนผู้เรียนมาที่ <a
                 href="mailto:ask@innow.co.th">ask@innow.co.th</a></p>
           </noscript>
         </form>
@@ -3414,12 +3433,12 @@
       const form = document.getElementById('quote-form');
       const organization = document.getElementById('organization');
       const learners = document.getElementById('learners');
+      const email = document.getElementById('contact-email');
       const course = document.getElementById('course');
+      const expectation = document.getElementById('expectation');
       const selectedLabel = document.getElementById('course-choice');
       const button = document.getElementById('draft-button');
       const status = document.getElementById('form-status');
-      const draft = document.getElementById('draft-text');
-      const draftPanel = document.getElementById('email-draft');
       function showCourse() { selectedLabel.textContent = 'เลือก: ' + course.value; }
       course.addEventListener('change', showCourse);
       document.querySelectorAll('[data-course]').forEach(link => {
@@ -3429,57 +3448,46 @@
         input.setAttribute('aria-invalid', String(invalid));
         document.getElementById(input.id + '-error').hidden = !invalid;
       }
-      [organization, learners].forEach(input => input.addEventListener('input', () => {
+      [organization, email, learners].forEach(input => input.addEventListener('input', () => {
         if (input.getAttribute('aria-invalid') === 'true') markInvalid(input, false);
       }));
-      form.addEventListener('submit', event => {
+      expectation.addEventListener('change', () => markInvalid(expectation, false));
+      form.addEventListener('submit', async event => {
         event.preventDefault();
         if (button.disabled) return;
         const org = organization.value.trim();
         const count = Number(learners.value);
-        const badOrg = !org;
-        const badCount = !learners.value.trim() || !Number.isSafeInteger(count) || count < 1;
+        const badOrg = !org || /[\r\n]/.test(org);
+        const badEmail = !email.value.trim() || !email.validity.valid;
+        const badExpectation = !expectation.value;
+        const badCount = !learners.value.trim() || !Number.isSafeInteger(count) || count < 1 || count > 100000;
         markInvalid(organization, badOrg);
+        markInvalid(email, badEmail);
+        markInvalid(expectation, badExpectation);
         markInvalid(learners, badCount);
-        if (badOrg || badCount) {
-          status.textContent = 'ตรวจข้อมูลที่ระบุไว้ก่อนเตรียมอีเมล';
-          (badOrg ? organization : learners).focus();
+        if (badOrg || badEmail || badExpectation || badCount) {
+          status.textContent = 'กรุณาตรวจสอบข้อมูลที่ระบุ';
+          (badOrg ? organization : badEmail ? email : badExpectation ? expectation : learners).focus();
           return;
         }
         button.disabled = true;
         button.setAttribute('aria-busy', 'true');
-        button.textContent = 'กำลังเตรียมอีเมล…';
-        const subject = 'ขอใบเสนอราคาอบรม — ' + org.replace(/[\r\n]+/g, ' ');
-        const body = [
-          'เรียน ทีม Innow', '',
-          'ต้องการขอรายละเอียดหลักสูตรและใบเสนอราคาอบรมสำหรับองค์กร', '',
-          'ชื่อองค์กร: ' + org,
-          'หลักสูตรที่สนใจ: ' + course.value,
-          'จำนวนผู้เรียนโดยประมาณ: ' + count + ' คน', '',
-          'กรุณาส่งรายละเอียดหลักสูตร รูปแบบการอบรม และข้อมูลสำหรับจัดทำใบเสนอราคากลับทางอีเมลนี้', '',
-          'ขอบคุณครับ/ค่ะ'
-        ].join('\r\n');
-        draft.value = 'ถึง: ask@innow.co.th\nเรื่อง: ' + subject + '\n\n' + body;
-        draftPanel.hidden = false;
+        button.textContent = 'กำลังส่งคำขอ…';
         try {
-          window.location.href = 'mailto:ask@innow.co.th?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-          status.textContent = 'เตรียมร่างแล้ว ตรวจข้อมูลและกดส่งในแอปอีเมล หากแอปไม่เปิด ใช้ข้อความด้านล่างได้';
+          const response = await fetch('/api/contact', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ organization: org, email: email.value.trim(), course: course.value, expectation: expectation.value, details: document.getElementById('expectation-details').value.trim(), learners: count, website: document.getElementById('website').value })
+          });
+          if (!response.ok) throw new Error('Send failed');
+          form.reset();
+          selectedLabel.textContent = '';
+          status.textContent = 'ส่งคำขอแล้ว ทีม Innow จะติดต่อกลับทางอีเมลที่ระบุ';
         } catch (_) {
-          status.textContent = 'เปิดแอปอีเมลไม่ได้ คัดลอกข้อความด้านล่างแล้วส่งถึง ask@innow.co.th';
+          status.textContent = 'ส่งคำขอไม่สำเร็จ กรุณาลองอีกครั้ง หรือส่งอีเมลถึง ask@innow.co.th';
         } finally {
           button.disabled = false;
           button.removeAttribute('aria-busy');
-          button.textContent = 'เตรียมอีเมลขอใบเสนอราคา';
-        }
-      });
-      document.getElementById('copy-draft').addEventListener('click', async () => {
-        try {
-          if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-          await navigator.clipboard.writeText(draft.value);
-          status.textContent = 'คัดลอกข้อความแล้ว นำไปวางในอีเมลและส่งถึง ask@innow.co.th';
-        } catch (_) {
-          draft.focus(); draft.select();
-          status.textContent = 'เลือกข้อความไว้แล้ว กดคัดลอกบนอุปกรณ์ของคุณ';
+          button.textContent = 'ส่งคำขอใบเสนอราคา';
         }
       });
       if (document.fonts) {
