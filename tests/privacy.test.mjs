@@ -23,6 +23,8 @@ test('privacy page names the controller, the responsible person, the contact and
     'บริษัท อินนาวน์ จำกัด',
     'นายไพบูลย์ พนัสบดี',
     'ask@innow.co.th',
+    'Lark (Lark Suite)',
+    'ซึ่งใช้บริการอีเมลของ Lark',
     'พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562',
     'สรุปสั้น ๆ',
     '1. ผู้ควบคุมข้อมูลและผู้รับผิดชอบ',

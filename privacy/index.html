@@ -358,7 +358,7 @@
             </tbody>
           </table>
         </div>
-        <p>เมื่อคุณกดส่ง ระบบจะส่งข้อมูลเหล่านี้เป็นอีเมลไปที่ ask@innow.co.th ผ่านบริการ Amazon Simple Email Service (Amazon SES) เพื่อให้เราเตรียมใบเสนอราคาและตอบกลับคุณ</p>
+        <p>เมื่อคุณกดส่ง ระบบจะส่งข้อมูลเหล่านี้เป็นอีเมลผ่านบริการ Amazon Simple Email Service (Amazon SES) ไปยังกล่องอีเมล ask@innow.co.th ซึ่งใช้บริการอีเมลของ Lark เพื่อให้เราเตรียมใบเสนอราคาและตอบกลับคุณ</p>
 
         <h3 id="data-line">2.2 LINE MINI App Innow Workshop</h3>
         <div class="tw" tabindex="0" role="region" aria-labelledby="table-line-caption">
@@ -412,11 +412,12 @@
           <li><strong lang="en">Cloudflare</strong>: โฮสต์ LINE MINI App รวมถึงฐานข้อมูลและพื้นที่เก็บไฟล์ของแอป (Cloudflare Workers, D1 และ R2)</li>
           <li><strong lang="en">Vercel</strong>: โฮสต์เว็บไซต์ innow.co.th</li>
           <li><strong lang="en">Amazon Web Services</strong>: ส่งอีเมลจากแบบฟอร์มบนเว็บไซต์ผ่าน Amazon SES</li>
+          <li><strong lang="en">Lark (Lark Suite)</strong>: บริการอีเมลขององค์กรที่รับและเก็บอีเมลที่ส่งมาที่ ask@innow.co.th รวมถึงอีเมลจากแบบฟอร์มบนเว็บไซต์</li>
           <li><strong>LY Corporation (LINE)</strong>: ให้บริการ LINE Login และการส่งข้อความผ่าน LINE Official Account ข้อมูลที่ LINE เก็บเองเป็นไปตาม<a href="https://line.me/en/terms/policy/" hreflang="en">นโยบายความเป็นส่วนตัวของ LINE</a></li>
         </ul>
         <p>นอกจากผู้ให้บริการข้างต้น เราจะเปิดเผยข้อมูลของคุณเฉพาะเมื่อกฎหมายกำหนด หรือเมื่อได้รับความยินยอมจากคุณ</p>
         <h3 id="sharing-abroad">การส่งข้อมูลไปต่างประเทศ</h3>
-        <p>ข้อมูลของคุณอาจถูกประมวลผลบนเซิร์ฟเวอร์นอกประเทศไทย เช่น เครือข่ายเซิร์ฟเวอร์ของ Cloudflare ในหลายประเทศ และเซิร์ฟเวอร์ของ Amazon Web Services ในซิดนีย์ ออสเตรเลีย (ภูมิภาค ap-southeast-2) ซึ่งใช้ส่งอีเมลจากแบบฟอร์ม เรากำหนดให้มีมาตรการคุ้มครองข้อมูลที่เหมาะสมเมื่อมีการส่งข้อมูลไปต่างประเทศ</p>
+        <p>ผู้ให้บริการบางรายประมวลผลข้อมูลนอกประเทศไทย ข้อมูลของคุณจึงอาจถูกประมวลผลบนเซิร์ฟเวอร์นอกประเทศไทย เช่น เครือข่ายเซิร์ฟเวอร์ของ Cloudflare ในหลายประเทศ และเซิร์ฟเวอร์ของ Amazon Web Services ในซิดนีย์ ออสเตรเลีย (ภูมิภาค ap-southeast-2) ซึ่งใช้ส่งอีเมลจากแบบฟอร์ม เรากำหนดให้มีมาตรการคุ้มครองข้อมูลที่เหมาะสมเมื่อมีการส่งข้อมูลไปต่างประเทศ</p>
       </section>
 
       <section class="section" id="retention" aria-labelledby="retention-heading">
