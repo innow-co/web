@@ -2,6 +2,7 @@
 // All server-provided text goes through h() / textContent; nothing is ever put into innerHTML.
 import {
   clockOffset, remainingMs, formatCountdown, formatCode, formatSize, isHttps, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
+  isNever, lifetimeWarning, LIFETIME_OPTIONS, DEFAULT_LIFETIME_MINUTES,
   actionLabel, csvFilename, prettyDetail, kindLabel, mailtoHref, forwardBadge,
 } from './lib-admin.js';
 
@@ -349,8 +350,11 @@ async function codeView(w) {
   const box = h('section', { class: 'codebox', 'aria-label': 'รหัสเข้าร่วม' }, label, big, cd, redeemed);
 
   const minutes = h('select', { id: 'mins' },
-    [[1, '1 นาที'], [5, '5 นาที'], [10, '10 นาที'], [15, '15 นาที'], [30, '30 นาที'], [60, '1 ชั่วโมง'], [120, '2 ชั่วโมง'], [240, '4 ชั่วโมง'], [1440, '24 ชั่วโมง']]
-      .map(([v, t]) => { const o = h('option', { value: v }, t); if (v === 5) o.selected = true; return o; }));
+    LIFETIME_OPTIONS.map(([v, t]) => { const o = h('option', { value: v }, t); if (v === DEFAULT_LIFETIME_MINUTES) o.selected = true; return o; }));
+  const lifeWarn = h('p', { class: 'life-warn', id: 'mins-warn', role: 'status' });
+  const syncWarn = () => { lifeWarn.textContent = lifetimeWarning(minutes.value); };
+  minutes.addEventListener('change', syncWarn);
+  syncWarn();
   const newBtn = h('button', { type: 'button', class: 'btn', onclick: issue }, 'สร้างรหัสใหม่');
   const revBtn = h('button', { type: 'button', class: 'btn danger', onclick: revoke }, 'ยกเลิกรหัส');
   const msg = h('p', { class: 'e', role: 'alert', style: 'text-align:center' });
@@ -363,16 +367,22 @@ async function codeView(w) {
     h('thead', {}, h('tr', {}, h('th', {}, 'รหัส'), h('th', {}, 'สร้างเมื่อ'), h('th', {}, 'หมดอายุ'), h('th', {}, 'สถานะ'), h('th', { class: 'num' }, 'ผู้ใช้รหัสนี้'))),
     histBody));
 
-  const active = () => codes.find((c) => c.active && remainingMs(c.expiresAt, offset) > 0);
+  const live = (c) => c.active && (isNever(c) || remainingMs(c.expiresAt, offset) > 0);
+  const active = () => codes.find(live);
 
   function paint() {
     const a = active();
     if (a) {
-      const left = remainingMs(a.expiresAt, offset);
       big.className = 'bigcode';
       big.textContent = formatCode(a.code);
-      cd.className = 'countdown' + (left < 60000 ? ' low' : '');
-      cd.replaceChildren(h('small', {}, 'หมดอายุใน'), formatCountdown(left));
+      if (isNever(a)) {
+        cd.className = 'countdown';
+        cd.replaceChildren(h('small', {}, 'อายุรหัส'), 'ไม่หมดอายุ');
+      } else {
+        const left = remainingMs(a.expiresAt, offset);
+        cd.className = 'countdown' + (left < 60000 ? ' low' : '');
+        cd.replaceChildren(h('small', {}, 'หมดอายุใน'), formatCountdown(left));
+      }
       redeemed.textContent = `มีผู้ใช้รหัสนี้แล้ว ${a.redeemed} คน`;
       label.textContent = 'รหัสเข้าร่วมตอนนี้';
       revBtn.disabled = false;
@@ -388,9 +398,8 @@ async function codeView(w) {
 
   function paintHistory() {
     histBody.replaceChildren(...(codes.length ? codes.map((c) => {
-      const live = c.active && remainingMs(c.expiresAt, offset) > 0;
-      const status = c.revoked ? ['ยกเลิกแล้ว', 'off'] : live ? ['ใช้งานอยู่', 'ok'] : ['หมดอายุ', 'warn'];
-      return h('tr', {}, h('td', { class: 'mono' }, formatCode(c.code)), h('td', {}, fmtDate(c.createdAt)), h('td', {}, fmtDate(c.expiresAt)),
+      const status = c.revoked ? ['ยกเลิกแล้ว', 'off'] : live(c) ? ['ใช้งานอยู่', 'ok'] : ['หมดอายุ', 'warn'];
+      return h('tr', {}, h('td', { class: 'mono' }, formatCode(c.code)), h('td', {}, fmtDate(c.createdAt)), h('td', {}, isNever(c) ? 'ไม่หมดอายุ' : fmtDate(c.expiresAt)),
         h('td', {}, h('span', { class: 'chip ' + status[1] }, status[0])), h('td', { class: 'num' }, c.redeemed));
     }) : [h('tr', {}, h('td', { colspan: '5', class: 'empty' }, 'ยังไม่เคยสร้างรหัส'))]));
   }
@@ -408,7 +417,7 @@ async function codeView(w) {
     msg.textContent = '';
     setBusy(newBtn, true, 'กำลังสร้าง...');
     try {
-      await api(`/workshops/${wid}/codes`, { method: 'POST', json: { minutes: Number(minutes.value) } });
+      await api(`/workshops/${wid}/codes`, { method: 'POST', json: minutes.value === 'never' ? { never: true } : { minutes: Number(minutes.value) } });
       await load();
       toast('สร้างรหัสใหม่แล้ว รหัสเดิมถูกยกเลิก');
     } catch (e) { if (e.status !== 401) msg.textContent = e.message; }
@@ -427,12 +436,12 @@ async function codeView(w) {
 
   await load();
   return {
-    nodes: [box, actions, msg, h('h2', {}, 'ประวัติรหัส'), hist],
+    nodes: [box, actions, lifeWarn, msg, h('h2', {}, 'ประวัติรหัส'), hist],
     after() {
       // tick every second from the server-clock offset; reload the list the moment a code expires
       every(() => {
         paint();
-        const shown = codes.find((c) => c.active);
+        const shown = codes.find((c) => c.active && !isNever(c));
         if (shown && remainingMs(shown.expiresAt, offset) <= 0 && !expiredHandled) {
           expiredHandled = true;
           load().catch(() => {});

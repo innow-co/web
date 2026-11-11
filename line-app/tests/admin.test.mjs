@@ -61,12 +61,22 @@ test('new code revokes the previous active one', async () => {
   assert.equal(fresh.status, 200);
 });
 
-test('minutes clamps to 1 and 1440', async () => {
+test('minutes clamps to 1..129600 (90 days), default 5', async () => {
   const w = await seedWorkshop('Clamp WS');
-  const lo = await call('POST', `/api/admin/workshops/${w.id}/codes`, { token: T, json: { minutes: -50 } });
-  assert.equal(lo.data.expiresAt - lo.data.serverNow, 60000);
-  const hi = await call('POST', `/api/admin/workshops/${w.id}/codes`, { token: T, json: { minutes: 999999 } });
-  assert.equal(hi.data.expiresAt - hi.data.serverNow, 1440 * 60000);
+  const life = async (minutes) => { const c = await call('POST', `/api/admin/workshops/${w.id}/codes`, { token: T, json: minutes === undefined ? {} : { minutes } }); assert.equal(c.status, 200); return { ms: c.data.expiresAt - c.data.serverNow, d: c.data }; };
+  assert.equal((await life(1)).ms, 60000);
+  assert.equal((await life(-50)).ms, 60000);
+  assert.equal((await life(0)).ms, 5 * 60000);
+  assert.equal((await life('abc')).ms, 5 * 60000);
+  assert.equal((await life(undefined)).ms, 5 * 60000);
+  assert.equal((await life(1440)).ms, 1440 * 60000);
+  assert.equal((await life(43200)).ms, 43200 * 60000);
+  const d90 = await life(129600);
+  assert.equal(d90.ms, 129600 * 60000);
+  assert.equal(d90.d.neverExpires, undefined); // a 90-day code is an ordinary timed code
+  assert.ok(d90.d.expiresAt < 253402300799000);
+  assert.equal((await life(129601)).ms, 129600 * 60000);
+  assert.equal((await life(999999999)).ms, 129600 * 60000);
 });
 
 test('item validation: title, https url, kind', async () => {
@@ -191,4 +201,86 @@ test('copy-from copies file items under a new R2 key; source file intact', async
     assert.equal(f.status, 200);
     assert.equal(await f.text(), 'hello-bytes');
   }
+});
+
+// ---- never-expiring codes (sentinel 9999-12-31T23:59:59.999Z) ----
+const NEVER = 253402300799000;
+const issue = (wid, json) => call('POST', `/api/admin/workshops/${wid}/codes`, { token: T, json });
+const redeemWith = async (uid, code) => call('POST', '/api/redeem', { token: (await login(uid)).token, json: { code } });
+
+test('never:true stores the sentinel and reports neverExpires with expiresAt null', async () => {
+  const w = await seedWorkshop('Never WS');
+  const c = await issue(w.id, { never: true });
+  assert.equal(c.status, 200);
+  assert.match(c.data.code, /^\d{4}$/);
+  assert.equal(c.data.expiresAt, null);
+  assert.equal(c.data.neverExpires, true);
+  assert.equal(typeof c.data.serverNow, 'number');
+  assert.ok(d1(`SELECT expires_at FROM codes WHERE workshop_id='${w.id}' AND code='${c.data.code}'`).includes(String(NEVER)));
+  assert.ok(d1(`SELECT detail FROM audit_log WHERE action='code_new' ORDER BY id DESC LIMIT 1`).includes('never'));
+  const list = await call('GET', `/api/admin/workshops/${w.id}/codes`, { token: T });
+  const cur = list.data.codes.find((x) => x.code === c.data.code);
+  assert.equal(cur.neverExpires, true);
+  assert.equal(cur.expiresAt, null);
+  assert.equal(cur.active, true);
+  const old = list.data.codes.find((x) => x.code === w.code);
+  assert.equal(old.neverExpires, false);
+  assert.equal(typeof old.expiresAt, 'number');
+  assert.equal(old.revoked, true);
+});
+
+test('a never code redeems, and still does long after it was issued', async () => {
+  const w = await seedWorkshop('Never redeem');
+  const c = await issue(w.id, { never: true });
+  assert.equal((await redeemWith('nv1', c.data.code)).status, 200);
+  d1(`UPDATE codes SET created_at = 1000, expires_at = ${NEVER} WHERE workshop_id='${w.id}' AND code='${c.data.code}'`);
+  const r = await redeemWith('nv2', c.data.code);
+  assert.equal(r.status, 200);
+  assert.equal(r.data.status, 'register');
+});
+
+test('a new code revokes the never code; the old one gets the generic refusal', async () => {
+  const w = await seedWorkshop('Never rotate');
+  const nv = await issue(w.id, { never: true });
+  const next = await issue(w.id, { minutes: 10 });
+  const wrong = await redeemWith('nr0', '0000');
+  const old = await redeemWith('nr1', nv.data.code);
+  assert.equal(old.status, 400);
+  assert.equal(String(old.data.error).replace(/\d+/g, 'N'), String(wrong.data.error).replace(/\d+/g, 'N'));
+  assert.equal((await redeemWith('nr1', next.data.code)).status, 200);
+});
+
+test('admin revoke kills a never code', async () => {
+  const w = await seedWorkshop('Never revoke');
+  const nv = await issue(w.id, { never: true });
+  assert.equal((await call('DELETE', `/api/admin/workshops/${w.id}/codes`, { token: T })).status, 200);
+  assert.equal((await redeemWith('nrv1', nv.data.code)).status, 400);
+  const list = await call('GET', `/api/admin/workshops/${w.id}/codes`, { token: T });
+  const row = list.data.codes.find((x) => x.code === nv.data.code);
+  assert.equal(row.active, false);
+  assert.equal(row.revoked, true);
+});
+
+test('a never code in one workshop is never reused for another workshop', async () => {
+  const a = await seedWorkshop('Never A');
+  const b = await seedWorkshop('Never B');
+  const nv = await issue(a.id, { never: true });
+  for (let i = 0; i < 30; i++) {
+    const c = await issue(b.id, { minutes: 5 });
+    assert.notEqual(c.data.code, nv.data.code);
+  }
+  // A's never code is still the one redeemable for A.
+  assert.equal((await redeemWith('nab1', nv.data.code)).status, 200);
+});
+
+test('never must be strictly boolean true: "true" and 1 fall back to the minutes path', async () => {
+  const w = await seedWorkshop('Never strict');
+  for (const never of ['true', 1]) {
+    const c = await issue(w.id, { never });
+    assert.equal(c.status, 200);
+    assert.equal(c.data.neverExpires, undefined);
+    assert.equal(c.data.expiresAt - c.data.serverNow, 5 * 60000);
+  }
+  const clamped = await issue(w.id, { never: 'true', minutes: 999999 });
+  assert.equal(clamped.data.expiresAt - clamped.data.serverNow, 129600 * 60000);
 });

@@ -92,6 +92,8 @@ td.nowrap { white-space: nowrap; }
 .code-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 20px; }
 .code-actions .btn { min-height: 56px; font-size: 18px; padding: 8px 26px; }
 .code-actions label { font-size: 15px; color: #37516d; }
+.life-warn { text-align: center; color: var(--amber); font-size: 14px; font-weight: 600; margin: 10px 0 0; }
+.life-warn:empty { display: none; }
 .code-actions select { min-height: 56px; font-size: 18px; }
 .mono { font-variant-numeric: tabular-nums; font-family: var(--f-display); font-weight: 600; letter-spacing: .05em; }
 

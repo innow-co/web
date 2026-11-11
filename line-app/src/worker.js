@@ -8,6 +8,9 @@ const SESSION_TTL = 60 * 60 * 24 * 7;      // member session: 7 days
 const ADMIN_TTL = 60 * 60 * 12;            // admin session: 12 hours
 const REDEEM_TTL = 60 * 30;                // time to finish registration after a valid code
 const FILE_LINK_TTL = 60 * 5;              // signed file URL: 5 minutes
+// Sentinel expiry of a never-expiring code: 9999-12-31T23:59:59.999Z, so `expires_at > now` stays true.
+const NEVER_EXPIRES = 253402300799000;
+const MAX_CODE_MINUTES = 90 * 24 * 60;   // longest timed code: 90 days
 const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
 const INQUIRY_WINDOW = 60 * 60 * 1000;     // 1 hour
 const INQUIRY_MAX = 3;                     // quote requests per member / hour (every submission counts)
@@ -401,14 +404,15 @@ const admin = {
     const counts = Object.fromEntries(redeemed.results.map((r) => [r.code_id, r.n]));
     return json({
       serverNow: t,
-      codes: results.map((c) => ({ id: c.id, code: c.code, expiresAt: c.expires_at, createdAt: c.created_at, active: !c.revoked && c.expires_at > t, revoked: !!c.revoked, redeemed: counts[c.id] || 0 })),
+      codes: results.map((c) => ({ id: c.id, code: c.code, expiresAt: c.expires_at >= NEVER_EXPIRES ? null : c.expires_at, neverExpires: c.expires_at >= NEVER_EXPIRES, createdAt: c.created_at, active: !c.revoked && c.expires_at > t, revoked: !!c.revoked, redeemed: counts[c.id] || 0 })),
     });
   },
 
   // Issue a new code; previous active codes for this workshop are revoked (rotate).
   async newCode(req, env, wid) {
     const b = await body(req).catch(() => ({}));
-    const minutes = Math.min(Math.max(Number(b.minutes) || 5, 1), 24 * 60);
+    const never = b.never === true;
+    const minutes = Math.min(Math.max(Number(b.minutes) || 5, 1), MAX_CODE_MINUTES);
     const w = await env.DB.prepare('SELECT id FROM workshops WHERE id = ?').bind(wid).first();
     if (!w) throw new HttpError(404, 'ไม่พบ Workshop');
     const t = now();
@@ -416,8 +420,12 @@ const admin = {
     const code = randomCode(new Set(results.map((r) => r.code)));
     await env.DB.batch([
       env.DB.prepare('UPDATE codes SET revoked = 1 WHERE workshop_id = ? AND revoked = 0 AND expires_at > ?').bind(wid, t),
-      env.DB.prepare('INSERT INTO codes (workshop_id, code, expires_at, created_at) VALUES (?, ?, ?, ?)').bind(wid, code, t + minutes * 60000, t),
+      env.DB.prepare('INSERT INTO codes (workshop_id, code, expires_at, created_at) VALUES (?, ?, ?, ?)').bind(wid, code, never ? NEVER_EXPIRES : t + minutes * 60000, t),
     ]);
+    if (never) {
+      await audit(env, 'admin', 'code_new', { workshopId: wid, never: true });
+      return json({ code, expiresAt: null, neverExpires: true, serverNow: t });
+    }
     await audit(env, 'admin', 'code_new', { workshopId: wid, minutes });
     return json({ code, expiresAt: t + minutes * 60000, serverNow: t });
   },

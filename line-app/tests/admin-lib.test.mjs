@@ -127,3 +127,55 @@ test('forwardBadge text', () => {
   assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '500' }), { text: 'ส่งอีเมลไม่สำเร็จ: 500', ok: false });
   assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '' }), { text: 'ส่งอีเมลไม่สำเร็จ', ok: false });
 });
+
+test('isNever: flag or null/absent expiry means never expires; ordinary values do not', async () => {
+  const { isNever } = await import('../public/lib-admin.js');
+  assert.equal(isNever({ neverExpires: true, expiresAt: null }), true);
+  assert.equal(isNever({ expiresAt: null }), true);
+  assert.equal(isNever({ neverExpires: true, expiresAt: 5 }), true);
+  assert.equal(isNever({ expiresAt: 1_600_000 }), false);
+  assert.equal(isNever({ neverExpires: false, expiresAt: 1_600_000 }), false);
+  assert.equal(isNever(null), false);
+});
+
+test('remainingMs / formatCountdown stay finite and unchanged for ordinary values, and never throw on never codes', () => {
+  assert.equal(remainingMs(1_600_000 + 300_000, 600_000, 1_000_000), 300_000);
+  assert.equal(remainingMs(null, 0, 1000), 0);        // null is not a time: no phantom 1970 maths, no NaN
+  assert.equal(formatCountdown(Infinity), '00:00');
+  assert.equal(formatCountdown(null), '00:00');
+  assert.equal(formatCountdown(65000), '01:05');
+});
+
+test('formatCountdown shows days once the remainder is a day or more', () => {
+  const D = 86400000;
+  assert.equal(formatCountdown(D - 1000), '23:59:59');
+  assert.equal(formatCountdown(D), '1 วัน 00:00:00');
+  assert.equal(formatCountdown(D + 61000), '1 วัน 00:01:01');
+  assert.equal(formatCountdown(30 * D), '30 วัน 00:00:00');
+  assert.equal(formatCountdown(30 * D - 1000), '29 วัน 23:59:59');
+  assert.equal(formatCountdown(90 * D), '90 วัน 00:00:00');
+  assert.equal(formatCountdown(0), '00:00');
+  assert.equal(formatCountdown(-5000), '00:00');
+  assert.equal(formatCountdown(3 * 3600000 + 2 * 60000 + 1000), '3:02:01');
+});
+
+test('lifetimeWarning: none for short codes, long wording from 1 month, strong wording for never', async () => {
+  const { lifetimeWarning } = await import('../public/lib-admin.js');
+  assert.equal(lifetimeWarning('5'), '');
+  assert.equal(lifetimeWarning('1440'), '');
+  assert.equal(lifetimeWarning('43199'), '');
+  assert.match(lifetimeWarning('43200'), /^รหัสนี้ใช้ได้นาน/);
+  assert.match(lifetimeWarning('129600'), /^รหัสนี้ใช้ได้นาน/);
+  assert.equal(lifetimeWarning('never'), 'ใครได้รับรหัสสามารถรับสิทธิ์ได้ตลอด ควรยกเลิกเมื่อไม่ใช้แล้ว');
+});
+
+test('UI default lifetime is 3 months and is one of the select options; never is last', async () => {
+  const { DEFAULT_LIFETIME_MINUTES, LIFETIME_OPTIONS } = await import('../public/lib-admin.js');
+  assert.equal(DEFAULT_LIFETIME_MINUTES, 129600);
+  assert.ok(LIFETIME_OPTIONS.some(([v]) => v === DEFAULT_LIFETIME_MINUTES));
+  assert.deepEqual(LIFETIME_OPTIONS.at(-1), ['never', 'ไม่หมดอายุ']);
+  assert.ok(LIFETIME_OPTIONS.some(([v]) => v === 43200));
+  assert.ok(LIFETIME_OPTIONS.some(([v]) => v === 5));
+  // the default shows the long warning from the start
+  assert.notEqual((await import('../public/lib-admin.js')).lifetimeWarning(DEFAULT_LIFETIME_MINUTES), '');
+});

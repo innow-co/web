@@ -6,15 +6,37 @@ export const clockOffset = (serverNow, clientNow = Date.now()) => Number(serverN
 
 export const serverTime = (offset, clientNow = Date.now()) => clientNow + (Number(offset) || 0);
 
+// A never-expiring code comes from the API as neverExpires: true with expiresAt: null.
+export const isNever = (c) => !!c && (c.neverExpires === true || c.expiresAt == null);
+
+// Warning shown next to the lifetime select ('' = none). Values are minutes, or 'never'.
+// Lifetime choices for the admin select: [value, label]. 'never' is the last one. The UI preselects
+// DEFAULT_LIFETIME_MINUTES; the API itself still falls back to 5 minutes when `minutes` is missing/garbage.
+export const LIFETIME_OPTIONS = [
+  [1, '1 นาที'], [5, '5 นาที'], [10, '10 นาที'], [15, '15 นาที'], [30, '30 นาที'], [60, '1 ชั่วโมง'], [120, '2 ชั่วโมง'], [240, '4 ชั่วโมง'],
+  [1440, '24 ชั่วโมง'], [43200, 'ภายใน 1 เดือน (30 วัน)'], [129600, 'ภายใน 3 เดือน (90 วัน)'], ['never', 'ไม่หมดอายุ'],
+];
+export const DEFAULT_LIFETIME_MINUTES = 129600;
+
+export const LONG_CODE_MINUTES = 30 * 24 * 60;
+export function lifetimeWarning(value) {
+  if (value === 'never') return 'ใครได้รับรหัสสามารถรับสิทธิ์ได้ตลอด ควรยกเลิกเมื่อไม่ใช้แล้ว';
+  if (Number(value) >= LONG_CODE_MINUTES) return 'รหัสนี้ใช้ได้นาน ใครได้รับรหัสสามารถรับสิทธิ์ได้จนกว่าจะหมดอายุ ควรยกเลิกเมื่อไม่ใช้แล้ว';
+  return '';
+}
+
 export const remainingMs = (expiresAt, offset, clientNow = Date.now()) => Math.max(0, Number(expiresAt) - serverTime(offset, clientNow));
 
 // 0 -> "00:00", 65000 -> "01:05", 3 h 2 m 1 s -> "3:02:01". Rounds up so "00:00" only shows at real expiry.
 export function formatCountdown(ms) {
   const total = Math.max(0, Math.ceil((Number(ms) || 0) / 1000));
-  const h = Math.floor(total / 3600);
+  if (!Number.isFinite(total)) return '00:00';
+  const days = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
   const pad = (n) => String(n).padStart(2, '0');
+  if (days > 0) return `${days} วัน ${pad(h)}:${pad(m)}:${pad(s)}`;
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
 
