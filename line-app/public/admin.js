@@ -173,10 +173,13 @@ async function route() {
   }
 }
 
+// White Innow wordmark (transparent PNG, 1416x463) for the dark navy backgrounds. Size comes from CSS classes.
+const logo = (cls, width, height) => h('img', { class: cls, src: '/innow-logo-white.png', alt: 'Innow', width, height });
+
 function shell(r) {
   const cur = (name) => (r.name === name ? 'page' : null);
   return h('header', { class: 'top' }, h('div', { class: 'top-in' },
-    h('div', { class: 'brand' }, 'innow', h('small', {}, 'ผู้ดูแล Workshop')),
+    h('div', { class: 'brand' }, logo('logo-top', 110, 36), h('small', {}, 'ผู้ดูแล Workshop')),
     h('nav', { class: 'nav', 'aria-label': 'เมนูผู้ดูแล' },
       h('a', { href: '#/', 'aria-current': r.name === 'home' || r.name === 'workshop' ? 'page' : null }, 'Workshop'),
       h('a', { href: '#/members', 'aria-current': cur('members') }, 'ผู้เรียนทั้งหมด'),
@@ -218,7 +221,7 @@ function showLogin(message) {
   });
   const title = h('h1', { tabindex: '-1' }, 'ผู้ดูแล Innow Workshop');
   app.replaceChildren(h('main', { class: 'login' },
-    h('div', { class: 'brand', style: 'color:var(--navy);margin-bottom:12px' }, 'innow'),
+    h('div', { class: 'login-brand' }, logo('logo-login', 159, 52)),
     title, h('p', { class: 'lead' }, 'กรอกรหัสผ่านเพื่อจัดการ Workshop รหัสเข้าร่วม และเนื้อหา'),
     h('div', { class: 'card' }, form)));
   (message ? title : pw).focus();

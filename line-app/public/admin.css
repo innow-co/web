@@ -21,6 +21,10 @@ h3 { font-size: 16px; margin: 0; }
 .top { background: linear-gradient(112deg, #071f44 0%, #014799 60%, #0575bf 100%); color: #fff; }
 .top-in { max-width: 1100px; margin: 0 auto; padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
 .brand { font-family: var(--f-display); font-weight: 700; font-size: 24px; letter-spacing: -1px; line-height: 1.1; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo-top { display: block; height: 36px; width: auto; }
+.login-brand { background: linear-gradient(112deg, #071f44 0%, #014799 60%, #0575bf 100%); border-radius: 14px; padding: 14px 20px; margin-bottom: 14px; display: flex; justify-content: center; }
+.login-brand .logo-login { display: block; height: 52px; width: auto; max-width: 100%; }
 .brand small { display: block; font-family: var(--f-read); font-weight: 400; font-size: 12px; letter-spacing: 0; opacity: .8; }
 .nav { display: flex; flex-wrap: wrap; gap: 4px; margin-left: auto; align-items: center; }
 .nav a, .nav button { color: #fff; text-decoration: none; background: none; border: 0; padding: 0 14px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 10px; cursor: pointer; font-size: 15px; }
