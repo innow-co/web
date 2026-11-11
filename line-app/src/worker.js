@@ -274,7 +274,10 @@ const member = {
     try {
       await env.DB.prepare('UPDATE inquiries SET forwarded = ?, forward_error = ? WHERE id = ?')
         .bind(result.ok ? 1 : 0, result.error, ins.meta.last_row_id).run();
-    } catch { /* keep the answer truthful: the forward itself happened */ }
+    } catch {
+      // Keep the answer truthful: the forward itself happened. Log the id only, never the learner's data.
+      console.error('inquiry status update failed', ins.meta.last_row_id);
+    }
     return json({ ok: true, forwarded: result.ok });
   },
 };

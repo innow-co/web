@@ -1,6 +1,9 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import { validateInquiry } from '../src/lib.js';
 import { start, stop, call, d1, login, adminLogin } from './api.helper.mjs';
 
@@ -196,6 +199,12 @@ test('a failing UPDATE after a successful forward still answers 200 forwarded:tr
     assert.deepEqual(r.data, { ok: true, forwarded: true });
     assert.equal(hits.length, 1);
     assert.equal(rowCount('inq-upd'), 1);
+    // The failure is logged without any personal data: only the inquiry id.
+    await new Promise((r) => setTimeout(r, 500));
+    const log = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '.wrangler', 'test-dev.log'), 'utf8');
+    assert.match(log, /inquiry status update failed\D+\d+/);
+    const line = log.split('\n').filter((l) => l.includes('inquiry status update failed')).join('\n');
+    assert.ok(!line.includes('hr@') && !line.includes(form().organization), 'log line must not carry PII');
   } finally {
     d1('DROP TRIGGER inq_block_update');
   }
