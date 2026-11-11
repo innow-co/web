@@ -78,6 +78,7 @@ On failure the script deletes the menu it just created. Buttons 1, 2, 3, 6 open 
 
 ## Known limits and deferred work
 
+- Fonts are self-hosted in `public/fonts/` (copies of `../fonts/*.ttf`, full TTFs, about 580 KB, no subsetting); the app makes no request to Google Fonts. Re-copy them if the Design System fonts change. Emoji and characters outside Thai/Latin fall back to the OS font.
 - Upload size limit: 40 MB per file.
 - Developing mode: only users with a role (Tester/Admin) can open the app.
 - LINE access tokens last 12 hours; after that members must reopen the app (inside LINE the app never calls `liff.login()`).

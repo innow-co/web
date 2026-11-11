@@ -1,3 +1,7 @@
+@font-face { font-family: 'Anuphan'; font-style: normal; font-weight: 500 700; font-display: swap; src: url('/fonts/Anuphan-Variable.ttf') format('truetype'); }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/IBMPlexSansThai-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/IBMPlexSansThai-Medium.ttf') format('truetype'); }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/IBMPlexSansThai-SemiBold.ttf') format('truetype'); }
 :root {
   --navy: #082955; --blue: #014799; --sky: #338ce6; --pale: #e9f3ff; --bg: #f5f8fd;
   --ink: #172b4d; --muted: #5b6b83; --line: #dbe5f3; --card: #fff; --green: #16815d; --red: #c23a4f; --amber: #8a5a00;

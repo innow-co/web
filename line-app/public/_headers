@@ -7,5 +7,9 @@
 # object-src blob: rather than 'none': a blob: PDF in the preview iframe inherits this CSP and Chrome's PDF viewer needs it.
 # also covers /admin.html, /admin.css and /admin.js (listing /admin.html separately would send every header twice)
 /admin*
-  Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; img-src 'self' blob: data:; media-src 'self' blob:; frame-src blob:; object-src blob:; base-uri 'none'; form-action 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com
+  Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; img-src 'self' blob: data:; media-src 'self' blob:; frame-src blob:; object-src blob:; base-uri 'none'; form-action 'self'; style-src 'self'; font-src 'self'
   X-Frame-Options: DENY
+
+# Fonts are not content-hashed, so no immutable: a day of caching.
+/fonts/*
+  Cache-Control: public, max-age=86400
