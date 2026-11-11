@@ -2,7 +2,7 @@
 // headless Chrome/Edge, then checks the PNG header and the 1 MB LINE limit.
 //   node richmenu/render.mjs
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, statSync, rmSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const html = fileURLToPath(new URL('./richmenu.html', import.meta.url));
@@ -14,11 +14,14 @@ const BROWSERS = [
 const browser = BROWSERS.find((p) => existsSync(p));
 if (!browser) { console.error('No Chrome or Edge found in /Applications'); process.exit(1); }
 
+// A failed render must not pass on a stale file.
+rmSync(png, { force: true });
+
 const r = spawnSync(browser, [
   '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-device-scale-factor=1',
   '--window-size=2500,1686', '--virtual-time-budget=5000', `--screenshot=${png}`, pathToFileURL(html).href,
 ], { encoding: 'utf8', timeout: 60000 });
-if (r.status !== 0) { console.error(r.stderr); process.exit(1); }
+if (r.status !== 0 || !existsSync(png)) { console.error(r.stderr || 'render produced no file'); process.exit(1); }
 
 const buf = readFileSync(png);
 const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20), size = statSync(png).size;

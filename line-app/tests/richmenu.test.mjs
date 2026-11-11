@@ -49,24 +49,30 @@ test('buildRichMenu: six areas tile the image exactly, ordered, no overlap', () 
 test('buildRichMenu: actions and exact URLs', () => {
   const { areas } = buildRichMenu('1234-abcd', '@innow');
   const uris = areas.map((a) => { assert.equal(a.action.type, 'uri'); return a.action.uri; });
-  // The OA basic id is URL-encoded in the oaMessage path: LINE documents the form
-  // https://line.me/R/oaMessage/{URL-encoded basic ID}/ , so "@" becomes "%40".
+  // Button 4 opens the website directly; button 6 opens the MINI App contact page (the OA chat is reached from there).
   assert.deepEqual(uris, [
     'https://liff.line.me/1234-abcd?p=workshops',
     'https://liff.line.me/1234-abcd?p=redeem',
     'https://liff.line.me/1234-abcd?p=prompts',
-    'https://liff.line.me/1234-abcd?p=bonus',
+    'https://innow.co.th',
     'https://www.facebook.com/innow.co.th',
-    'https://line.me/R/oaMessage/%40innow/',
+    'https://liff.line.me/1234-abcd?p=contact',
   ]);
+  assert.deepEqual(areas.map((a) => a.action.label), ['Workshop', 'รับสิทธิ์', 'Prompt Library', 'ดูผลงานของเรา', 'ข่าวสาร', 'ติดต่อเรา']);
   for (const a of areas) assert.ok(a.action.label === undefined || a.action.label.length <= 20);
 });
 
-test('buildRichMenu: basic id with or without @ gives the same URL', () => {
-  const a = buildRichMenu('1234-abcd', '355rjzvz').areas[5].action.uri;
-  const b = buildRichMenu('1234-abcd', '@355rjzvz').areas[5].action.uri;
-  assert.equal(a, b);
-  assert.equal(a, 'https://line.me/R/oaMessage/%40355rjzvz/');
+test('buildRichMenu: basic id with or without @ gives the same menu; no button uses the OA chat URL', () => {
+  const a = buildRichMenu('1234-abcd', '355rjzvz');
+  assert.deepEqual(a, buildRichMenu('1234-abcd', '@355rjzvz'));
+  assert.ok(!JSON.stringify(a).includes('oaMessage'));
+});
+
+test('richmenu.html carries the button 4 and 6 text and no emoji', () => {
+  const html = readFileSync(join(here, '..', 'richmenu', 'richmenu.html'), 'utf8');
+  for (const t of ['ดูผลงานของเรา', 'innow.co.th', 'ติดต่อเรา', 'สอบถามข้อมูล']) assert.ok(html.includes(t), t);
+  assert.ok(!html.includes('Bonus'));
+  assert.ok(!/\p{Extended_Pictographic}/u.test(html));
 });
 
 test('buildRichMenu: rejects empty or non-string inputs', () => {

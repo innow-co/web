@@ -14,6 +14,7 @@ const COL_W = [833, 833, 834];
 const ROW_H = 843;
 const API = 'https://api.line.me';
 const API_DATA = 'https://api-data.line.me';
+const PORTFOLIO_URL = 'https://innow.co.th';
 const FACEBOOK_URL = 'https://www.facebook.com/innow.co.th';
 const PNG_URL = new URL('./richmenu.png', import.meta.url);
 
@@ -27,14 +28,13 @@ export function buildRichMenu(liffId, oaBasicId) {
   const bare = req('oaBasicId', oaBasicId).replace(/^@+/, '');
   if (!bare) throw new Error('oaBasicId is required');
   const liffUrl = (p) => `https://liff.line.me/${liff}?p=${p}`;
-  // LINE documents https://line.me/R/oaMessage/{URL-encoded basic ID}/ ; the
-  // basic id includes "@", encoded as %40. Same result with or without "@".
-  const oaUrl = `https://line.me/R/oaMessage/${encodeURIComponent('@' + bare)}/`;
+  // The OA basic id is still required (and validated) so a misconfigured env fails early,
+  // but "ติดต่อเรา" now opens the MINI App contact page, not the OA chat.
   const uris = [
-    liffUrl('workshops'), liffUrl('redeem'), liffUrl('prompts'), liffUrl('bonus'),
-    FACEBOOK_URL, oaUrl,
+    liffUrl('workshops'), liffUrl('redeem'), liffUrl('prompts'), PORTFOLIO_URL,
+    FACEBOOK_URL, liffUrl('contact'),
   ];
-  const labels = ['Workshop', 'รับสิทธิ์', 'Prompt Library', 'Bonus', 'ข่าวสาร', 'ติดต่อเรา'];
+  const labels = ['Workshop', 'รับสิทธิ์', 'Prompt Library', 'ดูผลงานของเรา', 'ข่าวสาร', 'ติดต่อเรา'];
   const areas = uris.map((uri, i) => {
     const col = i % 3;
     const row = Math.floor(i / 3);
@@ -66,7 +66,7 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
   const dry = argv.includes('--dry-run');
   const confirm = argv.includes('--confirm');
 
-  const token = env.LINE_CHANNEL_ACCESS_TOKEN;
+  const token = (env.LINE_CHANNEL_ACCESS_TOKEN || '').trim();
   const missing = ['LINE_CHANNEL_ACCESS_TOKEN', 'LIFF_ID', 'OA_BASIC_ID'].filter((k) => !env[k] || !env[k].trim());
   if (missing.length) { err(`Missing required env: ${missing.join(', ')}`); return 1; }
 
