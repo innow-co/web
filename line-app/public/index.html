@@ -13,21 +13,21 @@
 <body>
   <header class="top">
     <div class="brand">innow</div>
-    <div class="brand-sub">Your Workshop Learning Space</div>
+    <div class="brand-sub">Your Workshop Learning Space <span id="devtag"></span></div>
   </header>
-  <main id="view" aria-live="polite">
+  <main id="view">
     <div class="center"><div class="spinner" aria-label="กำลังโหลด"></div></div>
   </main>
-  <nav class="tabbar" id="tabbar" hidden>
-    <button data-go="home"><span>⌂</span>หน้าหลัก</button>
-    <button data-go="workshops"><span>▦</span>Workshop</button>
-    <button data-go="redeem"><span>#</span>รับสิทธิ์</button>
-    <button data-go="profile"><span>☺</span>โปรไฟล์</button>
+  <nav class="tabbar" id="tabbar" aria-label="เมนูหลัก" hidden>
+    <button type="button" data-go="home"><span data-icon="home"></span>หน้าหลัก</button>
+    <button type="button" data-go="workshops"><span data-icon="library"></span>Workshop</button>
+    <button type="button" data-go="redeem"><span data-icon="hash"></span>รับสิทธิ์</button>
+    <button type="button" data-go="profile"><span data-icon="user"></span>โปรไฟล์</button>
   </nav>
   <div class="toast" id="toast" role="status" hidden></div>
-  <dialog id="privacy">
+  <dialog id="privacy" aria-labelledby="privacy-title">
     <article class="privacy">
-      <h2>นโยบายความเป็นส่วนตัว (Privacy Notice)</h2>
+      <h2 id="privacy-title">นโยบายความเป็นส่วนตัว (Privacy Notice)</h2>
       <p>บริษัท อินโนว จำกัด (“Innow”) เก็บรวบรวมข้อมูลของคุณเพื่อจัดการสิทธิ์เข้าถึงสื่อการเรียนของ Workshop ที่คุณเข้าร่วม และติดต่อคุณเกี่ยวกับการเรียน</p>
       <h3>ข้อมูลที่เก็บ</h3>
       <ul>
@@ -44,7 +44,7 @@
       </ul>
       <h3>การเก็บรักษาและสิทธิ์ของคุณ</h3>
       <p>ข้อมูลจัดเก็บบนระบบคลาวด์ที่มีการควบคุมการเข้าถึง และไม่เปิดเผยแก่บุคคลภายนอกโดยไม่มีฐานทางกฎหมาย คุณมีสิทธิ์ขอเข้าถึง แก้ไข ลบ หรือถอนความยินยอมได้ตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 โดยติดต่อทีมงานผ่าน LINE Official Account ของ Innow</p>
-      <button class="btn" onclick="this.closest('dialog').close()">ปิด</button>
+      <button class="btn" type="button" id="privacy-close">ปิด</button>
     </article>
   </dialog>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js" charset="utf-8"></script>
