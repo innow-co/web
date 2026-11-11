@@ -180,3 +180,21 @@ h1:focus { outline: none; }
 .wz .err { text-align: left; }
 @media (prefers-reduced-motion: reduce) { .wz-bar span { transition: none; } }
 .wz-actions .btn.wide { flex-basis: 100%; order: -1; }
+
+/* ---- embedded Google Slides viewer ---- */
+.slides-frame { position: relative; width: 100%; max-width: 560px; aspect-ratio: 16 / 9; margin-top: 12px; background: var(--navy); border-radius: 12px; overflow: hidden; }
+.slides-iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+.slides-poster { position: absolute; inset: 0; }
+.slides-play { width: 100%; height: 100%; border: 0; cursor: pointer; color: #fff; background: linear-gradient(112deg, #071f44 0%, #014799 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px; }
+.slides-play .ico.big { width: 40px; height: 40px; color: #fff; }
+.slides-play b { font-family: var(--f-display); font-size: 17px; line-height: 1.4; }
+.slides-play em { font-style: normal; font-size: 12px; opacity: .85; }
+.slides-play:focus-visible { outline: 3px solid #fff; outline-offset: -8px; }
+.slides-close { position: absolute; z-index: 2; top: calc(env(safe-area-inset-top) + 8px); right: calc(env(safe-area-inset-right) + 8px); min-width: 64px; min-height: 44px; padding: 8px 18px; border: 2px solid #fff; border-radius: 12px; background: var(--navy); color: #fff; font-weight: 600; font-size: 16px; cursor: pointer; }
+.slides-close:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.slides-frame.slides-full { position: fixed; inset: 0; z-index: 30; width: 100vw; height: 100vh; height: 100dvh; max-width: none; margin: 0; aspect-ratio: auto; border-radius: 0; background: #082955; }
+.slides-full .slides-iframe { inset: auto; top: env(safe-area-inset-top); left: env(safe-area-inset-left); width: calc(100% - env(safe-area-inset-left) - env(safe-area-inset-right)); height: calc(100% - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+.slides-frame:fullscreen { max-width: none; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; margin: 0; }
+.slides-frame:-webkit-full-screen { max-width: none; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; margin: 0; }
+body.slides-lock { overflow: hidden; }
+.slides-card .row .btn.small { flex: 1 1 140px; }

@@ -2,7 +2,7 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState,
 } from './lib-app.js';
 import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
@@ -63,6 +63,7 @@ const ICONS = {
   doc: '<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M9.5 12h5M9.5 15.5h5"/>',
   spark: '<path d="M11 3.5l1.9 5.6 5.6 1.9-5.6 1.9L11 18.5l-1.9-5.6L3.5 11l5.6-1.9z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
   chat: '<path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z"/><path d="M8 10h8M8 13h5"/>',
+  expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   plus: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
 };
 function icon(name, cls = 'ico') {
@@ -195,6 +196,7 @@ function updateTabs(name) {
 
 function mount(title, ...nodes) { return mountWith(null, title, ...nodes); }
 function mountWith(focusEl, title, ...nodes) {
+  releaseSlides();
   const root = h('div', { class: 'screen' }, ...nodes);
   view.replaceChildren(root);
   document.title = title ? `${title} · Innow Workshop` : 'Innow Workshop';
@@ -377,6 +379,129 @@ function itemCard(it, showWorkshop = false) {
       : (it.body ? h('p', { text: it.body }) : null),
     actions.length ? h('div', { class: 'row' }, actions) : null);
 }
+
+// ---------- Google Slides viewer ----------
+// A slide item whose url is a Google Slides deck renders as an embedded viewer. The iframe is created ONLY from
+// googleSlidesInfo().embedUrl, and only after the learner taps (so Google is not contacted before they opt in).
+// Full screen: native Fullscreen API on the frame when it works, otherwise the same frame becomes a fixed in-app
+// overlay (class .slides-full). The iframe element is never moved or recreated, so the slide position is kept.
+let slidesRelease = null; // closes the open full view (and unlocks body scroll) when the screen is replaced
+function releaseSlides() { const r = slidesRelease; slidesRelease = null; if (r) r(); }
+
+function slidesCard(it) {
+  const info = googleSlidesInfo(it.url);
+  if (!info) return itemCard(it);
+  let st = 'poster';
+  let iframe = null;
+  const frame = h('div', { class: 'slides-frame' });
+  const closeBtn = h('button', { class: 'slides-close', type: 'button', hidden: true, text: 'ปิด' });
+  const fsBtn = h('button', { class: 'btn small', type: 'button' }, icon('expand', 'ico sm'), 'เต็มจอ');
+  const extBtn = h('button', { class: 'btn small ghost', type: 'button' }, icon('link', 'ico sm'), 'เปิดนอกแอป');
+
+  function ensureFrame() {
+    if (iframe) return;
+    iframe = h('iframe', {
+      class: 'slides-iframe', title: it.title, loading: 'lazy', referrerpolicy: 'no-referrer',
+      allow: 'fullscreen', allowfullscreen: true,
+      sandbox: 'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox',
+    });
+    iframe.src = info.embedUrl;
+    frame.prepend(iframe);
+    poster.hidden = true;
+  }
+
+  const poster = h('div', { class: 'slides-poster' },
+    h('button', { class: 'slides-play', type: 'button', onclick: () => { ensureFrame(); apply(slidesCardState(st, 'load')); iframe.focus(); } },
+      icon('slide', 'ico big'),
+      h('b', { text: 'แตะเพื่อดูสไลด์' }),
+      h('em', { text: 'สไลด์จาก Google Slides' })));
+  frame.append(poster, closeBtn);
+
+  const keepFocusInside = (e) => { if (!frame.contains(e.target)) closeBtn.focus(); };
+  const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); closeFull(); } };
+  const onFullChange = () => {
+    const el = document.fullscreenElement || document.webkitFullscreenElement;
+    if (st === 'native' && el !== frame) apply(slidesCardState(st, 'close'));
+  };
+
+  function apply(next) {
+    const was = st;
+    st = next;
+    const full = st === 'native' || st === 'overlay';
+    const overlay = st === 'overlay';
+    frame.classList.toggle('is-full', full);
+    frame.classList.toggle('slides-full', overlay);
+    closeBtn.hidden = !full;
+    if (overlay) {
+      frame.setAttribute('role', 'dialog');
+      frame.setAttribute('aria-modal', 'true');
+      frame.setAttribute('aria-label', it.title);
+    } else {
+      frame.removeAttribute('role');
+      frame.removeAttribute('aria-modal');
+      frame.removeAttribute('aria-label');
+    }
+    if (overlay && was !== 'overlay') {
+      document.body.classList.add('slides-lock');
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('focusin', keepFocusInside);
+      slidesRelease = () => closeFull(false);
+      closeBtn.focus();
+    } else if (!overlay && was === 'overlay') {
+      document.body.classList.remove('slides-lock');
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('focusin', keepFocusInside);
+      if (slidesRelease) slidesRelease = null;
+    }
+    if (st === 'native' && was !== 'native') slidesRelease = () => closeFull(false);
+    else if (st === 'loaded' && was === 'native') slidesRelease = null;
+  }
+
+  async function enterFull() {
+    if (st === 'native' || st === 'overlay') return;
+    ensureFrame();
+    let native = false;
+    const req = frame.requestFullscreen || frame.webkitRequestFullscreen;
+    if (req) {
+      try {
+        const r = req.call(frame);
+        // Some embedded browsers never settle the promise nor fire fullscreenerror: give up after a moment and use the overlay.
+        if (r && typeof r.then === 'function') await Promise.race([r, new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 1200))]);
+        native = (document.fullscreenElement || document.webkitFullscreenElement) === frame || !(r && typeof r.then === 'function');
+      } catch { native = false; }
+    }
+    apply(slidesCardState(st, 'fullscreen', { native }));
+  }
+
+  function closeFull(refocus = true) {
+    if (st === 'native') {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      try { const r = exit && exit.call(document); if (r && r.catch) r.catch(() => {}); } catch { /* already out */ }
+    }
+    apply(slidesCardState(st, 'close'));
+    if (refocus) fsBtn.focus();
+  }
+
+  frame.addEventListener('fullscreenchange', onFullChange);
+  frame.addEventListener('webkitfullscreenchange', onFullChange);
+  frame.addEventListener('fullscreenerror', () => { if (st === 'native') apply(slidesCardState('loaded', 'fullscreen', { native: false })); });
+  closeBtn.addEventListener('click', () => closeFull());
+  fsBtn.addEventListener('click', enterFull);
+  extBtn.addEventListener('click', () => openUrl(info.openUrl));
+
+  let fileBtn = null;
+  if (it.hasFile) {
+    fileBtn = h('button', { class: 'btn small', type: 'button' }, icon('file', 'ico sm'), 'เปิดไฟล์');
+    fileBtn.addEventListener('click', () => openFile(it, fileBtn));
+  }
+  return h('article', { class: 'card item slides-card' },
+    h('h3', { text: it.title }),
+    it.category ? h('div', { class: 'meta' }, h('span', { class: 'chip', text: it.category })) : null,
+    it.body ? h('p', { text: it.body }) : null,
+    frame,
+    h('div', { class: 'row' }, fsBtn, extBtn, fileBtn));
+}
+// ---------- end Google Slides viewer ----------
 
 function wsCard(w) {
   const meta = [w.eventDate, w.counts ? `Slide ${w.counts.slide} · Prompt ${w.counts.prompt} · Bonus ${w.counts.bonus}` : ''].filter(Boolean).join(' · ');
@@ -790,8 +915,9 @@ const screens = {
         b.setAttribute('aria-pressed', String(on));
       }
       const rows = byKind(section);
+      releaseSlides();
       list.replaceChildren(...(rows.length
-        ? rows.map((i) => itemCard(i))
+        ? rows.map((i) => (i.kind === 'slide' && googleSlidesInfo(i.url) ? slidesCard(i) : itemCard(i)))
         : [emptyBox(`ยังไม่มี${KIND[section].label}ใน Workshop นี้`)]));
     };
     for (const k of ['slide', 'prompt', 'bonus']) {
