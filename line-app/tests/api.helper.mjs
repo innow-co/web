@@ -37,6 +37,22 @@ function wrangler(args, opts = {}) {
   return execFileSync(BIN, args, { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WRANGLER_SEND_METRICS: 'false', NO_COLOR: '1' }, ...opts });
 }
 
+// Output of the running wrangler dev (console.log/error of the Worker). Empty string if there is no log yet.
+export function readDevLog() {
+  try { return readFileSync(LOG, 'utf8'); } catch { return ''; }
+}
+
+// Polls the dev log every 100 ms (up to timeoutMs) until a line containing `needle` appears; returns that line or null.
+export async function waitForLogLine(needle, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const line = readDevLog().split('\n').find((l) => l.includes(needle));
+    if (line) return line;
+    if (Date.now() >= deadline) return null;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}
+
 export function d1(sql) {
   return wrangler(['d1', 'execute', 'innow-line', '--local', '--persist-to', STATE, '--command', sql]).toString();
 }
