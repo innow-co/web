@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   isNotFriendError, parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, canCallLiffLogin, googleSlidesInfo, slidesCardState,
+  formatSize, groupByWorkshop, tabFor, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply,
 } from '../public/lib-app.js';
 
 test('isNotFriendError only matches notFriend errors', () => {
@@ -205,4 +205,39 @@ test('slidesCardState ignores unknown states and events', () => {
   assert.equal(slidesCardState('loaded', 'nope'), 'loaded');
   assert.equal(slidesCardState('loaded', undefined), 'loaded');
   assert.equal(slidesCardState('__proto__', 'load'), 'loaded');
+});
+
+test('slidesCardState: late native success after the overlay fallback leaves exactly one mode', () => {
+  let st = slidesCardState('loaded', 'fullscreen', { native: false });
+  assert.equal(st, 'overlay');
+  st = slidesCardState(st, 'native-entered');
+  assert.equal(st, 'native', 'overlay -> native, never both');
+  assert.equal(slidesCardState(st, 'close'), 'loaded', 'close then leaves everything');
+  assert.equal(slidesCardState('loaded', 'native-entered'), 'native');
+  assert.equal(slidesCardState('native', 'native-entered'), 'native');
+  assert.equal(slidesCardState('poster', 'native-entered'), 'poster', 'cannot enter before the deck is loaded');
+});
+
+test('slidesCardState: leaving native fullscreen by a system gesture returns to loaded from native or overlay', () => {
+  assert.equal(slidesCardState('native', 'native-exit'), 'loaded');
+  assert.equal(slidesCardState('overlay', 'native-exit'), 'loaded');
+  assert.equal(slidesCardState('loaded', 'native-exit'), 'loaded');
+  assert.equal(slidesCardState('poster', 'native-exit'), 'poster');
+});
+
+test('slidesCanEnter: a second tap while pending, a released card, or an open full view is ignored', () => {
+  assert.equal(slidesCanEnter({ pending: false, destroyed: false, state: 'loaded' }), true);
+  assert.equal(slidesCanEnter({ pending: false, destroyed: false, state: 'poster' }), true);
+  assert.equal(slidesCanEnter({ pending: true, destroyed: false, state: 'loaded' }), false);
+  assert.equal(slidesCanEnter({ pending: false, destroyed: true, state: 'loaded' }), false);
+  assert.equal(slidesCanEnter({ pending: false, destroyed: false, state: 'native' }), false);
+  assert.equal(slidesCanEnter({ pending: false, destroyed: false, state: 'overlay' }), false);
+  assert.equal(slidesCanEnter({}), true);
+});
+
+test('slidesCanApply: a late timeout or promise on a released or detached card has no effect', () => {
+  assert.equal(slidesCanApply({ destroyed: false, connected: true }), true);
+  assert.equal(slidesCanApply({ destroyed: true, connected: true }), false);
+  assert.equal(slidesCanApply({ destroyed: false, connected: false }), false);
+  assert.equal(slidesCanApply({}), false);
 });

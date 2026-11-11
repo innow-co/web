@@ -2,7 +2,7 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply,
 } from './lib-app.js';
 import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
@@ -196,8 +196,8 @@ function updateTabs(name) {
 
 function mount(title, ...nodes) { return mountWith(null, title, ...nodes); }
 function mountWith(focusEl, title, ...nodes) {
-  releaseSlides();
   const root = h('div', { class: 'screen' }, ...nodes);
+  releaseSlides(root);
   view.replaceChildren(root);
   document.title = title ? `${title} · Innow Workshop` : 'Innow Workshop';
   window.scrollTo(0, 0);
@@ -385,14 +385,24 @@ function itemCard(it, showWorkshop = false) {
 // googleSlidesInfo().embedUrl, and only after the learner taps (so Google is not contacted before they opt in).
 // Full screen: native Fullscreen API on the frame when it works, otherwise the same frame becomes a fixed in-app
 // overlay (class .slides-full). The iframe element is never moved or recreated, so the slide position is kept.
-let slidesRelease = null; // closes the open full view (and unlocks body scroll) when the screen is replaced
-function releaseSlides() { const r = slidesRelease; slidesRelease = null; if (r) r(); }
+const liveSlides = new Set(); // { frame, destroy } of every rendered card
+// Destroy the cards that are not inside `keep` (the root about to be mounted): the screen function builds its cards
+// BEFORE mountWith runs, so those must survive, while the previous screen's cards must go.
+function releaseSlides(keep = null) {
+  for (const c of [...liveSlides]) {
+    if (keep && keep.contains(c.frame)) continue;
+    liveSlides.delete(c);
+    c.destroy();
+  }
+}
 
 function slidesCard(it) {
   const info = googleSlidesInfo(it.url);
   if (!info) return itemCard(it);
   let st = 'poster';
   let iframe = null;
+  let pending = false;   // a native fullscreen request is in flight
+  let destroyed = false; // the screen was replaced: late results must not touch the page
   const frame = h('div', { class: 'slides-frame' });
   const closeBtn = h('button', { class: 'slides-close', type: 'button', hidden: true, text: 'ปิด' });
   const fsBtn = h('button', { class: 'btn small', type: 'button' }, icon('expand', 'ico sm'), 'เต็มจอ');
@@ -419,9 +429,12 @@ function slidesCard(it) {
 
   const keepFocusInside = (e) => { if (!frame.contains(e.target)) closeBtn.focus(); };
   const onKey = (e) => { if (e.key === 'Escape') { e.preventDefault(); closeFull(); } };
+  const nativeEl = () => document.fullscreenElement || document.webkitFullscreenElement;
   const onFullChange = () => {
-    const el = document.fullscreenElement || document.webkitFullscreenElement;
-    if (st === 'native' && el !== frame) apply(slidesCardState(st, 'close'));
+    if (destroyed) return;
+    const el = nativeEl();
+    if (el === frame) { if (st === 'overlay') apply(slidesCardState(st, 'native-entered')); } // late success: overlay -> native
+    else if (!el && (st === 'native' || st === 'overlay')) apply(slidesCardState(st, 'native-exit'));
   };
 
   function apply(next) {
@@ -445,46 +458,61 @@ function slidesCard(it) {
       document.body.classList.add('slides-lock');
       document.addEventListener('keydown', onKey);
       document.addEventListener('focusin', keepFocusInside);
-      slidesRelease = () => closeFull(false);
       closeBtn.focus();
     } else if (!overlay && was === 'overlay') {
       document.body.classList.remove('slides-lock');
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('focusin', keepFocusInside);
-      if (slidesRelease) slidesRelease = null;
     }
-    if (st === 'native' && was !== 'native') slidesRelease = () => closeFull(false);
-    else if (st === 'loaded' && was === 'native') slidesRelease = null;
   }
 
   async function enterFull() {
-    if (st === 'native' || st === 'overlay') return;
-    ensureFrame();
-    let native = false;
-    const req = frame.requestFullscreen || frame.webkitRequestFullscreen;
-    if (req) {
-      try {
-        const r = req.call(frame);
-        // Some embedded browsers never settle the promise nor fire fullscreenerror: give up after a moment and use the overlay.
-        if (r && typeof r.then === 'function') await Promise.race([r, new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 1200))]);
-        native = (document.fullscreenElement || document.webkitFullscreenElement) === frame || !(r && typeof r.then === 'function');
-      } catch { native = false; }
+    if (!slidesCanEnter({ pending, destroyed, state: st })) return;
+    pending = true;
+    try {
+      ensureFrame();
+      let native = false;
+      const req = frame.requestFullscreen || frame.webkitRequestFullscreen;
+      if (req) {
+        try {
+          const r = req.call(frame);
+          const isPromise = !!r && typeof r.then === 'function';
+          // Some embedded browsers never settle the promise nor fire fullscreenerror, and old webkit returns nothing:
+          // wait for the promise or a fullscreenchange, give up after a moment, then verify what really happened.
+          const changed = new Promise((res) => {
+            frame.addEventListener('fullscreenchange', res, { once: true });
+            frame.addEventListener('webkitfullscreenchange', res, { once: true });
+          });
+          await Promise.race([isPromise ? r : changed, new Promise((_, no) => setTimeout(() => no(new Error('timeout')), 1200))]);
+          native = nativeEl() === frame;
+        } catch { native = false; }
+      }
+      if (!slidesCanApply({ destroyed, connected: frame.isConnected })) {
+        if (nativeEl() === frame) closeFull(false); // late success on a card that is gone: leave fullscreen
+        return;
+      }
+      apply(slidesCardState(st, 'fullscreen', { native }));
+    } finally {
+      pending = false;
     }
-    apply(slidesCardState(st, 'fullscreen', { native }));
   }
 
   function closeFull(refocus = true) {
-    if (st === 'native') {
+    // Leave native fullscreen whatever the card state says (a late request may succeed while the overlay is open).
+    if (nativeEl() === frame) {
       const exit = document.exitFullscreen || document.webkitExitFullscreen;
       try { const r = exit && exit.call(document); if (r && r.catch) r.catch(() => {}); } catch { /* already out */ }
     }
     apply(slidesCardState(st, 'close'));
-    if (refocus) fsBtn.focus();
+    if (refocus && !destroyed) fsBtn.focus();
   }
+
+  const destroy = () => { destroyed = true; pending = false; closeFull(false); };
+  liveSlides.add({ frame, destroy });
 
   frame.addEventListener('fullscreenchange', onFullChange);
   frame.addEventListener('webkitfullscreenchange', onFullChange);
-  frame.addEventListener('fullscreenerror', () => { if (st === 'native') apply(slidesCardState('loaded', 'fullscreen', { native: false })); });
+  frame.addEventListener('fullscreenerror', () => { if (st === 'native' && !destroyed) apply(slidesCardState('loaded', 'fullscreen', { native: false })); });
   closeBtn.addEventListener('click', () => closeFull());
   fsBtn.addEventListener('click', enterFull);
   extBtn.addEventListener('click', () => openUrl(info.openUrl));

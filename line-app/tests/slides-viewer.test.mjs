@@ -100,3 +100,50 @@ test('app.css defines the viewer classes with a 16:9 frame and a fixed full-view
 test('no inline style attributes are produced by the viewer', () => {
   assert.ok(!/\bstyle\s*:/.test(region) && !/\.style\b/.test(region) && !/setAttribute\(\s*['"]style/.test(region));
 });
+
+test('enterFull re-checks the card after every await, guards re-entry and clears pending on every path', () => {
+  const fn = region.slice(region.indexOf('async function enterFull'), region.indexOf('function closeFull'));
+  assert.match(fn, /slidesCanEnter\(\s*\{[^}]*pending[^}]*destroyed[^}]*\}/);
+  assert.match(fn, /pending\s*=\s*true/);
+  const awaits = (fn.match(/\bawait\b/g) || []).length;
+  const checks = (fn.match(/slidesCanApply\(/g) || []).length;
+  assert.ok(awaits >= 1 && checks >= 1, 'a currency check follows the await');
+  assert.match(fn, /finally\s*\{[^}]*pending\s*=\s*false/, 'pending is cleared on every path, including errors');
+  assert.match(fn, /isConnected/);
+  assert.ok(fn.indexOf('slidesCanApply(') > fn.indexOf('await'), 'check comes after the await');
+  assert.ok(fn.indexOf('slidesCanApply(') < fn.indexOf("'fullscreen'"), 'check comes before the state change');
+});
+
+test('releaseSlides destroys every live card (destroyed flag, pending cleared, full view closed)', () => {
+  assert.match(region, /liveSlides/);
+  assert.match(region, /function releaseSlides\([^)]*\)\s*\{[\s\S]*liveSlides[\s\S]*destroy\(\)/);
+  const mount = app.slice(app.indexOf('function mountWith'), app.indexOf('function mountWizardDone'));
+  assert.match(mount, /releaseSlides\(root\)/, 'cards built for the screen being mounted survive (they are created before mountWith runs)');
+  assert.ok(mount.indexOf('releaseSlides(root)') < mount.indexOf('view.replaceChildren'));
+  assert.match(region, /destroyed\s*=\s*true/);
+  const destroy = region.slice(region.indexOf('const destroy ='), region.indexOf('const destroy =') + 300);
+  assert.match(destroy, /pending\s*=\s*false/);
+  assert.match(destroy, /closeFull\(/);
+});
+
+test('closeFull exits native fullscreen whenever the frame is the fullscreen element, whatever the state', () => {
+  const fn = region.slice(region.indexOf('function closeFull'), region.indexOf('const destroy ='));
+  assert.ok(!/if\s*\(\s*st\s*===\s*'native'\s*\)\s*\{[^}]*exit/.test(fn), 'not gated on st');
+  assert.match(fn, /nativeEl\(\)\s*===\s*frame/);
+  assert.match(fn, /exitFullscreen/);
+  assert.match(fn, /webkitExitFullscreen/);
+  assert.match(region, /nativeEl\s*=\s*\(\)\s*=>\s*document\.fullscreenElement\s*\|\|\s*document\.webkitFullscreenElement/);
+});
+
+test('onFullChange: native entry while in overlay becomes native; exit returns to loaded; the iframe own fullscreen is ignored', () => {
+  const fn = region.slice(region.indexOf('const onFullChange'), region.indexOf('function apply'));
+  assert.match(fn, /'native-entered'/);
+  assert.match(fn, /'native-exit'/);
+  assert.match(fn, /=== frame/);
+});
+
+test('without a promise (old webkit) success is verified, not assumed', () => {
+  const fn = region.slice(region.indexOf('async function enterFull'), region.indexOf('function closeFull'));
+  assert.ok(!/!\(r && typeof r\.then === 'function'\)/.test(fn), 'no success assumed for a non-promise result');
+  assert.match(fn, /fullscreenchange/);
+});

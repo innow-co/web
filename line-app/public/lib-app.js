@@ -130,5 +130,15 @@ export function slidesCardState(state, event, { native = false } = {}) {
   if (event === 'load') return s === 'poster' ? 'loaded' : s;
   if (event === 'fullscreen') return native === true ? 'native' : 'overlay';
   if (event === 'close') return s === 'native' || s === 'overlay' ? 'loaded' : s;
+  // Native fullscreen really started (possibly late, after the overlay fallback): never keep both modes.
+  if (event === 'native-entered') return s === 'poster' ? s : 'native';
+  // Native fullscreen ended (Esc, system gesture): back to the inline card, still loaded.
+  if (event === 'native-exit') return s === 'native' || s === 'overlay' ? 'loaded' : s;
   return s;
 }
+
+// Guards for the async fullscreen request. A second tap while one is pending, a released card (screen changed) and an
+// already open full view are ignored; a late timeout or promise must not touch a released or detached card.
+export const slidesCanEnter = ({ pending = false, destroyed = false, state = 'poster' } = {}) =>
+  !pending && !destroyed && state !== 'native' && state !== 'overlay';
+export const slidesCanApply = ({ destroyed = false, connected = false } = {}) => !destroyed && connected === true;
