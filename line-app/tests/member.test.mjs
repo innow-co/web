@@ -1,7 +1,8 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { start, stop, call, d1, seedWorkshop, addItem, login } from './api.helper.mjs';
+import { start, stop, call, d1, seedWorkshop, addItem, login, adminLogin, unusedCode } from './api.helper.mjs';
 
+const norm = (m) => String(m).replace(/\d+/g, 'N');
 const good = { firstName: 'สมชาย', lastName: 'ใจดี', email: 'somchai@example.com', acceptTerms: true };
 
 before(async () => { await start(); });
@@ -57,26 +58,66 @@ test('journey: new user redeems, registers, sees workshop; second redeem path', 
   assert.equal(rd3.data.status, 'already');
 });
 
-test('wrong codes: generic 400, sixth attempt is 429', async () => {
+test('wrong codes: generic 400, sixth attempt is 429, other users unaffected', async () => {
   const { token } = await login('ratelimit1');
+  const wrong = unusedCode();
   for (let i = 0; i < 5; i++) {
-    const r = await call('POST', '/api/redeem', { token, json: { code: 'abcd' } });
+    const r = await call('POST', '/api/redeem', { token, json: { code: i === 0 ? 'abcd' : wrong } });
     assert.equal(r.status, 400, 'attempt ' + (i + 1));
     assert.ok(r.data.error);
   }
-  const r6 = await call('POST', '/api/redeem', { token, json: { code: 'abcd' } });
+  const r6 = await call('POST', '/api/redeem', { token, json: { code: wrong } });
   assert.equal(r6.status, 429);
+  const { token: other } = await login('ratelimit2');
+  const rb = await call('POST', '/api/redeem', { token: other, json: { code: wrong } });
+  assert.equal(rb.status, 400);
+});
+
+test('issued code is a 4-digit string', async () => {
+  const w = await seedWorkshop('Format');
+  assert.equal(typeof w.code, 'string');
+  assert.match(w.code, /^\d{4}$/);
+});
+
+test('issuing a new code revokes the previous one', async () => {
+  const w = await seedWorkshop('Rotate');
+  const t = await adminLogin();
+  const second = await call('POST', `/api/admin/workshops/${w.id}/codes`, { token: t, json: { minutes: 30 } });
+  assert.equal(second.status, 200);
+  const { token: u1 } = await login('rotate1');
+  const { token: u2 } = await login('rotate2');
+  const baseline = await call('POST', '/api/redeem', { token: u2, json: { code: unusedCode() } });
+  assert.equal(baseline.status, 400);
+  const old = await call('POST', '/api/redeem', { token: u1, json: { code: w.code } });
+  assert.equal(old.status, 400);
+  assert.equal(norm(old.data.error), norm(baseline.data.error));
+  const fresh = await call('POST', '/api/redeem', { token: u1, json: { code: second.data.code } });
+  assert.equal(fresh.status, 200);
+  assert.equal(fresh.data.status, 'register');
+});
+
+test('admin revoke makes the current code fail with the generic message', async () => {
+  const w = await seedWorkshop('Revoke');
+  const t = await adminLogin();
+  const rv = await call('DELETE', `/api/admin/workshops/${w.id}/codes`, { token: t });
+  assert.equal(rv.status, 200);
+  const { token: u1 } = await login('revoke1');
+  const { token: u2 } = await login('revoke2');
+  const baseline = await call('POST', '/api/redeem', { token: u2, json: { code: unusedCode() } });
+  const r = await call('POST', '/api/redeem', { token: u1, json: { code: w.code } });
+  assert.equal(r.status, 400);
+  assert.equal(norm(r.data.error), norm(baseline.data.error));
 });
 
 test('expired code gets the same generic 400 as a wrong code', async () => {
   const w = await seedWorkshop('Expiring', { minutes: 1 });
   const { token } = await login('expire1');
   const { token: t2 } = await login('expire2');
-  const wrong = await call('POST', '/api/redeem', { token: t2, json: { code: 'abcd' } });
+  const wrong = await call('POST', '/api/redeem', { token: t2, json: { code: unusedCode() } });
   d1(`UPDATE codes SET expires_at = 1000 WHERE workshop_id = '${w.id}'`);
   const r = await call('POST', '/api/redeem', { token, json: { code: w.code } });
   assert.equal(r.status, 400);
-  assert.equal(r.data.error.replace(/\d+/g, 'N'), wrong.data.error.replace(/\d+/g, 'N'));
+  assert.equal(norm(r.data.error), norm(wrong.data.error));
 });
 
 test('code 0042 is accepted when issued', async () => {

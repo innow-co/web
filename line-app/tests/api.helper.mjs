@@ -46,6 +46,8 @@ export async function start() {
   mkdirSync(WR, { recursive: true });
   rmSync(STATE, { recursive: true, force: true });
   wrangler(['d1', 'migrations', 'apply', 'innow-line', '--local', '--persist-to', STATE]);
+  const stale = await fetch(BASE + '/api/config').then(() => true, () => false);
+  if (stale) throw new Error(`Port ${PORT} already answers (stale wrangler dev from an aborted run?). Kill it and retry.`);
   const out = openSync(LOG, 'w');
   child = spawn(BIN, ['dev', '--local', '--port', String(PORT), '--ip', '127.0.0.1', '--persist-to', STATE], {
     cwd: ROOT, detached: true, stdio: ['ignore', out, out],
@@ -93,6 +95,16 @@ export async function seedWorkshop(title, { minutes = 30 } = {}) {
   const c = await call('POST', `/api/admin/workshops/${w.data.id}/codes`, { token: t, json: { minutes } });
   if (c.status !== 200) throw new Error('seed code failed ' + c.status);
   return { id: w.data.id, code: c.data.code };
+}
+
+// A well-formed 4-digit code that no code row currently uses.
+export function unusedCode() {
+  const used = d1('SELECT code FROM codes');
+  for (let n = 9999; n >= 0; n--) {
+    const c = String(n).padStart(4, '0');
+    if (!used.includes(`"${c}"`)) return c;
+  }
+  throw new Error('no free code');
 }
 
 export async function addItem(workshopId, item) {
