@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   isNotFriendError, parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor,
+  formatSize, groupByWorkshop, tabFor, canCallLiffLogin,
 } from '../public/lib-app.js';
 
 test('isNotFriendError only matches notFriend errors', () => {
@@ -90,4 +90,11 @@ test('tabFor', () => {
   assert.equal(tabFor('prompts'), 'workshops');
   assert.equal(tabFor('register'), 'redeem');
   assert.equal(tabFor('home'), 'home');
+});
+
+test('canCallLiffLogin: never inside the LINE client, allowed in an external browser', () => {
+  assert.equal(canCallLiffLogin({ inClient: true }), false);
+  assert.equal(canCallLiffLogin({ inClient: false }), true);
+  assert.equal(canCallLiffLogin({}), true);
+  assert.equal(canCallLiffLogin(), true);
 });

@@ -101,3 +101,6 @@ export function tabFor(name) {
   if (name === 'redeem' || name === 'register' || name === 'success') return 'redeem';
   return name === 'profile' ? 'profile' : 'home';
 }
+
+// liff.login()/liff.logout() must never run inside the LINE client (liff.init logs in there automatically).
+export const canCallLiffLogin = ({ inClient } = {}) => !inClient;

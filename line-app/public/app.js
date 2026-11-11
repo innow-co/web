@@ -2,7 +2,7 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin,
 } from './lib-app.js';
 import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
@@ -25,7 +25,7 @@ let renderSeq = 0;
 const MSG = {
   offline: 'เชื่อมต่ออินเทอร์เน็ตไม่ได้ กรุณาตรวจสอบสัญญาณแล้วลองอีกครั้ง',
   generic: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
-  session: 'กรุณาเปิดแอปจาก LINE อีกครั้ง',
+  session: 'เข้าสู่ระบบไม่สำเร็จ กรุณาเปิดแอปใหม่อีกครั้ง',
 };
 
 // ---------- tiny DOM helpers ----------
@@ -138,7 +138,12 @@ async function api(path, opts = {}, canRetry = true) {
 async function lineToken() {
   if (state.devId) return 'dev:' + state.devId;
   if (!window.liff) throw new ApiError(0, MSG.offline, { offline: true });
-  if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return null; }
+  if (!liff.isLoggedIn()) {
+    // Inside LINE, liff.init() logs in by itself; calling liff.login() there is not allowed.
+    if (!canCallLiffLogin({ inClient: liff.isInClient() })) throw new ApiError(401, MSG.session);
+    liff.login({ redirectUri: location.href });
+    return null;
+  }
   return liff.getAccessToken();
 }
 
@@ -150,7 +155,8 @@ async function authenticate() {
     data = await request('/api/auth', { method: 'POST', body: { accessToken: token }, auth: false });
   } catch (e) {
     // Expired LINE token: log in again, but only once per tab so a misconfigured server cannot loop.
-    if (e.status === 401 && !state.devId && window.liff) {
+    // Never inside the LINE client: there the error screen asks the user to reopen the app.
+    if (e.status === 401 && !state.devId && window.liff && canCallLiffLogin({ inClient: liff.isInClient() })) {
       let tried = false;
       try { tried = sessionStorage.getItem('innow.relogin') === '1'; sessionStorage.setItem('innow.relogin', '1'); } catch { /* ignore */ }
       if (!tried) { liff.logout(); liff.login({ redirectUri: location.href }); return new Promise(() => {}); }
