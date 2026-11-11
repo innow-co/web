@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>นโยบายความเป็นส่วนตัว — อินนาวน์</title>
+  <meta name="description" content="นโยบายความเป็นส่วนตัวของบริษัท อินนาวน์ จำกัด อธิบายว่าเราเก็บข้อมูลส่วนบุคคลอะไรจากเว็บไซต์ innow.co.th และ LINE MINI App Innow Workshop ใช้เพื่ออะไร แบ่งปันกับใคร และคุณใช้สิทธิของคุณได้อย่างไร">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#0A1F38">
+  <meta name="color-scheme" content="light">
+  <link rel="canonical" href="https://www.innow.co.th/privacy/">
+  <style>
+    /* BEGIN INNOW TOKENS: Innow Design System v2.4 (light). The only place raw colours and sizes may appear. */
+    :root {
+      color-scheme: light;
+      --innow-navy-900: #0A1F38;
+      --innow-navy-600: #1B3A5C;
+      --innow-blue-700: #013A80;
+      --innow-blue-600: #014799;
+      --innow-blue-400: #6FA8E8;
+      --innow-blue-300: #8FBEF0;
+      --innow-blue-200: #B7CBE3;
+      --innow-slate-500: #6B87A8;
+      --on-navy-tx: #FFFFFF;
+      --on-navy-body: #B7CBE3;
+      --on-navy-accent: #8FBEF0;
+      --on-navy-focus: #6FA8E8;
+      --bg: #FFFFFF;
+      --bg-panel: #F1F5FA;
+      --line: #D3E0EF;
+      --line-soft: #E6EDF6;
+      --line-strong: var(--innow-slate-500);
+      --tx: #0A1F38;
+      --tx-body: #13253C;
+      --tx-muted: #546A83;
+      --tx-accent: #014799;
+      --tx-link: #014799;
+      --tx-link-hover: #013A80;
+      --focus: #014799;
+      --print-tx: #000000;
+      --f-display: "Anuphan", "Noto Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+      --f-read: "IBM Plex Sans Thai", "Noto Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+      --w-body: 400;
+      --w-med: 500;
+      --w-semi: 600;
+      --fs-h1: 2.125rem;
+      --fs-h2: 1.75rem;
+      --fs-h3: 1.25rem;
+      --fs-lead: 1.25rem;
+      --fs-body: 1.0625rem;
+      --fs-sm: .9375rem;
+      --fs-cap: .875rem;
+      --lh-display: 1.31;
+      --lh-head: 1.4;
+      --lh-lead: 1.6;
+      --lh-body: 1.7;
+      --lh-dense: 1.6;
+      --lh-body-dark: 1.75;
+      --measure: 68ch;
+      --s1: .25rem;
+      --s2: .5rem;
+      --s3: .75rem;
+      --s4: 1rem;
+      --s5: 1.5rem;
+      --s6: 2rem;
+      --s7: 3rem;
+      --s8: 4rem;
+      --r-xs: .1875rem;
+      --r-md: .5rem;
+      --r-lg: .875rem;
+      --hairline: .0625rem;
+      --focus-width: .1875rem;
+      --target: 2.75rem;
+      --container: 75rem;
+      --gutter: var(--s4);
+      --logo-h: 3rem;            /* 48px tall = about 147px wide, above the 140px minimum (DS #logo) */
+      --logo-clear: var(--s6);   /* clear space = height of the "I" = 0.674 x 48px = 32px (DS #logo) */
+      --dur-hover: 120ms;
+      --ease-out: ease-out;
+    }
+    @media (max-width: 30rem) {
+      :root { --fs-body: 1rem; --fs-lead: 1.1875rem; --fs-h1: 1.75rem; --fs-h2: 1.4375rem; --fs-h3: 1.1875rem; }
+    }
+    @media (min-width: 48rem) {
+      :root { --gutter: var(--s5); }
+    }
+    /* END INNOW TOKENS */
+
+    @font-face {
+      font-family: "Anuphan";
+      font-style: normal;
+      font-weight: 500 700;
+      font-display: swap;
+      src: url("/fonts/Anuphan-Variable.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "IBM Plex Sans Thai";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("/fonts/IBMPlexSansThai-Regular.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "IBM Plex Sans Thai";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("/fonts/IBMPlexSansThai-Medium.ttf") format("truetype");
+    }
+    @font-face {
+      font-family: "IBM Plex Sans Thai";
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url("/fonts/IBMPlexSansThai-SemiBold.ttf") format("truetype");
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-padding-top: var(--s5); }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx-body);
+      font-family: var(--f-read);
+      font-size: var(--fs-body);
+      font-weight: var(--w-body);
+      line-height: var(--lh-body);
+      letter-spacing: 0;
+    }
+    h1, h2, h3 {
+      font-family: var(--f-display);
+      color: var(--tx);
+      font-weight: var(--w-semi);
+      line-height: var(--lh-head);
+      letter-spacing: 0;
+      margin: 0;
+    }
+    h1 { font-size: var(--fs-h1); line-height: var(--lh-display); }
+    h2 { font-size: var(--fs-h2); }
+    h3 { font-size: var(--fs-h3); font-weight: var(--w-med); }
+    p, ul, ol { margin: 0; }
+    b, strong { font-weight: var(--w-semi); }
+    img { max-width: 100%; }
+
+    a { color: var(--tx-link); text-decoration: underline; text-underline-offset: .15em; transition: color var(--dur-hover) var(--ease-out); }
+    a:hover { color: var(--tx-link-hover); text-decoration-thickness: .12em; }
+    :focus-visible { outline: var(--focus-width) solid var(--focus); outline-offset: var(--focus-width); border-radius: var(--r-xs); }
+
+    .wrap { width: calc(100% - var(--gutter) * 2); max-width: var(--container); margin-inline: auto; }
+    .prose { max-width: var(--measure); }
+
+    .skip {
+      position: absolute;
+      inset-block-start: var(--s2);
+      inset-inline-start: var(--s4);
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--target);
+      padding: var(--s2) var(--s5);
+      background: var(--bg);
+      color: var(--tx-link);
+      font-family: var(--f-display);
+      font-weight: var(--w-semi);
+      transform: translateY(-200%);
+    }
+    .skip:focus { transform: none; }
+
+    /* Header: navy frame, horizontal lockup white-on-navy with clear space on every side */
+    .site-header { background: var(--innow-navy-900); color: var(--on-navy-body); border-bottom: var(--hairline) solid var(--innow-navy-600); }
+    .site-header :focus-visible, .site-footer :focus-visible { outline-color: var(--on-navy-focus); }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--logo-clear);
+      padding-block: var(--logo-clear);
+    }
+    .brand { display: block; line-height: 0; padding-inline-start: var(--s4); }
+    .brand img { display: block; height: var(--logo-h); width: auto; }
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--target);
+      font-family: var(--f-display);
+      font-weight: var(--w-med);
+      color: var(--on-navy-accent);
+    }
+    .home-link:hover { color: var(--on-navy-tx); }
+
+    /* Page head */
+    main { display: block; }
+    .page-head { padding-block: var(--s7) var(--s6); border-bottom: var(--hairline) solid var(--line-soft); }
+    .page-head h1 { max-width: var(--measure); }
+    .lead { margin-top: var(--s4); font-size: var(--fs-lead); line-height: var(--lh-lead); max-width: var(--measure); }
+    .updated { margin-top: var(--s4); font-size: var(--fs-sm); color: var(--tx-muted); }
+
+    .layout { padding-block: var(--s6) var(--s8); }
+
+    /* Summary callout (DS .callout) */
+    .summary {
+      max-width: var(--measure);
+      background: var(--bg-panel);
+      border: var(--hairline) solid var(--line);
+      border-radius: var(--r-md);
+      padding: var(--s5);
+    }
+    .summary h2 { font-size: var(--fs-h3); }
+    .summary ul { margin-top: var(--s3); }
+
+    /* Table of contents */
+    .toc { max-width: var(--measure); margin-top: var(--s6); }
+    .toc h2 { font-size: var(--fs-h3); }
+    .toc ol { list-style: none; padding: 0; margin-top: var(--s2); }
+    .toc a {
+      display: flex;
+      align-items: center;
+      min-height: var(--target);
+      font-family: var(--f-display);
+      font-weight: var(--w-med);
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Sections */
+    .section { max-width: var(--measure); margin-top: var(--s7); }
+    .section h2 { padding-top: var(--s5); border-top: var(--hairline) solid var(--line-soft); }
+    .section h3 { margin-top: var(--s5); }
+    .section p, .section ul, .section .tw { margin-top: var(--s3); }
+    ul { padding-inline-start: var(--s5); }
+    li + li { margin-top: var(--s2); }
+    .note { font-size: var(--fs-sm); color: var(--tx-muted); line-height: var(--lh-dense); }
+
+    /* Tables (DS .tw) */
+    .tw {
+      overflow-x: auto;
+      border: var(--hairline) solid var(--line-soft);
+      border-radius: var(--r-md);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+    caption {
+      caption-side: top;
+      text-align: start;
+      padding: var(--s3);
+      font-family: var(--f-display);
+      font-weight: var(--w-semi);
+      color: var(--tx);
+    }
+    th, td { padding: var(--s3); text-align: start; vertical-align: top; border-bottom: var(--hairline) solid var(--line-soft); line-height: var(--lh-dense); }
+    thead th { font-size: var(--fs-cap); font-weight: var(--w-semi); color: var(--tx-muted); background: var(--bg-panel); }
+    tbody th { font-weight: var(--w-semi); color: var(--tx); width: 34%; }
+    tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+
+    .contact-list { list-style: none; padding: 0; }
+    .contact-list li + li { margin-top: var(--s2); }
+
+    /* Footer (as on the home page) */
+    .site-footer {
+      padding-block: var(--s7) var(--s6);
+      border-top: var(--hairline) solid var(--innow-navy-600);
+      background: var(--innow-navy-900);
+      color: var(--on-navy-body);
+      line-height: var(--lh-body-dark);
+    }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s5); flex-wrap: wrap; }
+    .footer-inner p { font-size: var(--fs-cap); }
+    .footer-links { display: flex; gap: var(--s5); flex-wrap: wrap; }
+    .footer-inner a { min-height: var(--target); display: flex; align-items: center; color: var(--on-navy-accent); }
+    .footer-inner a:hover { color: var(--on-navy-tx); }
+    .strapline { font-size: var(--fs-cap); margin-top: var(--s5); color: var(--on-navy-body); max-width: var(--measure); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+
+    @media print {
+      body { font-size: var(--fs-sm); color: var(--print-tx); }
+      .skip, .toc, .home-link, .footer-links { display: none; }
+      .site-header, .site-footer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .header-inner { padding-block: var(--s4); }
+      .page-head, .layout { padding-block: var(--s4); }
+      .section { break-inside: auto; margin-top: var(--s5); }
+      h2, h3 { break-after: avoid; }
+      table, .summary { break-inside: avoid; }
+      .tw { overflow: visible; }
+      a { color: var(--print-tx); }
+      .section a[href^="http"]::after, .section a[href^="mailto:"]::after { content: " (" attr(href) ")"; font-size: var(--fs-cap); }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">ข้ามไปเนื้อหาหลัก</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="/"><img src="/images/innow-logo-white.png" width="147" height="48" alt="Innow"></a>
+      <a class="home-link" href="/">กลับหน้าแรก</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="page-head">
+      <div class="wrap">
+        <h1>นโยบายความเป็นส่วนตัว</h1>
+        <p class="lead">หน้านี้อธิบายว่าบริษัท อินนาวน์ จำกัด เก็บข้อมูลส่วนบุคคลอะไรจากเว็บไซต์ innow.co.th และจาก LINE MINI App Innow Workshop ใช้ข้อมูลเพื่ออะไร แบ่งปันกับใคร และคุณใช้สิทธิของคุณได้อย่างไร</p>
+        <p class="updated">ปรับปรุงล่าสุด <time datetime="2026-11-11">11 พฤศจิกายน 2569</time></p>
+      </div>
+    </div>
+
+    <div class="wrap layout">
+      <section class="summary" aria-labelledby="summary-heading">
+        <h2 id="summary-heading">สรุปสั้น ๆ</h2>
+        <ul>
+          <li>เราเก็บเฉพาะข้อมูลที่ต้องใช้เพื่อเตรียมใบเสนอราคา ให้คำปรึกษา และเปิดสื่อการเรียนของ Workshop ที่คุณเข้าเรียน</li>
+          <li>เราไม่ขายข้อมูลส่วนบุคคลของคุณ และแบ่งปันเฉพาะกับผู้ให้บริการระบบที่ระบุไว้ในหน้านี้</li>
+          <li>เราส่งข้อความทางการตลาดเฉพาะเมื่อคุณให้ความยินยอมแยกต่างหาก และคุณถอนความยินยอมได้ทุกเมื่อ</li>
+          <li>เว็บไซต์และ LINE MINI App ไม่ใช้คุกกี้เพื่อการโฆษณาหรือการวิเคราะห์สถิติ</li>
+          <li>หากต้องการดู แก้ไข หรือลบข้อมูลของคุณ ติดต่อ <a href="mailto:ask@innow.co.th">ask@innow.co.th</a> หรือแชท LINE Official Account ของ Innow</li>
+        </ul>
+      </section>
+
+      <nav class="toc" aria-labelledby="toc-heading">
+        <h2 id="toc-heading">ในหน้านี้</h2>
+        <ol>
+          <li><a href="#controller">1. ผู้ควบคุมข้อมูลและผู้รับผิดชอบ</a></li>
+          <li><a href="#data">2. ข้อมูลที่เราเก็บ</a></li>
+          <li><a href="#purposes">3. วัตถุประสงค์และฐานทางกฎหมาย</a></li>
+          <li><a href="#sharing">4. ผู้ที่เราแบ่งปันข้อมูลด้วยและการส่งข้อมูลไปต่างประเทศ</a></li>
+          <li><a href="#retention">5. ระยะเวลาเก็บรักษา</a></li>
+          <li><a href="#rights">6. สิทธิของคุณและวิธีใช้สิทธิ</a></li>
+          <li><a href="#security">7. ความปลอดภัยของข้อมูล</a></li>
+          <li><a href="#cookies">8. คุกกี้และการติดตาม</a></li>
+          <li><a href="#changes">9. การเปลี่ยนแปลงนโยบาย</a></li>
+          <li><a href="#contact">10. ติดต่อเรา</a></li>
+        </ol>
+      </nav>
+
+      <section class="section" id="controller" aria-labelledby="controller-heading">
+        <h2 id="controller-heading">1. ผู้ควบคุมข้อมูลและผู้รับผิดชอบ</h2>
+        <p><strong>บริษัท อินนาวน์ จำกัด</strong> (“อินนาวน์” หรือ “เรา”) ให้บริการหลักสูตรอบรมองค์กรด้านปัญญาประดิษฐ์ (AI) และการเขียนโค้ดอย่างปลอดภัย (Secure Coding) ผ่านเว็บไซต์ innow.co.th และ LINE MINI App Innow Workshop (line.innow.co.th) เราเป็นผู้ควบคุมข้อมูลส่วนบุคคลที่เก็บผ่านช่องทางเหล่านี้</p>
+        <p>ผู้รับผิดชอบด้านการคุ้มครองข้อมูลส่วนบุคคลของเราคือ <strong>นายไพบูลย์ พนัสบดี</strong> ติดต่อได้ทางอีเมล <a href="mailto:ask@innow.co.th">ask@innow.co.th</a> หรือทางแชทของ LINE Official Account ของ Innow</p>
+        <p>เราปฏิบัติตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</p>
+      </section>
+
+      <section class="section" id="data" aria-labelledby="data-heading">
+        <h2 id="data-heading">2. ข้อมูลที่เราเก็บ</h2>
+        <p>เราเก็บข้อมูลที่คุณกรอกหรือส่งให้เราเอง และข้อมูลที่ระบบสร้างขึ้นระหว่างที่คุณใช้บริการ ดังนี้</p>
+
+        <h3 id="data-website">2.1 แบบฟอร์มขอใบเสนอราคาบนเว็บไซต์</h3>
+        <div class="tw" tabindex="0" role="region" aria-labelledby="table-website-caption">
+          <table>
+            <caption id="table-website-caption">ข้อมูลจากแบบฟอร์มบนเว็บไซต์ innow.co.th</caption>
+            <thead>
+              <tr><th scope="col">ข้อมูล</th><th scope="col">รายละเอียด</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">ข้อมูลองค์กรและการติดต่อ</th><td>ชื่อองค์กร และอีเมลติดต่อ</td></tr>
+              <tr><th scope="row">ความต้องการด้านการอบรม</th><td>หลักสูตรที่สนใจ รูปแบบและความคาดหวัง รายละเอียดเพิ่มเติม และจำนวนผู้เรียนโดยประมาณ</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>เมื่อคุณกดส่ง ระบบจะส่งข้อมูลเหล่านี้เป็นอีเมลผ่านบริการ Amazon Simple Email Service (Amazon SES) ไปยังกล่องอีเมล ask@innow.co.th ซึ่งใช้บริการอีเมลของ Lark เพื่อให้เราเตรียมใบเสนอราคาและตอบกลับคุณ</p>
+
+        <h3 id="data-line">2.2 LINE MINI App Innow Workshop</h3>
+        <div class="tw" tabindex="0" role="region" aria-labelledby="table-line-caption">
+          <table>
+            <caption id="table-line-caption">ข้อมูลใน LINE MINI App Innow Workshop (line.innow.co.th)</caption>
+            <thead>
+              <tr><th scope="col">ข้อมูล</th><th scope="col">รายละเอียด</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">ข้อมูลจาก LINE Login</th><td>LINE user ID ชื่อที่แสดงใน LINE และรูปโปรไฟล์ ซึ่ง LINE ส่งให้เราเมื่อคุณเข้าสู่ระบบและอนุญาต</td></tr>
+              <tr><th scope="row">ข้อมูลที่คุณกรอก</th><td>ชื่อ นามสกุล และอีเมล (เราไม่ได้ส่งอีเมลยืนยันว่าอีเมลนั้นเป็นของคุณ)</td></tr>
+              <tr><th scope="row">ข้อมูลการเรียน</th><td>Workshop ที่คุณรับสิทธิ์ด้วยรหัส 4 หลัก และวันเวลาที่รับสิทธิ์</td></tr>
+              <tr><th scope="row">สถานะเพื่อน LINE</th><td>คุณเป็นเพื่อนกับ LINE Official Account ของ Innow หรือไม่</td></tr>
+              <tr><th scope="row">ความยินยอมรับข่าวสาร</th><td>ความยินยอมรับข้อความทางการตลาด ซึ่งเป็นตัวเลือกแยกต่างหาก ไม่ได้เลือกไว้ล่วงหน้า และไม่บังคับ</td></tr>
+              <tr><th scope="row">คำขอใบเสนอราคา</th><td>ชื่อองค์กร อีเมล หลักสูตร รูปแบบ รายละเอียด และจำนวนผู้เรียน</td></tr>
+              <tr><th scope="row">คำขอปรึกษาด้าน AI automation</th><td>ชื่อองค์กร อีเมล ระบบที่ใช้อยู่ เป้าหมาย และขนาดทีม</td></tr>
+              <tr><th scope="row">บันทึกกิจกรรม</th><td>การพยายามเข้าสู่ระบบ การใช้รหัส Workshop และการเปิดไฟล์สื่อการเรียน</td></tr>
+              <tr><th scope="row">ข้อมูลทางเทคนิค</th><td>ข้อมูลที่จำเป็นต่อการทำงานของระบบ</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section" id="purposes" aria-labelledby="purposes-heading">
+        <h2 id="purposes-heading">3. วัตถุประสงค์และฐานทางกฎหมาย</h2>
+        <p>เราใช้ข้อมูลของคุณเพื่อวัตถุประสงค์ต่อไปนี้ และอาศัยฐานทางกฎหมายตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 ที่เหมาะกับแต่ละวัตถุประสงค์</p>
+        <div class="tw" tabindex="0" role="region" aria-labelledby="table-purpose-caption">
+          <table>
+            <caption id="table-purpose-caption">วัตถุประสงค์ในการใช้ข้อมูลและฐานทางกฎหมาย</caption>
+            <thead>
+              <tr><th scope="col">วัตถุประสงค์</th><th scope="col">ฐานทางกฎหมาย</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">จัดการสิทธิ์เข้าถึงสื่อการเรียนของ Workshop ที่คุณเข้าเรียน</th><td>การให้บริการตามที่คุณขอ (สัญญา)</td></tr>
+              <tr><th scope="row">ติดต่อคุณเกี่ยวกับการเรียน</th><td>การให้บริการตามที่คุณขอ (สัญญา)</td></tr>
+              <tr><th scope="row">ตอบคำขอใบเสนอราคาและคำขอปรึกษา</th><td>การดำเนินการตามคำขอของคุณก่อนเข้าทำสัญญา</td></tr>
+              <tr><th scope="row">รักษาความปลอดภัย เช่น ป้องกันการเดารหัส Workshop และการใช้งานในทางที่ผิด</th><td>ประโยชน์โดยชอบด้วยกฎหมาย</td></tr>
+              <tr><th scope="row">ปรับปรุงบริการ</th><td>ประโยชน์โดยชอบด้วยกฎหมาย</td></tr>
+              <tr><th scope="row">ส่งข้อความทางการตลาด</th><td>ความยินยอมของคุณ ซึ่งแยกจากการใช้บริการ</td></tr>
+              <tr><th scope="row">ปฏิบัติตามกฎหมาย</th><td>หน้าที่ตามกฎหมาย</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>เราจะไม่ส่งข้อความทางการตลาดให้คุณ หากคุณไม่ได้ให้ความยินยอม และการไม่ให้ความยินยอมไม่มีผลต่อการใช้สื่อการเรียนของคุณ</p>
+      </section>
+
+      <section class="section" id="sharing" aria-labelledby="sharing-heading">
+        <h2 id="sharing-heading">4. ผู้ที่เราแบ่งปันข้อมูลด้วยและการส่งข้อมูลไปต่างประเทศ</h2>
+        <p>เราไม่ขายข้อมูลส่วนบุคคลของคุณ เราใช้ผู้ให้บริการต่อไปนี้ประมวลผลข้อมูลแทนเรา เพื่อให้บริการทำงานได้</p>
+        <ul>
+          <li><strong lang="en">Cloudflare</strong>: โฮสต์ LINE MINI App รวมถึงฐานข้อมูลและพื้นที่เก็บไฟล์ของแอป (Cloudflare Workers, D1 และ R2)</li>
+          <li><strong lang="en">Vercel</strong>: โฮสต์เว็บไซต์ innow.co.th</li>
+          <li><strong lang="en">Amazon Web Services</strong>: ส่งอีเมลจากแบบฟอร์มบนเว็บไซต์ผ่าน Amazon SES</li>
+          <li><strong lang="en">Lark (Lark Suite)</strong>: บริการอีเมลขององค์กรที่รับและเก็บอีเมลที่ส่งมาที่ ask@innow.co.th รวมถึงอีเมลจากแบบฟอร์มบนเว็บไซต์</li>
+          <li><strong>LY Corporation (LINE)</strong>: ให้บริการ LINE Login และการส่งข้อความผ่าน LINE Official Account ข้อมูลที่ LINE เก็บเองเป็นไปตาม<a href="https://line.me/en/terms/policy/" hreflang="en">นโยบายความเป็นส่วนตัวของ LINE</a></li>
+        </ul>
+        <p>นอกจากผู้ให้บริการข้างต้น เราจะเปิดเผยข้อมูลของคุณเฉพาะเมื่อกฎหมายกำหนด หรือเมื่อได้รับความยินยอมจากคุณ</p>
+        <h3 id="sharing-abroad">การส่งข้อมูลไปต่างประเทศ</h3>
+        <p>ผู้ให้บริการบางรายประมวลผลข้อมูลนอกประเทศไทย ข้อมูลของคุณจึงอาจถูกประมวลผลบนเซิร์ฟเวอร์นอกประเทศไทย เช่น เครือข่ายเซิร์ฟเวอร์ของ Cloudflare ในหลายประเทศ และเซิร์ฟเวอร์ของ Amazon Web Services ในซิดนีย์ ออสเตรเลีย (ภูมิภาค ap-southeast-2) ซึ่งใช้ส่งอีเมลจากแบบฟอร์ม เรากำหนดให้มีมาตรการคุ้มครองข้อมูลที่เหมาะสมเมื่อมีการส่งข้อมูลไปต่างประเทศ</p>
+      </section>
+
+      <section class="section" id="retention" aria-labelledby="retention-heading">
+        <h2 id="retention-heading">5. ระยะเวลาเก็บรักษา</h2>
+        <p>เราเก็บข้อมูลไว้เท่าที่จำเป็นเท่านั้น</p>
+        <ul>
+          <li>ข้อมูลสมาชิกใน LINE MINI App เก็บไว้ตลอดช่วงที่คุณยังเป็นสมาชิก</li>
+          <li>ข้อมูลคำขอใบเสนอราคาและคำขอปรึกษา เก็บไว้เท่าที่จำเป็นต่อวัตถุประสงค์นั้น</li>
+          <li>ข้อมูลที่กฎหมายกำหนดให้เก็บ เก็บไว้ตามระยะเวลาที่กฎหมายกำหนด</li>
+        </ul>
+        <p>เมื่อพ้นระยะเวลาดังกล่าว เราจะลบข้อมูล หรือทำให้ข้อมูลนั้นไม่สามารถระบุตัวคุณได้ เมื่อเรากำหนดระยะเวลาเก็บที่แน่นอนสำหรับข้อมูลประเภทใดแล้ว เราจะแจ้งไว้ในหน้านี้</p>
+      </section>
+
+      <section class="section" id="rights" aria-labelledby="rights-heading">
+        <h2 id="rights-heading">6. สิทธิของคุณและวิธีใช้สิทธิ</h2>
+        <p>ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 คุณมีสิทธิดังนี้</p>
+        <ul>
+          <li>ขอเข้าถึงและขอรับสำเนาข้อมูลส่วนบุคคลของคุณ</li>
+          <li>ขอแก้ไขข้อมูลให้ถูกต้องและเป็นปัจจุบัน</li>
+          <li>ขอให้ลบหรือทำลายข้อมูล</li>
+          <li>ขอให้ระงับการใช้ข้อมูล</li>
+          <li>คัดค้านการเก็บ ใช้ หรือเปิดเผยข้อมูล</li>
+          <li>ขอรับหรือขอให้โอนข้อมูลของคุณไปยังผู้อื่น (สิทธิในการโอนย้ายข้อมูล)</li>
+          <li>ถอนความยินยอมได้ทุกเมื่อ โดยการถอนความยินยอมไม่มีผลต่อการประมวลผลที่ทำไปโดยชอบก่อนหน้านั้น</li>
+          <li>ร้องเรียนต่อสำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคล</li>
+        </ul>
+        <p>หากต้องการใช้สิทธิ ติดต่อนายไพบูลย์ พนัสบดี ทางอีเมล <a href="mailto:ask@innow.co.th">ask@innow.co.th</a> หรือทางแชทของ LINE Official Account ของ Innow เราอาจขอข้อมูลเพื่อยืนยันตัวตนของคุณก่อนดำเนินการ และจะตอบกลับภายในระยะเวลาที่กฎหมายกำหนด</p>
+      </section>
+
+      <section class="section" id="security" aria-labelledby="security-heading">
+        <h2 id="security-heading">7. ความปลอดภัยของข้อมูล</h2>
+        <ul>
+          <li>การรับส่งข้อมูลระหว่างอุปกรณ์ของคุณกับเว็บไซต์และแอปเข้ารหัสด้วย HTTPS</li>
+          <li>หน้าผู้ดูแลระบบต้องใช้รหัสผ่าน และจำกัดจำนวนครั้งที่พยายามเข้าสู่ระบบ</li>
+          <li>ไฟล์สื่อการเรียนเปิดได้เฉพาะสมาชิกที่ลงทะเบียน Workshop นั้น ผ่านลิงก์ที่หมดอายุในเวลาสั้น</li>
+          <li>ข้อมูลเก็บไว้ในบริการคลาวด์ที่จำกัดสิทธิ์การเข้าถึง</li>
+          <li>เราไม่ได้ตรวจสอบยืนยันอีเมลที่กรอกเข้ามา โปรดกรอกอีเมลของคุณเองให้ถูกต้อง</li>
+        </ul>
+      </section>
+
+      <section class="section" id="cookies" aria-labelledby="cookies-heading">
+        <h2 id="cookies-heading">8. คุกกี้และการติดตาม</h2>
+        <p>เว็บไซต์ innow.co.th และ LINE MINI App ไม่ใช้คุกกี้เพื่อการโฆษณาหรือการวิเคราะห์สถิติ และไม่มีโค้ดติดตามจากบุคคลที่สาม</p>
+        <ul>
+          <li>LINE MINI App เก็บข้อมูลการเข้าสู่ระบบช่วงสั้น ๆ และร่างคำขอที่คุณยังกรอกไม่เสร็จไว้ใน session storage ของเบราว์เซอร์ ข้อมูลนี้จะหายไปเมื่อปิดแอปหรือแท็บ และร่างคำขอจะถูกลบเมื่อส่งสำเร็จ</li>
+          <li>หน้าแรกของเว็บไซต์ฝังวิดีโอจาก YouTube ในโหมดเพิ่มความเป็นส่วนตัว (youtube-nocookie.com) เมื่อหน้านั้นโหลดวิดีโอหรือเมื่อคุณกดเล่น เบราว์เซอร์ของคุณจะเชื่อมต่อกับเซิร์ฟเวอร์ของ Google ซึ่งเก็บข้อมูลตามนโยบายของ Google เอง</li>
+        </ul>
+      </section>
+
+      <section class="section" id="changes" aria-labelledby="changes-heading">
+        <h2 id="changes-heading">9. การเปลี่ยนแปลงนโยบาย</h2>
+        <p>เราอาจปรับปรุงนโยบายนี้เมื่อบริการหรือกฎหมายเปลี่ยนไป ฉบับล่าสุดจะอยู่ที่หน้านี้เสมอ พร้อมวันที่ปรับปรุงล่าสุดด้านบน หากมีการเปลี่ยนแปลงสำคัญ เราจะแจ้งให้ทราบผ่านเว็บไซต์หรือ LINE MINI App</p>
+        <p>บริการของเราออกแบบสำหรับบุคลากรขององค์กรและผู้ใหญ่ ไม่ได้ออกแบบสำหรับเด็ก</p>
+      </section>
+
+      <section class="section" id="contact" aria-labelledby="contact-heading">
+        <h2 id="contact-heading">10. ติดต่อเรา</h2>
+        <p>หากมีคำถามเกี่ยวกับนโยบายนี้หรือข้อมูลส่วนบุคคลของคุณ ติดต่อ</p>
+        <ul class="contact-list">
+          <li><strong>บริษัท อินนาวน์ จำกัด</strong></li>
+          <li>ผู้รับผิดชอบด้านการคุ้มครองข้อมูลส่วนบุคคล: นายไพบูลย์ พนัสบดี</li>
+          <li>อีเมล: <a href="mailto:ask@innow.co.th">ask@innow.co.th</a></li>
+          <li>แชท LINE Official Account ของ Innow</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-inner">
+        <p>Innow · หลักสูตรอบรมองค์กรด้าน AI และ Secure Coding</p>
+        <div class="footer-links"><a href="/">กลับหน้าแรก</a><a href="#main">กลับด้านบน</a></div>
+      </div>
+      <p class="strapline" lang="en">From vision to practice — powered by people, skills, AI and workflow</p>
+    </div>
+  </footer>
+</body>
+</html>
