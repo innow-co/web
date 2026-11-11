@@ -199,7 +199,8 @@ function mountWith(focusEl, title, ...nodes) {
   const root = h('div', { class: 'screen' }, ...nodes);
   releaseSlides(root);
   view.replaceChildren(root);
-  document.title = title ? `${title} · Innow Workshop` : 'Innow Workshop';
+  // A title that already ends in "Workshop" (e.g. the redeem screen) is used as is, without the app-name suffix.
+  document.title = title ? (title.endsWith('Workshop') ? title : `${title} · Innow Workshop`) : 'Innow Workshop';
   window.scrollTo(0, 0);
   const heading = focusEl || view.querySelector('h1');
   if (focusEl) focusEl.focus({ preventScroll: true });
@@ -1027,7 +1028,7 @@ const screens = {
     });
     return {
       focus: boxes[0],
-      title: 'รับสิทธิ์',
+      title: 'รับสิทธิ์ Bonus Prompt และ Workshop',
       nodes: [
         h('h1', { id: 'code-label', text: 'กรอกรหัส 4 หลัก' }),
         h('p', { class: 'lead', text: 'ผู้สอนจะแจ้งรหัสของ Workshop ให้ในห้องเรียน รหัสมีอายุจำกัด' }),
