@@ -1,6 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { start, stop, call, d1, seedWorkshop, addItem, login, adminLogin, BASE } from './api.helper.mjs';
+import { start, stop, call, d1, seedWorkshop, addItem, login, adminLogin, unusedCode, BASE } from './api.helper.mjs';
 
 const good = { firstName: 'สมชาย', lastName: 'ใจดี', email: 'somchai@example.com', acceptTerms: true };
 let T;
@@ -262,15 +262,34 @@ test('admin revoke kills a never code', async () => {
 });
 
 test('a never code in one workshop is never reused for another workshop', async () => {
+  // Deterministic: workshop C holds a timed ACTIVE row for every 4-digit code except Z (A's never code) and X.
+  // So the only values newCode may hand to B are X, and only if the never row for Z is in its `taken` set.
+  // Mutation check: if never rows were dropped from `taken`, Z would be a legal answer and (probing/scanning
+  // starts at a random point) each issue would return Z about half the time; 12 issues make that miss 1 in 4096.
   const a = await seedWorkshop('Never A');
   const b = await seedWorkshop('Never B');
+  const holder = await seedWorkshop('Never holder');
   const nv = await issue(a.id, { never: true });
-  for (let i = 0; i < 30; i++) {
-    const c = await issue(b.id, { minutes: 5 });
-    assert.notEqual(c.data.code, nv.data.code);
+  const Z = nv.data.code;
+  const X = unusedCode();
+  assert.notEqual(X, Z);
+  d1(`INSERT INTO codes (workshop_id, code, expires_at, created_at)
+      WITH RECURSIVE n(i) AS (SELECT 0 UNION ALL SELECT i + 1 FROM n WHERE i < 9999)
+      SELECT '${holder.id}', printf('%04d', i), 99999999999999, 1 FROM n
+      WHERE printf('%04d', i) NOT IN ('${Z}', '${X}')`);
+  try {
+    for (let i = 0; i < 12; i++) {
+      const c = await issue(b.id, { minutes: 5 });
+      assert.equal(c.status, 200);
+      assert.equal(c.data.code, X);
+      // free X again (newCode picks its code before revoking B's previous one)
+      assert.equal((await call('DELETE', `/api/admin/workshops/${b.id}/codes`, { token: T })).status, 200);
+    }
+    // A's never code is still the one redeemable for A.
+    assert.equal((await redeemWith('nab1', Z)).status, 200);
+  } finally {
+    d1(`DELETE FROM codes WHERE workshop_id = '${holder.id}'`);
   }
-  // A's never code is still the one redeemable for A.
-  assert.equal((await redeemWith('nab1', nv.data.code)).status, 200);
 });
 
 test('never must be strictly boolean true: "true" and 1 fall back to the minutes path', async () => {
