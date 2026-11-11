@@ -1,7 +1,7 @@
 # Innow LINE MINI App (line-app)
 
 Cloudflare Worker + D1 (`innow-line`) + R2 (`innow-line-files`) serving the learner app (`public/`) and the API (`src/worker.js`).
-Current config is the TEST setup (provider "Bot 2023", MINI App "Innow Test", Unverified). See `wrangler.jsonc`.
+Current config is PRODUCTION (provider "Innow", MINI App "Innow Members" 2012547684, Unverified, OA @355rjzvz). The old test setup was provider "Bot 2023", MINI App "Innow Test" (2012557246-8), OA @276eafaf. See `wrangler.jsonc`.
 
 ## Prerequisites
 
@@ -33,9 +33,9 @@ npx wrangler deploy
 
 ## LINE console (test setup)
 
-1. LINE Developers console, provider "Bot 2023", MINI App channel "Innow Test": `/console/channel/2012557246/mini-liff`.
+1. LINE Developers console, provider "Innow", MINI App channel "Innow Members": `/console/channel/2012547684/mini-liff`.
 2. Developing channel: set the Endpoint URL to the deployed Worker URL (https, no trailing path).
-3. Confirm the linked OA is "Bot 2023" (@276eafaf). Turn on the "Add friend" option so members are prompted to add the OA (verify in the console where this setting lives).
+3. Confirm the linked OA is "อาจารย์ไพบูลย์ Innow" (@355rjzvz). Turn on the "Add friend" option so members are prompted to add the OA (verify in the console where this setting lives).
 4. Roles: add every person who will test as a Tester (in Developing mode only testers can open the app).
 5. Open `https://miniapp.line.me/2012557246-GV0GKhsl` from LINE on a phone. Deep links: `...?p=workshops|redeem|prompts|contact`.
 
@@ -54,7 +54,7 @@ Typing the token inline (`LINE_CHANNEL_ACCESS_TOKEN=... node ...`) stores it in 
 ```sh
 cd line-app
 read -rs LINE_CHANNEL_ACCESS_TOKEN && export LINE_CHANNEL_ACCESS_TOKEN
-export LIFF_ID=2012557246-GV0GKhsl OA_BASIC_ID=@355rjzvz
+export LIFF_ID=2012547684-HJKrsHm3 OA_BASIC_ID=@355rjzvz
 node richmenu/create.mjs --dry-run                                            # no network
 node richmenu/create.mjs --confirm --user U0123456789abcdef0123456789abcdef   # test OA first: one user only
 node richmenu/create.mjs --confirm                                            # default menu for ALL friends
