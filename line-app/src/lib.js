@@ -125,3 +125,24 @@ export function validateInquiry(input) {
   if (!Number.isSafeInteger(learners) || learners < 1 || learners > 100000) errors.learners = 'กรอกจำนวนผู้เรียนเป็นจำนวนเต็มตั้งแต่ 1 ถึง 100,000 คน';
   return { ok: Object.keys(errors).length === 0, errors, value: { organization, email, course, expectation, details, learners } };
 }
+
+// AI automation consultation form (contact menu, third choice). Same strictness as validateInquiry; tests/wizard.test.mjs
+// compares it with the client-side validateConsultationStep in public/lib-wizard.js.
+export function validateConsultation(input) {
+  const src = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+  const organization = strOf(src.organization);
+  const email = strOf(src.email);
+  const systems = strOf(src.systems);
+  const goals = strOf(src.goals);
+  // Optional: absent / '' / null means "skipped" (a blank ' ' is a typo, not a skip). Otherwise a number or a plain digit string.
+  const skipped = src.teamSize === undefined || src.teamSize === null || src.teamSize === '';
+  const rawTeam = typeof src.teamSize === 'string' ? src.teamSize.trim() : src.teamSize;
+  const teamSize = skipped ? null : (typeof rawTeam === 'number' || /^\d+$/.test(rawTeam ?? '') ? Number(rawTeam) : NaN);
+  const errors = {};
+  if (!organization || organization.length > 160 || /[\r\n]/.test(organization)) errors.organization = 'กรอกชื่อองค์กร';
+  if (email.length > 254 || !INQUIRY_EMAIL_RE.test(email)) errors.email = 'กรอกอีเมลติดต่อให้ถูกต้อง';
+  if (!systems || systems.length > 2000) errors.systems = 'เล่าระบบที่ใช้อยู่ตอนนี้ (ไม่เกิน 2,000 ตัวอักษร)';
+  if (!goals || goals.length > 2000) errors.goals = 'เล่างานที่อยากให้ AI ช่วย (ไม่เกิน 2,000 ตัวอักษร)';
+  if (!skipped && (!Number.isSafeInteger(teamSize) || teamSize < 1 || teamSize > 100000)) errors.teamSize = 'กรอกขนาดทีมเป็นจำนวนเต็มตั้งแต่ 1 ถึง 100,000 คน';
+  return { ok: Object.keys(errors).length === 0, errors, value: { organization, email, systems, goals, teamSize } };
+}

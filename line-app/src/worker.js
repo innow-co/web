@@ -1,6 +1,6 @@
 import {
   signToken, verifyToken, timingSafeEqualStr, randomCode, isFourDigits,
-  validateRegistration, validateInquiry, slugify, safeFileName, csvCell, HttpError,
+  validateRegistration, validateInquiry, validateConsultation, slugify, safeFileName, csvCell, HttpError,
 } from './lib.js';
 import { verifyLineWithFetch, devFakeLineActive, isLocalHost } from './line.js';
 
@@ -13,6 +13,7 @@ const NEVER_EXPIRES = 253402300799000;
 const MAX_CODE_MINUTES = 90 * 24 * 60;   // longest timed code: 90 days
 const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
 const INQUIRY_WINDOW = 60 * 60 * 1000;     // 1 hour
+const CONSULT_MAX = 3;                     // consultations per member / hour (same 1-hour window, every submission counts)
 const INQUIRY_MAX = 3;                     // quote requests per member / hour (every submission counts)
 const DEFAULT_FORWARD_TIMEOUT = 8000;
 const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
@@ -282,6 +283,22 @@ const member = {
       console.error('inquiry status update failed', ins.meta.last_row_id);
     }
     return json({ ok: true, forwarded: result.ok });
+  },
+
+  // AI automation consultation. Stored only (no email, no forwarding in this version); the admin page is the review place.
+  // line_user_id comes from the verified session, never from the body.
+  async consultation(req, env) {
+    const s = await memberSession(req, env);
+    const v = validateConsultation(await body(req));
+    if (!v.ok) throw new HttpError(422, 'กรุณาตรวจสอบข้อมูล', { errors: v.errors });
+    if ((await reserveAttempt(env, 'consult:' + s.uid, CONSULT_MAX, INQUIRY_WINDOW)) === null) {
+      throw new HttpError(429, 'ส่งเรื่องปรึกษาบ่อยเกินไป กรุณาลองใหม่ภายหลัง');
+    }
+    const c = v.value;
+    await env.DB.prepare(
+      `INSERT INTO consultations (line_user_id, organization, email, systems, goals, team_size, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(s.uid, c.organization, c.email, c.systems, c.goals, c.teamSize, now()).run();
+    return json({ ok: true });
   },
 };
 
@@ -581,6 +598,16 @@ const admin = {
     })) });
   },
 
+  async consultations(req, env) {
+    const { results } = await env.DB.prepare(
+      `SELECT c.*, m.first_name, m.last_name FROM consultations c LEFT JOIN members m ON m.line_user_id = c.line_user_id
+       ORDER BY c.id DESC LIMIT 200`).all();
+    return json({ consultations: results.map((c) => ({
+      id: c.id, createdAt: c.created_at, organization: c.organization, email: c.email, systems: c.systems, goals: c.goals,
+      teamSize: c.team_size, memberName: c.first_name ? `${c.first_name} ${c.last_name}`.trim() : '',
+    })) });
+  },
+
   async stats(req, env) {
     const [m, w, e, f] = await env.DB.batch([
       env.DB.prepare('SELECT COUNT(*) AS n FROM members'),
@@ -606,6 +633,7 @@ async function route(req, env) {
   if (p === '/api/auth' && M === 'POST') return member.auth(req, env);
   if (p === '/api/me' && M === 'GET') return member.me(req, env);
   if (p === '/api/inquiry' && M === 'POST') return member.inquiry(req, env);
+  if (p === '/api/consultation' && M === 'POST') return member.consultation(req, env);
   if (p === '/api/redeem' && M === 'POST') return member.redeem(req, env);
   if (p === '/api/register' && M === 'POST') return member.register(req, env);
   if (p === '/api/prompts' && M === 'GET') return member.byKind(req, env, 'prompt');
@@ -642,6 +670,7 @@ async function route(req, env) {
     if (p === '/api/admin/members.csv' && M === 'GET') return admin.membersCsv(req, env);
     if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/copy-from\/([\w-]+)$/)) && M === 'POST') return admin.copyFrom(req, env, m[1], m[2]);
     if (p === '/api/admin/inquiries' && M === 'GET') return admin.inquiries(req, env);
+    if (p === '/api/admin/consultations' && M === 'GET') return admin.consultations(req, env);
     if (p === '/api/admin/audit' && M === 'GET') return admin.audit(req, env);
   }
   if (p.startsWith('/api/')) throw new HttpError(404, 'Not found');
