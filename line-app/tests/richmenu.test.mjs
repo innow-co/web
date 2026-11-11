@@ -51,12 +51,12 @@ test('buildRichMenu: actions and exact URLs', () => {
   const uris = areas.map((a) => { assert.equal(a.action.type, 'uri'); return a.action.uri; });
   // Button 4 opens the website directly; button 6 opens the MINI App contact page (the OA chat is reached from there).
   assert.deepEqual(uris, [
-    'https://liff.line.me/1234-abcd?p=workshops',
-    'https://liff.line.me/1234-abcd?p=redeem',
-    'https://liff.line.me/1234-abcd?p=prompts',
+    'https://miniapp.line.me/1234-abcd?p=workshops',
+    'https://miniapp.line.me/1234-abcd?p=redeem',
+    'https://miniapp.line.me/1234-abcd?p=prompts',
     'https://innow.co.th',
     'https://www.facebook.com/innow.co.th',
-    'https://liff.line.me/1234-abcd?p=contact',
+    'https://miniapp.line.me/1234-abcd?p=contact',
   ]);
   assert.deepEqual(areas.map((a) => a.action.label), ['Workshop', 'รับสิทธิ์', 'Prompt Library', 'ดูผลงานของเรา', 'ข่าวสาร', 'ติดต่อเรา']);
   for (const a of areas) assert.ok(a.action.label === undefined || a.action.label.length <= 20);
@@ -66,6 +66,7 @@ test('buildRichMenu: basic id with or without @ gives the same menu; no button u
   const a = buildRichMenu('1234-abcd', '355rjzvz');
   assert.deepEqual(a, buildRichMenu('1234-abcd', '@355rjzvz'));
   assert.ok(!JSON.stringify(a).includes('oaMessage'));
+  assert.ok(!JSON.stringify(a).includes('liff.line.me'));
 });
 
 test('richmenu.html carries the button 4 and 6 text and no emoji', () => {
@@ -181,6 +182,51 @@ test('CLI: failure of the create call itself needs no rollback', () => {
   const r = runCli(['--confirm'], { ...FULL_ENV, FAKE_FAIL_ON: 'v2/bot/richmenu' });
   assert.notEqual(r.status, 0);
   assert.equal(r.calls.length, 1);
+});
+
+// ---- --user (link to one user instead of the default) ----------------------
+const UID = 'U' + '0123456789abcdef'.repeat(2);
+
+test('CLI --user: dry-run is network-free and plans the per-user link, not the default', () => {
+  const r = runCli(['--dry-run', '--user', UID], FULL_ENV);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.calls.length, 0);
+  assert.match(r.stderr, new RegExp(`/v2/bot/user/${UID}/richmenu/\\{id\\}`));
+  assert.ok(!r.stderr.includes('user/all'));
+  assert.ok(!r.stdout.includes(FAKE_TOKEN) && !r.stderr.includes(FAKE_TOKEN));
+});
+
+test('CLI --user without --confirm makes no network call', () => {
+  const r = runCli(['--user', UID], FULL_ENV);
+  assert.equal(r.status, 2);
+  assert.equal(r.calls.length, 0);
+});
+
+test('CLI --user --confirm links the menu to that one user and never to all', () => {
+  const r = runCli(['--confirm', '--user', UID], FULL_ENV);
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(r.stdout.trim(), 'richmenu-abc123');
+  assert.ok(!r.stderr.includes(FAKE_TOKEN));
+  assert.deepEqual(r.calls.map((c) => `${c.method} ${c.url}`), [
+    'POST https://api.line.me/v2/bot/richmenu',
+    'POST https://api-data.line.me/v2/bot/richmenu/richmenu-abc123/content',
+    `POST https://api.line.me/v2/bot/user/${UID}/richmenu/richmenu-abc123`,
+  ]);
+});
+
+test('CLI --user: failure on the link step rolls the menu back', () => {
+  const r = runCli(['--confirm', '--user', UID], { ...FULL_ENV, FAKE_FAIL_ON: `/user/${UID}/` });
+  assert.notEqual(r.status, 0);
+  assert.ok(!r.stdout.includes(FAKE_TOKEN) && !r.stderr.includes(FAKE_TOKEN));
+  assert.equal(r.calls[r.calls.length - 1].method, 'DELETE');
+});
+
+test('CLI --user: missing or malformed user id is rejected with no network call', () => {
+  for (const args of [['--confirm', '--user'], ['--confirm', '--user', 'not-a-user'], ['--confirm', '--user', 'all'], ['--confirm', '--user', '../x'], ['--confirm', '--user', UID + 'zz']]) {
+    const r = runCli(args, FULL_ENV);
+    assert.notEqual(r.status, 0, args.join(' '));
+    assert.equal(r.calls.length, 0, args.join(' '));
+  }
 });
 
 // ---- Image ------------------------------------------------------------------

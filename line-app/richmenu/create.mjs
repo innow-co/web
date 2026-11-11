@@ -2,6 +2,7 @@
 //
 //   node richmenu/create.mjs --dry-run
 //   node richmenu/create.mjs --confirm
+//   node richmenu/create.mjs --confirm --user <LINE user id>   (link to that one user, not the default)
 //
 // Env: LINE_CHANNEL_ACCESS_TOKEN, LIFF_ID, OA_BASIC_ID. The token is only ever
 // sent in the Authorization header; it is never printed or written to disk.
@@ -27,7 +28,7 @@ export function buildRichMenu(liffId, oaBasicId) {
   const liff = req('liffId', liffId);
   const bare = req('oaBasicId', oaBasicId).replace(/^@+/, '');
   if (!bare) throw new Error('oaBasicId is required');
-  const liffUrl = (p) => `https://liff.line.me/${liff}?p=${p}`;
+  const liffUrl = (p) => `https://miniapp.line.me/${liff}?p=${p}`;
   // The OA basic id is still required (and validated) so a misconfigured env fails early,
   // but "ติดต่อเรา" now opens the MINI App contact page, not the OA chat.
   const uris = [
@@ -65,6 +66,9 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
   const err = (s) => process.stderr.write(s + '\n');
   const dry = argv.includes('--dry-run');
   const confirm = argv.includes('--confirm');
+  const ui = argv.indexOf('--user');
+  const userId = ui >= 0 ? argv[ui + 1] : null;
+  if (ui >= 0 && !/^U[0-9a-f]{32}$/.test(userId || '')) { err('--user needs a LINE user id (U followed by 32 hex characters)'); return 1; }
 
   const token = (env.LINE_CHANNEL_ACCESS_TOKEN || '').trim();
   const missing = ['LINE_CHANNEL_ACCESS_TOKEN', 'LIFF_ID', 'OA_BASIC_ID'].filter((k) => !env[k] || !env[k].trim());
@@ -78,11 +82,13 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
     err('Planned steps (no network call made):');
     err(`1. POST ${API}/v2/bot/richmenu`);
     err(`2. POST ${API_DATA}/v2/bot/richmenu/{id}/content  (richmenu.png, image/png)`);
-    err(`3. POST ${API}/v2/bot/user/all/richmenu/{id}  (set as default for ALL friends)`);
+    err(userId
+      ? `3. POST ${API}/v2/bot/user/${userId}/richmenu/{id}  (link to this one user only)`
+      : `3. POST ${API}/v2/bot/user/all/richmenu/{id}  (set as default for ALL friends)`);
     return 0;
   }
   if (!confirm) {
-    err('Refusing to run: this changes the live menu for every friend of the OA. Re-run with --confirm (or use --dry-run to preview).');
+    err(`Refusing to run: this changes the live menu for ${userId ? 'that user' : 'every friend of the OA'}. Re-run with --confirm (or use --dry-run to preview).`);
     return 2;
   }
 
@@ -102,8 +108,8 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
     });
     if (!res.ok) throw new Error(`image upload failed, ${await lineError(res)}`);
 
-    res = await fetch(`${API}/v2/bot/user/all/richmenu/${id}`, { method: 'POST', headers: auth });
-    if (!res.ok) throw new Error(`set default failed, ${await lineError(res)}`);
+    res = await fetch(`${API}/v2/bot/user/${userId || 'all'}/richmenu/${id}`, { method: 'POST', headers: auth });
+    if (!res.ok) throw new Error(`${userId ? 'link to user' : 'set default'} failed, ${await lineError(res)}`);
   } catch (e) {
     err(String(e.message || e).split(token).join('[redacted]'));
     if (id) {
