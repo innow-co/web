@@ -98,3 +98,37 @@ test('isLocalHost accepts only loopback names', () => {
   for (const h of ['localhost', '127.0.0.1', '[::1]', 'LOCALHOST']) assert.equal(isLocalHost(h), true, h);
   for (const h of ['innow-line.example.workers.dev', 'example.com', 'localhost.evil.com', '127.0.0.1.evil.com', '127.0.0.2', '', undefined, null, '::1x']) assert.equal(isLocalHost(h), false, String(h));
 });
+
+// ---- LINE_LOGIN_CHANNEL_ID allowlist (MINI App has three internal channels) ----
+const withIds = (ids, clientId = '2012557247') => {
+  const { f } = stub({ verify: () => res(200, { client_id: clientId, expires_in: 3000 }) });
+  return verifyLineWithFetch(TOKEN, { LINE_LOGIN_CHANNEL_ID: ids }, f);
+};
+
+test('allowlist: a single id still works', async () => {
+  assert.equal((await withIds('2012557247')).userId, 'U123');
+});
+
+test('allowlist: accepts a token whose client_id is any listed id', async () => {
+  for (const id of ['2012557246', '2012557247', '2012557248']) {
+    assert.equal((await withIds('2012557246,2012557247,2012557248', id)).userId, 'U123', id);
+  }
+});
+
+test('allowlist: spaces and a trailing comma are tolerated', async () => {
+  assert.equal((await withIds(' 2012557246 , 2012557247 ,')).userId, 'U123');
+  assert.equal((await withIds('2012557247,,')).userId, 'U123');
+});
+
+test('allowlist: no match is 401', async () => {
+  assert.equal(await status(withIds('2012557246,2012557248', '2012557247')), 401);
+});
+
+test('allowlist: a prefix of an id does not match, in either direction', async () => {
+  assert.equal(await status(withIds('20125572', '2012557246')), 401);
+  assert.equal(await status(withIds('2012557246', '20125572')), 401);
+});
+
+test('allowlist: empty, whitespace-only or commas-only value fails closed with 503', async () => {
+  for (const v of ['', '   ', ' , ,', undefined]) assert.equal(await status(withIds(v)), 503, String(v));
+});
