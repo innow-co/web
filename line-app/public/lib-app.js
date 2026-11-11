@@ -1,6 +1,6 @@
 // Pure helpers for the learner app. No DOM access, so Node can import and test them.
 
-export const ROUTES = ['home', 'workshops', 'workshop', 'prompts', 'bonus', 'redeem', 'register', 'success', 'profile'];
+export const ROUTES = ['home', 'workshops', 'workshop', 'prompts', 'bonus', 'redeem', 'register', 'success', 'profile', 'contact'];
 
 const SAFE_ID = /^[\w-]{1,80}$/;
 
@@ -37,6 +37,14 @@ export function addFriendUrl(basicId) {
   const id = String(basicId ?? '').trim().replace(/^@+/, '');
   if (!id) return '';
   return 'https://line.me/R/ti/p/@' + encodeURIComponent(id);
+}
+
+// Opens the OA chat with `text` prefilled. LINE documents https://line.me/R/oaMessage/{URL-encoded basic ID}/?{text};
+// the basic id includes "@" (encoded %40), given here with or without it. '' when there is no basic id.
+export function oaMessageUrl(basicId, text) {
+  const id = String(basicId ?? '').trim().replace(/^@+/, '');
+  if (!id) return '';
+  return 'https://line.me/R/oaMessage/' + encodeURIComponent('@' + id) + '/?' + encodeURIComponent(String(text ?? ''));
 }
 
 export const isNotFriendError = (e) => !!e && e.notFriend === true;
