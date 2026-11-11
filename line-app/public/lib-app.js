@@ -143,5 +143,17 @@ export const slidesCanEnter = ({ pending = false, destroyed = false, state = 'po
   !pending && !destroyed && state !== 'native' && state !== 'overlay';
 export const slidesCanApply = ({ destroyed = false, connected = false } = {}) => !destroyed && connected === true;
 
-// Items with text worth copying: every prompt, and a bonus that carries a body (e.g. a command plus its prompt).
-export const hasCopyAction = (item) => !!item && (item.kind === 'prompt' || (item.kind === 'bonus' && String(item.body ?? '').trim() !== ''));
+// The part of an item body that the copy button copies. Convention: everything before the first line that is exactly
+// three em dashes (U+2014, trimmed) is the ready-to-use prompt; what follows is reference text that is shown, not copied.
+// Without a separator the whole body counts. Line endings are normalised to \n; trailing blank lines are dropped.
+const COPY_SEPARATOR = '\u2014\u2014\u2014';
+export function copyableText(body) {
+  const lines = String(body ?? '').split(/\r\n|\r|\n/);
+  const i = lines.findIndex((l) => l.trim() === COPY_SEPARATOR);
+  const head = i >= 0 ? lines.slice(0, i) : lines;
+  while (head.length && head[head.length - 1].trim() === '') head.pop();
+  return head.join('\n');
+}
+
+// Items with text worth copying: every prompt, and a bonus whose copyable part is not blank (e.g. a command plus its prompt).
+export const hasCopyAction = (item) => !!item && (item.kind === 'prompt' || (item.kind === 'bonus' && copyableText(item.body).trim() !== ''));

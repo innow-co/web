@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   isNotFriendError, parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply, hasCopyAction,
+  formatSize, groupByWorkshop, tabFor, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply, hasCopyAction, copyableText,
 } from '../public/lib-app.js';
 
 test('isNotFriendError only matches notFriend errors', () => {
@@ -251,4 +251,47 @@ test('hasCopyAction: prompts always, bonus only with a non-blank body, other kin
   assert.equal(hasCopyAction({ kind: 'bonus' }), false);
   assert.equal(hasCopyAction({ kind: 'slide', body: 'x' }), false);
   assert.equal(hasCopyAction(null), false);
+});
+
+const SEP = '\u2014\u2014\u2014';
+
+test('copyableText: no separator copies the whole body, trailing blank lines trimmed', () => {
+  assert.equal(copyableText('/sales:call-prep\n\nช่วยเตรียม 5 ข้อ'), '/sales:call-prep\n\nช่วยเตรียม 5 ข้อ');
+  assert.equal(copyableText('a\nb\n\n  \n'), 'a\nb');
+  assert.equal(copyableText('  indented\nline'), '  indented\nline', 'inner and leading spaces of the first line are kept');
+  assert.equal(copyableText(''), '');
+  assert.equal(copyableText(null), '');
+  assert.equal(copyableText(undefined), '');
+});
+
+test('copyableText: a line that is exactly the separator splits; the reference part is not copied', () => {
+  assert.equal(copyableText('prompt line 1\nline 2\n' + SEP + '\nโครงสร้าง: ...\nแผนก: ขาย'), 'prompt line 1\nline 2');
+  assert.equal(copyableText('prompt\n\n' + SEP + '   \nref'), 'prompt', 'the separator line is trimmed');
+  assert.equal(copyableText('prompt\n  ' + SEP + '  \nref'), 'prompt');
+  assert.equal(copyableText(SEP + '\nonly reference'), '', 'separator at the very start');
+  assert.equal(copyableText('prompt\n' + SEP), 'prompt', 'separator as the last line');
+});
+
+test('copyableText: a separator inside a line, or a different dash run, is ignored', () => {
+  const a = 'use ' + SEP + ' here\nsecond';
+  assert.equal(copyableText(a), a);
+  const b = 'x\n\u2014\u2014\nrest';
+  assert.equal(copyableText(b), b, 'two dashes are not the separator');
+  const c = 'x\n\u2014\u2014\u2014\u2014\nrest';
+  assert.equal(copyableText(c), c, 'four dashes are not the separator');
+  const d = 'x\n---\nrest';
+  assert.equal(copyableText(d), d, 'ASCII hyphens are not the separator');
+});
+
+test('copyableText: CRLF and CR line endings work; the first separator wins', () => {
+  assert.equal(copyableText('p1\r\np2\r\n' + SEP + '\r\nref'), 'p1\r\np2'.replace(/\r\n/g, '\n'));
+  assert.equal(copyableText('p1\rp2\r' + SEP + '\rref'), 'p1\np2');
+  assert.equal(copyableText('one\n' + SEP + '\ntwo\n' + SEP + '\nthree'), 'one');
+});
+
+test('hasCopyAction uses the copyable part: a bonus that is only reference text gets no copy button', () => {
+  assert.equal(hasCopyAction({ kind: 'bonus', body: SEP + '\nreference only' }), false);
+  assert.equal(hasCopyAction({ kind: 'bonus', body: 'prompt\n' + SEP + '\nref' }), true);
+  assert.equal(hasCopyAction({ kind: 'prompt', body: SEP + '\nref' }), true, 'prompt behaviour unchanged');
+  assert.equal(hasCopyAction({ kind: 'prompt', body: '' }), true);
 });

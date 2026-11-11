@@ -2,7 +2,7 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply, hasCopyAction,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply, hasCopyAction, copyableText,
 } from './lib-app.js';
 import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
@@ -357,7 +357,7 @@ function itemCard(it, showWorkshop = false) {
   if (hasCopyAction(it)) {
     const copy = h('button', { class: 'btn small', type: 'button' }, icon('copy', 'ico sm'), 'คัดลอก');
     copy.addEventListener('click', async () => {
-      const ok = await copyText(it.body || '');
+      const ok = await copyText(copyableText(it.body));
       toast(ok ? 'คัดลอกแล้ว' : 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก');
       if (ok) { copy.lastChild.textContent = 'คัดลอกแล้ว'; setTimeout(() => { copy.lastChild.textContent = 'คัดลอก'; }, 1800); }
     });

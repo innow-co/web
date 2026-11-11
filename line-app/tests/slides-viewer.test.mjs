@@ -157,3 +157,11 @@ test('itemCard: one shared copy button for prompt and bonus, bonus body keeps li
   assert.match(css, /\.item p\.item-body\s*\{[^}]*white-space:\s*pre-line[^}]*overflow-wrap:\s*anywhere|\.item p\.item-body\s*\{[^}]*overflow-wrap:\s*anywhere[^}]*white-space:\s*pre-line/);
   assert.match(fn, /it\.kind === 'prompt'\s*\?\s*\(it\.body \? h\('pre'/, 'prompt <pre> unchanged');
 });
+
+test('the copy handler copies copyableText(body) for both kinds while the full body stays displayed', () => {
+  const fn = app.slice(app.indexOf('function itemCard('), app.indexOf('// ---------- Google Slides viewer'));
+  assert.match(fn, /copyText\(\s*copyableText\(\s*it\.body\s*\)\s*\)/);
+  assert.ok(!/copyText\(\s*it\.body/.test(fn), 'never copies the raw body');
+  assert.match(fn, /h\('pre',\s*\{\s*class:\s*'prompt',\s*tabindex:\s*'0',\s*text:\s*it\.body\s*\}/, 'prompt <pre> still shows the full body');
+  assert.match(fn, /h\('p',\s*\{\s*class:\s*'item-body',\s*text:\s*it\.body\s*\}/, 'bonus <p> still shows the full body');
+});
