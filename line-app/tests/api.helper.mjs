@@ -41,7 +41,8 @@ export function d1(sql) {
   return wrangler(['d1', 'execute', 'innow-line', '--local', '--persist-to', STATE, '--command', sql]).toString();
 }
 
-export async function start() {
+// extraVars: per-run Worker vars passed as `wrangler dev --var KEY:VALUE` (never written to .dev.vars).
+export async function start(extraVars = {}) {
   ensureVars();
   mkdirSync(WR, { recursive: true });
   rmSync(STATE, { recursive: true, force: true });
@@ -49,7 +50,7 @@ export async function start() {
   const stale = await fetch(BASE + '/api/config').then(() => true, () => false);
   if (stale) throw new Error(`Port ${PORT} already answers (stale wrangler dev from an aborted run?). Kill it and retry.`);
   const out = openSync(LOG, 'w');
-  child = spawn(BIN, ['dev', '--local', '--port', String(PORT), '--ip', '127.0.0.1', '--persist-to', STATE], {
+  child = spawn(BIN, ['dev', '--local', '--port', String(PORT), '--ip', '127.0.0.1', '--persist-to', STATE, ...Object.entries(extraVars).flatMap(([k, v]) => ['--var', `${k}:${v}`])], {
     cwd: ROOT, detached: true, stdio: ['ignore', out, out],
     env: { ...process.env, WRANGLER_SEND_METRICS: 'false', NO_COLOR: '1' },
   });

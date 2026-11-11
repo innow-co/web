@@ -101,3 +101,27 @@ export function csvCell(value) {
 export class HttpError extends Error {
   constructor(status, message, extra = {}) { super(message); this.status = status; this.extra = extra; }
 }
+
+// Quote-request form ("ขอใบเสนอราคาอบรม"): same rules as lib/contact-message.mjs on the website.
+const INQUIRY_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const strOf = (v) => (typeof v === 'string' ? v.trim() : '');
+
+export function validateInquiry(input) {
+  const src = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+  const organization = strOf(src.organization);
+  const email = strOf(src.email);
+  const course = strOf(src.course);
+  const expectation = strOf(src.expectation);
+  const details = strOf(src.details);
+  // Numbers or plain digit strings only: "20.5", "1e3", "", "0x10" are not whole-number answers.
+  const raw = typeof src.learners === 'string' ? src.learners.trim() : src.learners;
+  const learners = typeof raw === 'number' || /^\d+$/.test(raw ?? '') ? Number(raw) : NaN;
+  const errors = {};
+  if (!organization || organization.length > 160 || /[\r\n]/.test(organization)) errors.organization = 'กรอกชื่อองค์กร';
+  if (email.length > 254 || !INQUIRY_EMAIL_RE.test(email)) errors.email = 'กรอกอีเมลติดต่อให้ถูกต้อง';
+  if (!course || course.length > 200 || /[\r\n]/.test(course)) errors.course = 'เลือกหลักสูตรที่สนใจ';
+  if (!expectation || expectation.length > 300 || /[\r\n]/.test(expectation)) errors.expectation = 'เลือกรูปแบบที่ต้องการ';
+  if (details.length > 2000) errors.details = 'รายละเอียดเพิ่มเติมต้องไม่เกิน 2,000 ตัวอักษร';
+  if (!Number.isSafeInteger(learners) || learners < 1 || learners > 100000) errors.learners = 'กรอกจำนวนผู้เรียนเป็นจำนวนเต็มตั้งแต่ 1 ถึง 100,000 คน';
+  return { ok: Object.keys(errors).length === 0, errors, value: { organization, email, course, expectation, details, learners } };
+}

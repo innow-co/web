@@ -1,6 +1,6 @@
 import {
   signToken, verifyToken, timingSafeEqualStr, randomCode, isFourDigits,
-  validateRegistration, slugify, safeFileName, csvCell, HttpError,
+  validateRegistration, validateInquiry, slugify, safeFileName, csvCell, HttpError,
 } from './lib.js';
 import { verifyLineWithFetch, devFakeLineActive, isLocalHost } from './line.js';
 
@@ -9,6 +9,9 @@ const ADMIN_TTL = 60 * 60 * 12;            // admin session: 12 hours
 const REDEEM_TTL = 60 * 30;                // time to finish registration after a valid code
 const FILE_LINK_TTL = 60 * 5;              // signed file URL: 5 minutes
 const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
+const INQUIRY_WINDOW = 60 * 60 * 1000;     // 1 hour
+const INQUIRY_MAX = 3;                     // quote requests per member / hour (every submission counts)
+const DEFAULT_FORWARD_TIMEOUT = 8000;
 const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
 const ADMIN_MAX_FAILS = 10;                // per IP / 10 min
 const ADMIN_GLOBAL = 'admin:*';
@@ -36,14 +39,14 @@ async function audit(env, actor, action, detail = {}) {
 
 // Atomic check-and-record: one INSERT ... SELECT that only inserts while the recent failure count is under the
 // limit, so parallel requests cannot all read the old count. The row is recorded as a failure (ok = 0) up front;
-// callers flip it to ok = 1 with releaseAttempt() when the credential turns out to be correct.
+// callers flip it to ok = 1 with releaseAttempt() when the credential turns out to be correct (inquiries never release).
 // Returns the new row id, or null when the subject is locked out.
-async function reserveAttempt(env, subject, max) {
+async function reserveAttempt(env, subject, max, window = FAIL_WINDOW) {
   const t = now();
   const r = await env.DB.prepare(
     `INSERT INTO attempts (subject, ok, created_at)
      SELECT ?, 0, ? WHERE (SELECT COUNT(*) FROM attempts WHERE subject = ? AND ok = 0 AND created_at > ?) < ?`)
-    .bind(subject, t, subject, t - FAIL_WINDOW, max).run();
+    .bind(subject, t, subject, t - window, max).run();
   return r.meta.changes ? r.meta.last_row_id : null;
 }
 
@@ -252,7 +255,50 @@ const member = {
     await audit(env, s.uid, 'file_link', { itemId: it.id });
     return json({ url: new URL('/f/' + it.id + '?t=' + encodeURIComponent(t), req.url).toString(), expiresIn: FILE_LINK_TTL });
   },
+
+  async inquiry(req, env) {
+    const s = await memberSession(req, env);
+    const v = validateInquiry(await body(req));
+    if (!v.ok) throw new HttpError(422, 'กรุณาตรวจสอบข้อมูล', { errors: v.errors });
+    // Every submission uses a slot (never released), so a failing forward cannot be used to bypass the limit.
+    if ((await reserveAttempt(env, 'inquiry:' + s.uid, INQUIRY_MAX, INQUIRY_WINDOW)) === null) {
+      throw new HttpError(429, 'ส่งคำขอบ่อยเกินไป กรุณาลองใหม่ภายหลัง');
+    }
+    const q = v.value;
+    const ins = await env.DB.prepare(
+      `INSERT INTO inquiries (line_user_id, organization, email, course, expectation, details, learners, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).bind(s.uid, q.organization, q.email, q.course, q.expectation, q.details, q.learners, now()).run();
+    const result = await forwardInquiry(env, new URL(req.url).hostname, q);
+    await env.DB.prepare('UPDATE inquiries SET forwarded = ?, forward_error = ? WHERE id = ?')
+      .bind(result.ok ? 1 : 0, result.error, ins.meta.last_row_id).run();
+    return json({ ok: true, forwarded: result.ok });
+  },
 };
+
+// Server-to-server copy to the website's contact endpoint (it emails ask@innow.co.th). Never throws; the error is a
+// short safe code ('disabled', 'timeout', 'network' or the HTTP status), never a response body or secret.
+async function forwardInquiry(env, hostname, q) {
+  const raw = String(env.INQUIRY_FORWARD_URL ?? '').trim();
+  let url = null;
+  try { url = raw ? new URL(raw) : null; } catch { /* invalid URL: disabled */ }
+  // Plain http is only ever allowed to a loopback host in dev, so production can never forward unencrypted.
+  const allowed = url && (url.protocol === 'https:' || (url.protocol === 'http:' && isLocalHost(url.hostname) && devFakeLineActive(env, hostname)));
+  if (!allowed) return { ok: false, error: 'disabled' };
+  const ms = Number(env.INQUIRY_FORWARD_TIMEOUT_MS);
+  const timeout = Number.isFinite(ms) && ms > 0 ? ms : DEFAULT_FORWARD_TIMEOUT;
+  try {
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'user-agent': 'innow-line-worker' },
+      body: JSON.stringify({ organization: q.organization, email: q.email, course: q.course, expectation: q.expectation, details: q.details, learners: q.learners, website: '' }),
+      signal: AbortSignal.timeout(timeout),
+    });
+    res.body?.cancel().catch(() => {});
+    return res.ok ? { ok: true, error: '' } : { ok: false, error: String(res.status) };
+  } catch (e) {
+    return { ok: false, error: e?.name === 'TimeoutError' || e?.name === 'AbortError' ? 'timeout' : 'network' };
+  }
+}
 
 // RFC 5987 attr-char: encodeURIComponent also leaves ' ( ) * unescaped, which are not allowed.
 const encodeRfc5987 = (s) => encodeURIComponent(s).replace(/['()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
@@ -506,6 +552,17 @@ const admin = {
     return json({ log: results.map((r) => ({ id: r.id, actor: r.actor, name: r.first_name ? `${r.first_name} ${r.last_name}` : '', action: r.action, detail: r.detail, createdAt: r.created_at })) });
   },
 
+  async inquiries(req, env) {
+    const { results } = await env.DB.prepare(
+      `SELECT q.*, m.first_name, m.last_name FROM inquiries q LEFT JOIN members m ON m.line_user_id = q.line_user_id
+       ORDER BY q.id DESC LIMIT 200`).all();
+    return json({ inquiries: results.map((q) => ({
+      id: q.id, createdAt: q.created_at, organization: q.organization, email: q.email, course: q.course, expectation: q.expectation,
+      details: q.details, learners: q.learners, memberName: q.first_name ? `${q.first_name} ${q.last_name}`.trim() : '',
+      forwarded: !!q.forwarded, forwardError: q.forward_error,
+    })) });
+  },
+
   async stats(req, env) {
     const [m, w, e, f] = await env.DB.batch([
       env.DB.prepare('SELECT COUNT(*) AS n FROM members'),
@@ -530,6 +587,7 @@ async function route(req, env) {
   if (p === '/api/config' && M === 'GET') return member.config(req, env);
   if (p === '/api/auth' && M === 'POST') return member.auth(req, env);
   if (p === '/api/me' && M === 'GET') return member.me(req, env);
+  if (p === '/api/inquiry' && M === 'POST') return member.inquiry(req, env);
   if (p === '/api/redeem' && M === 'POST') return member.redeem(req, env);
   if (p === '/api/register' && M === 'POST') return member.register(req, env);
   if (p === '/api/prompts' && M === 'GET') return member.byKind(req, env, 'prompt');
@@ -565,6 +623,7 @@ async function route(req, env) {
     if (p === '/api/admin/members' && M === 'GET') return admin.members(req, env);
     if (p === '/api/admin/members.csv' && M === 'GET') return admin.membersCsv(req, env);
     if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/copy-from\/([\w-]+)$/)) && M === 'POST') return admin.copyFrom(req, env, m[1], m[2]);
+    if (p === '/api/admin/inquiries' && M === 'GET') return admin.inquiries(req, env);
     if (p === '/api/admin/audit' && M === 'GET') return admin.audit(req, env);
   }
   if (p.startsWith('/api/')) throw new HttpError(404, 'Not found');
