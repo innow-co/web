@@ -115,3 +115,17 @@ export const mailtoHref = (email) => {
 export const forwardBadge = (q) => (q?.forwarded
   ? { text: 'ส่งอีเมลแล้ว', ok: true }
   : { text: 'ส่งอีเมลไม่สำเร็จ' + (q?.forwardError ? ': ' + q.forwardError : ''), ok: false });
+
+// AI consultation list (read-only). Team size is optional: anything that is not a positive whole number shows as '-'.
+export const teamSizeLabel = (n) => (Number.isSafeInteger(n) && n >= 1 ? String(n) : '-');
+
+// One API row -> display values. `mailto` is null unless the address passes mailtoHref (header-injection safe).
+export function consultationRow(c) {
+  const x = c && typeof c === 'object' ? c : {};
+  const text = (v) => (typeof v === 'string' ? v : '');
+  const email = text(x.email);
+  return {
+    id: x.id, createdAt: x.createdAt, organization: text(x.organization), email, mailto: mailtoHref(email),
+    systems: text(x.systems), goals: text(x.goals), teamSize: teamSizeLabel(x.teamSize), memberName: text(x.memberName) || '-',
+  };
+}

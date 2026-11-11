@@ -3,7 +3,7 @@
 import {
   clockOffset, remainingMs, formatCountdown, formatCode, formatSize, isHttps, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
   isNever, lifetimeWarning, LIFETIME_OPTIONS, DEFAULT_LIFETIME_MINUTES,
-  actionLabel, csvFilename, prettyDetail, kindLabel, mailtoHref, forwardBadge,
+  actionLabel, csvFilename, prettyDetail, kindLabel, mailtoHref, forwardBadge, consultationRow,
 } from './lib-admin.js';
 
 const TOKEN_KEY = 'innow_admin_token';
@@ -143,6 +143,7 @@ function parseHash() {
   if (p[0] === 'members') return { name: 'members' };
   if (p[0] === 'audit') return { name: 'audit' };
   if (p[0] === 'inquiries') return { name: 'inquiries' };
+  if (p[0] === 'consultations') return { name: 'consultations' };
   return { name: 'home' };
 }
 
@@ -161,6 +162,7 @@ async function route() {
     else if (r.name === 'workshop') view = await workshopView(r);
     else if (r.name === 'members') view = await membersView(null);
     else if (r.name === 'inquiries') view = await inquiriesView();
+    else if (r.name === 'consultations') view = await consultationsView();
     else view = await auditView();
     if (seq !== renderSeq) return;
     main.replaceChildren(...view.nodes.filter(Boolean));
@@ -184,6 +186,7 @@ function shell(r) {
       h('a', { href: '#/', 'aria-current': r.name === 'home' || r.name === 'workshop' ? 'page' : null }, 'Workshop'),
       h('a', { href: '#/members', 'aria-current': cur('members') }, 'ผู้เรียนทั้งหมด'),
       h('a', { href: '#/inquiries', 'aria-current': cur('inquiries') }, 'คำขอใบเสนอราคา'),
+      h('a', { href: '#/consultations', 'aria-current': cur('consultations') }, 'ปรึกษา AI Automation'),
       h('a', { href: '#/audit', 'aria-current': cur('audit') }, 'บันทึกกิจกรรม'),
       h('button', { type: 'button', onclick: () => logout() }, 'ออกจากระบบ'))));
 }
@@ -752,6 +755,29 @@ async function inquiriesView() {
       inquiries.length
         ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['เวลา', 'องค์กร', 'อีเมล', 'หลักสูตร', 'รูปแบบ', 'ผู้เรียน', 'รายละเอียด', 'ผู้ส่ง', 'สถานะอีเมล'].map((c) => h('th', {}, c)))), h('tbody', {}, rows)))
         : h('div', { class: 'empty card' }, 'ยังไม่มีคำขอใบเสนอราคา'),
+    ],
+  };
+}
+
+// ---------- AI automation consultations (read-only) ----------
+async function consultationsView() {
+  const { consultations } = await api('/consultations');
+  const long = (text) => (text ? h('details', {}, h('summary', {}, 'ดูรายละเอียด'), h('pre', { class: 'detail' }, text)) : '-');
+  const rows = consultations.map(consultationRow).map((c) => h('tr', {},
+    h('td', { class: 'nowrap' }, fmtDate(c.createdAt)),
+    h('td', {}, c.organization),
+    h('td', {}, c.mailto ? h('a', { href: c.mailto }, c.email) : c.email),
+    h('td', {}, c.memberName),
+    h('td', {}, long(c.systems)),
+    h('td', {}, long(c.goals)),
+    h('td', { class: 'num' }, c.teamSize)));
+  return {
+    nodes: [
+      h('div', { class: 'toolbar' }, h('h1', {}, 'ปรึกษา AI Automation'), h('button', { type: 'button', class: 'btn ghost', onclick: route }, 'รีเฟรช')),
+      h('p', { class: 'lead' }, 'เรื่องที่ผู้เรียนส่งจากเมนู "ติดต่อเรา" แสดง 200 รายการล่าสุด (อ่านอย่างเดียว ระบบยังไม่ส่งอีเมลแจ้งเตือน)'),
+      consultations.length
+        ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['เวลา', 'องค์กร', 'อีเมล', 'ผู้ส่ง', 'ระบบที่ใช้อยู่', 'งานที่อยากให้ AI ช่วย', 'ขนาดทีม'].map((c) => h('th', {}, c)))), h('tbody', {}, rows)))
+        : h('div', { class: 'empty card' }, 'ยังไม่มีเรื่องปรึกษา'),
     ],
   };
 }

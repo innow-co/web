@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   clockOffset, serverTime, remainingMs, formatCountdown, formatCode, formatSize, isHttps,
-  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType, mailtoHref, forwardBadge,
+  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType, mailtoHref, forwardBadge, teamSizeLabel, consultationRow,
 } from '../public/lib-admin.js';
 
 test('server clock offset beats a wrong browser clock', () => {
@@ -178,4 +178,32 @@ test('UI default lifetime is 3 months and is one of the select options; never is
   assert.ok(LIFETIME_OPTIONS.some(([v]) => v === 5));
   // the default shows the long warning from the start
   assert.notEqual((await import('../public/lib-admin.js')).lifetimeWarning(DEFAULT_LIFETIME_MINUTES), '');
+});
+
+// ---- AI consultation list ----
+test('teamSizeLabel: the number, or a dash when skipped or not a count', () => {
+  assert.equal(teamSizeLabel(20), '20');
+  assert.equal(teamSizeLabel(100000), '100000');
+  for (const v of [null, undefined, '', 0, -1, 2.5, NaN, 'abc', {}]) assert.equal(teamSizeLabel(v), '-', String(v));
+});
+
+test('consultationRow maps an API row to display values with safe fallbacks', () => {
+  const r = consultationRow({ id: 7, createdAt: 1700000000000, organization: 'บริษัท A', email: 'hr@example.com', systems: 'Excel\nERP', goals: 'สรุปรายงาน', teamSize: 12, memberName: 'สมหญิง รักเรียน' });
+  assert.deepEqual(r, { id: 7, createdAt: 1700000000000, organization: 'บริษัท A', email: 'hr@example.com', mailto: 'mailto:hr@example.com', systems: 'Excel\nERP', goals: 'สรุปรายงาน', teamSize: '12', memberName: 'สมหญิง รักเรียน' });
+  const e = consultationRow({ id: 8, createdAt: 1, organization: 'x', email: 'a@b.co?cc=evil@x.com', systems: 's', goals: 'g', teamSize: null, memberName: '' });
+  assert.equal(e.mailto, null, 'a header-injecting address is never a mailto link');
+  assert.equal(e.teamSize, '-');
+  assert.equal(e.memberName, '-');
+  const bad = consultationRow(null);
+  assert.deepEqual([bad.organization, bad.email, bad.mailto, bad.systems, bad.goals, bad.teamSize, bad.memberName], ['', '', null, '', '', '-', '-']);
+});
+
+test('consultation tab: markup uses h()/textContent only, no inline style, no innerHTML (CSP-safe)', () => {
+  const js = readFileSync(new URL('../public/admin.js', import.meta.url), 'utf8');
+  const start = js.indexOf('async function consultationsView');
+  assert.ok(start > 0, 'consultationsView exists');
+  const block = js.slice(start, js.indexOf('// ---------- start ----------'));
+  assert.ok(!/innerHTML|insertAdjacentHTML|outerHTML|\.style\b|style:|setAttribute\(['"]style/.test(block), 'no innerHTML or inline style in the consultations view');
+  assert.match(js, /href: '#\/consultations'/);
+  assert.match(js, /ปรึกษา AI Automation/);
 });
