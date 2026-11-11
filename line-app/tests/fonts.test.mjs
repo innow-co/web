@@ -142,3 +142,7 @@ test('static route serves /fonts/Anuphan-Variable.ttf as a font through the Work
 test('wrangler run_worker_first leaves /fonts/* to the static assets', () => {
   assert.match(readFileSync(fileURLToPath(new URL('../wrangler.jsonc', import.meta.url)), 'utf8'), /"run_worker_first": \["\/api\/\*", "\/f\/\*"\]/);
 });
+
+test('form controls inherit the page font (browsers default them to a system font)', () => {
+  for (const css of ['app.css', 'admin.css']) assert.match(read(css), /button, input, textarea, select \{ font: inherit;/, css);
+});
