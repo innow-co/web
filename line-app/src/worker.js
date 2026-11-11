@@ -1,7 +1,8 @@
 import {
   signToken, verifyToken, timingSafeEqualStr, randomCode, isFourDigits,
-  validateRegistration, slugify, safeFileName, csvCell,
+  validateRegistration, slugify, safeFileName, csvCell, HttpError,
 } from './lib.js';
+import { verifyLineWithFetch, devFakeLineActive, isLocalHost } from './line.js';
 
 const SESSION_TTL = 60 * 60 * 24 * 7;      // member session: 7 days
 const ADMIN_TTL = 60 * 60 * 12;            // admin session: 12 hours
@@ -13,10 +14,6 @@ const ADMIN_MAX_FAILS = 10;                // per IP / 10 min
 const ADMIN_GLOBAL = 'admin:*';
 const ADMIN_GLOBAL_MAX_FAILS = 50;         // all IPs together / 10 min
 const MAX_UPLOAD = 40 * 1024 * 1024;      // req.formData() buffers ~2x the body; 128 MB isolate. Keep in sync with MAX_UPLOAD_BYTES in public/lib-admin.js
-
-class HttpError extends Error {
-  constructor(status, message, extra = {}) { super(message); this.status = status; this.extra = extra; }
-}
 
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers } });
@@ -79,30 +76,20 @@ async function recentFails(env, subject) {
 
 // ---------- LINE verification ----------
 
-async function verifyLine(accessToken, env) {
-  if (env.DEV_FAKE_LINE === '1' && typeof accessToken === 'string' && accessToken.startsWith('dev:')) {
+async function verifyLine(accessToken, env, hostname) {
+  if (devFakeLineActive(env, hostname) && typeof accessToken === 'string' && accessToken.startsWith('dev:')) {
     const userId = accessToken.slice(4);
     return { userId, displayName: 'Dev ' + userId.slice(-4), pictureUrl: '', isFriend: !userId.includes('nofriend') };
   }
-  if (typeof accessToken !== 'string' || accessToken.length < 10) throw new HttpError(401, 'กรุณาเข้าสู่ระบบด้วย LINE');
-  if (!env.LINE_LOGIN_CHANNEL_ID) throw new HttpError(503, 'LINE channel not configured');
+  return verifyLineWithFetch(accessToken, env, fetch);
+}
 
-  const v = await fetch('https://api.line.me/oauth2/v2.1/verify?access_token=' + encodeURIComponent(accessToken));
-  if (!v.ok) throw new HttpError(401, 'LINE token ไม่ถูกต้องหรือหมดอายุ');
-  const info = await v.json();
-  if (String(info.client_id) !== String(env.LINE_LOGIN_CHANNEL_ID) || !(info.expires_in > 0)) throw new HttpError(401, 'LINE token ไม่ถูกต้อง');
-
-  const auth = { Authorization: 'Bearer ' + accessToken };
-  const [p, f] = await Promise.all([
-    fetch('https://api.line.me/v2/profile', { headers: auth }),
-    fetch('https://api.line.me/friendship/v1/status', { headers: auth }),
-  ]);
-  if (!p.ok) throw new HttpError(401, 'ไม่สามารถอ่านข้อมูลบัญชี LINE');
-  const profile = await p.json();
-  let isFriend = false;
-  if (f.ok) isFriend = (await f.json()).friendFlag === true;
-  else console.warn('friendship check failed', f.status, await f.text());
-  return { userId: profile.userId, displayName: profile.displayName || '', pictureUrl: profile.pictureUrl || '', isFriend };
+let warnedDevOnPublicHost = false;
+function warnIfDevFlagOnPublicHost(env, hostname) {
+  if (env.DEV_FAKE_LINE && !isLocalHost(hostname) && !warnedDevOnPublicHost) {
+    warnedDevOnPublicHost = true;
+    console.warn('DEV_FAKE_LINE is set but the request host is not local; the dev login bypass is disabled. Remove the variable from this deployment.');
+  }
 }
 
 async function memberSession(request, env) {
@@ -141,12 +128,15 @@ const workshopSummary = (w) => ({ id: w.id, title: w.title, description: w.descr
 
 const member = {
   async config(req, env) {
-    return json({ liffId: env.LIFF_ID || '', oaBasicId: env.OA_BASIC_ID || '', facebookUrl: env.FACEBOOK_URL || '', requireFriend: env.REQUIRE_FRIEND !== 'false', dev: env.DEV_FAKE_LINE === '1' });
+    warnIfDevFlagOnPublicHost(env, new URL(req.url).hostname);
+    return json({ liffId: env.LIFF_ID || '', oaBasicId: env.OA_BASIC_ID || '', facebookUrl: env.FACEBOOK_URL || '', requireFriend: env.REQUIRE_FRIEND !== 'false', dev: devFakeLineActive(env, new URL(req.url).hostname) });
   },
 
   async auth(req, env) {
     const { accessToken } = await body(req);
-    const line = await verifyLine(accessToken, env);
+    const hostname = new URL(req.url).hostname;
+    warnIfDevFlagOnPublicHost(env, hostname);
+    const line = await verifyLine(accessToken, env, hostname);
     const m = await env.DB.prepare('SELECT * FROM members WHERE line_user_id = ?').bind(line.userId).first();
     if (m) {
       await env.DB.prepare('UPDATE members SET display_name = ?, picture_url = ?, is_friend = ?, last_seen_at = ? WHERE line_user_id = ?')

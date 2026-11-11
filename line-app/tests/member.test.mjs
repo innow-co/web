@@ -1,5 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import { start, stop, call, d1, seedWorkshop, addItem, login, adminLogin, unusedCode } from './api.helper.mjs';
 
 const norm = (m) => String(m).replace(/\d+/g, 'N');
@@ -188,4 +189,32 @@ test('isolation: other workshop and its files are 403', async () => {
   assert.equal((await call('GET', `/api/workshops/${a.id}`, { token })).status, 200);
   assert.equal((await call('GET', `/api/workshops/${b.id}`, { token })).status, 403);
   assert.equal((await call('POST', `/api/items/${itemB}/link`, { token })).status, 403);
+});
+
+// Sends a request to the local server but with a different Host header (what a deployed workers.dev host looks like).
+function callWithHost(host, method, p, json) {
+  return new Promise((resolve, reject) => {
+    const payload = json === undefined ? null : JSON.stringify(json);
+    const req = http.request({ host: '127.0.0.1', port: 8799, method, path: p, headers: { host, ...(payload ? { 'content-type': 'application/json', 'content-length': Buffer.byteLength(payload) } : {}) } }, (res) => {
+      let t = ''; res.on('data', (c) => { t += c; });
+      res.on('end', () => { let data; try { data = JSON.parse(t); } catch { data = t; } resolve({ status: res.statusCode, data }); });
+    });
+    req.on('error', reject);
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+test('dev identity bypass works on loopback hosts only', async () => {
+  const local = await call('POST', '/api/auth', { json: { accessToken: 'dev:hostcheck1' } });
+  assert.equal(local.status, 200);
+  assert.equal((await call('GET', '/api/config')).data.dev, true);
+
+  const publicHost = 'innow-line.example.workers.dev';
+  const cfg = await callWithHost(publicHost, 'GET', '/api/config');
+  assert.equal(cfg.status, 200);
+  assert.equal(cfg.data.dev, false);
+  const r = await callWithHost(publicHost, 'POST', '/api/auth', { accessToken: 'dev:hostcheck2' });
+  assert.equal(r.status, 401);
+  assert.equal(r.data.session, undefined);
 });
