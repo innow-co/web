@@ -221,3 +221,15 @@ test('consultation tab: markup uses h()/textContent only, no inline style, no in
   assert.match(js, /href: '#\/consultations'/);
   assert.match(js, /ปรึกษา AI Automation/);
 });
+
+test('inquiry_web has a Thai audit label', () => {
+  assert.equal(actionLabel('inquiry_web'), 'รับคำขอใบเสนอราคาจากเว็บไซต์');
+});
+
+test('every audited action in the Worker has an audit label', () => {
+  const src = readFileSync(new URL('../src/worker.js', import.meta.url), 'utf8');
+  const actions = [...src.matchAll(/\baudit\(\s*env\s*,\s*[^,]+,\s*'([a-z_]+)'/g)].map((m) => m[1]);
+  assert.ok(actions.length >= 15, 'found the audited actions');
+  assert.ok(actions.includes('inquiry_web'));
+  for (const a of new Set(actions)) assert.notEqual(actionLabel(a), a, `missing label for ${a}`);
+});

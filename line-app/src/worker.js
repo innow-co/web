@@ -312,7 +312,10 @@ const member = {
       `INSERT INTO inquiries (line_user_id, organization, email, course, expectation, details, learners, forwarded, forward_error, source, created_at)
        VALUES ('', ?, ?, ?, ?, ?, ?, ?, ?, 'web', ?)`)
       .bind(q.organization, q.email, q.course, q.expectation, q.details, q.learners, sent ? 1 : 0, sent ? '' : 'email-failed', now()).run();
-    await audit(env, 'web', 'inquiry_web', { id: ins.meta.last_row_id });
+    // The row is stored: a failed audit must not become a 500 (the website would retry and duplicate the lead).
+    try { await audit(env, 'web', 'inquiry_web', { id: ins.meta.last_row_id }); } catch {
+      console.error('web inquiry audit failed', ins.meta.last_row_id); // id only, never the lead's data
+    }
     return json({ ok: true });
   },
 

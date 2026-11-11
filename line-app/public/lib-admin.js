@@ -83,6 +83,7 @@ export const ACTION_LABELS = {
   register: 'ผู้เรียนลงทะเบียน',
   enroll: 'ผู้เรียนได้รับสิทธิ์ Workshop',
   file_link: 'เปิดไฟล์',
+  inquiry_web: 'รับคำขอใบเสนอราคาจากเว็บไซต์',
 };
 
 export const actionLabel = (action) => ACTION_LABELS[action] || String(action ?? '');

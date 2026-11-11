@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { start, stop, call, d1, login, adminLogin, BASE } from './api.helper.mjs';
+import { start, stop, call, d1, login, adminLogin, BASE, waitForLogLine } from './api.helper.mjs';
 
 // Website -> Worker quote requests (POST /api/inquiry/web). The secret is random per run, never a literal.
 const SECRET = randomBytes(36).toString('base64');
@@ -231,5 +231,26 @@ test('503 when the secret is not configured, empty or shorter than 32 chars; not
     assert.equal(r.status, 503, JSON.stringify(vars));
     assert.deepEqual(r.data, { error: 'Service unavailable' });
     assert.equal(dbRows(org).length, 0);
+  }
+});
+
+test('a failing audit insert after the row is stored still answers 200 with exactly one row, logging only the id', async () => {
+  await stop();
+  await start({ [SECRET_ENV]: SECRET, WEB_INQUIRY_CAP_PER_HOUR: '3' }); // earlier tests restart the Worker with other vars
+  resetCap();
+  const org = orgOf('audit-fail');
+  d1("CREATE TRIGGER web_block_audit BEFORE INSERT ON audit_log BEGIN SELECT RAISE(ABORT, 'blocked'); END");
+  try {
+    const r = await post(body({ organization: org }));
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.data, { ok: true });
+    assert.equal(dbRows(org).length, 1);
+    const line = await waitForLogLine('web inquiry audit failed');
+    assert.ok(line, 'expected the failure to be logged');
+    assert.match(line, /web inquiry audit failed\D+\d+/);
+    assert.ok(!line.includes(org) && !line.includes('web@example.com') && !line.includes(SECRET), 'log line must be PII free');
+  } finally {
+    d1('DROP TRIGGER web_block_audit');
+    resetCap();
   }
 });
