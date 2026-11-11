@@ -1,0 +1,126 @@
+import { test, before, after } from 'node:test';
+import assert from 'node:assert/strict';
+import { start, stop, call, d1, seedWorkshop, addItem, login } from './api.helper.mjs';
+
+const good = { firstName: 'สมชาย', lastName: 'ใจดี', email: 'somchai@example.com', acceptTerms: true };
+
+before(async () => { await start(); });
+after(async () => { await stop(); });
+
+test('auth: friend gets session, no member yet', async () => {
+  const r = await call('POST', '/api/auth', { json: { accessToken: 'dev:u1' } });
+  assert.equal(r.status, 200);
+  assert.equal(r.data.isFriend, true);
+  assert.equal(r.data.member, null);
+  assert.ok(r.data.session);
+});
+
+test('auth: non-friend is told so and /api/me is 403 notFriend', async () => {
+  const { token, res } = await login('nofriend1');
+  assert.equal(res.data.isFriend, false);
+  const me = await call('GET', '/api/me', { token });
+  assert.equal(me.status, 403);
+  assert.equal(me.data.notFriend, true);
+});
+
+test('garbage bearer token is 401, not 500', async () => {
+  for (const t of ['abc.%%%', 'garbage', 'a.b.c']) {
+    const r = await call('GET', '/api/me', { token: t });
+    assert.equal(r.status, 401, t);
+  }
+});
+
+test('journey: new user redeems, registers, sees workshop; second redeem path', async () => {
+  const a = await seedWorkshop('Workshop A');
+  const b = await seedWorkshop('Workshop B');
+  const { token } = await login('journey1');
+
+  const rd = await call('POST', '/api/redeem', { token, json: { code: a.code } });
+  assert.equal(rd.status, 200);
+  assert.equal(rd.data.status, 'register');
+  assert.ok(rd.data.redeemToken);
+
+  const reg = await call('POST', '/api/register', { token, json: { ...good, redeemToken: rd.data.redeemToken } });
+  assert.equal(reg.status, 200);
+  assert.equal(reg.data.status, 'enrolled');
+
+  const me = await call('GET', '/api/me', { token });
+  assert.equal(me.data.workshops.length, 1);
+  assert.equal(me.data.workshops[0].id, a.id);
+  assert.equal(me.data.member.email, good.email);
+
+  // already a member: different workshop enrolls directly
+  const rd2 = await call('POST', '/api/redeem', { token, json: { code: b.code } });
+  assert.equal(rd2.data.status, 'enrolled');
+  // same code again
+  const rd3 = await call('POST', '/api/redeem', { token, json: { code: b.code } });
+  assert.equal(rd3.data.status, 'already');
+});
+
+test('wrong codes: generic 400, sixth attempt is 429', async () => {
+  const { token } = await login('ratelimit1');
+  for (let i = 0; i < 5; i++) {
+    const r = await call('POST', '/api/redeem', { token, json: { code: 'abcd' } });
+    assert.equal(r.status, 400, 'attempt ' + (i + 1));
+    assert.ok(r.data.error);
+  }
+  const r6 = await call('POST', '/api/redeem', { token, json: { code: 'abcd' } });
+  assert.equal(r6.status, 429);
+});
+
+test('expired code gets the same generic 400 as a wrong code', async () => {
+  const w = await seedWorkshop('Expiring', { minutes: 1 });
+  const { token } = await login('expire1');
+  const { token: t2 } = await login('expire2');
+  const wrong = await call('POST', '/api/redeem', { token: t2, json: { code: 'abcd' } });
+  d1(`UPDATE codes SET expires_at = 1000 WHERE workshop_id = '${w.id}'`);
+  const r = await call('POST', '/api/redeem', { token, json: { code: w.code } });
+  assert.equal(r.status, 400);
+  assert.equal(r.data.error.replace(/\d+/g, 'N'), wrong.data.error.replace(/\d+/g, 'N'));
+});
+
+test('code 0042 is accepted when issued', async () => {
+  const w = await seedWorkshop('Leading zeros');
+  d1(`UPDATE codes SET code = '0042' WHERE workshop_id = '${w.id}'`);
+  const { token } = await login('zero1');
+  const r = await call('POST', '/api/redeem', { token, json: { code: '0042' } });
+  assert.equal(r.status, 200);
+  assert.equal(r.data.status, 'register');
+});
+
+test('register without acceptTerms is 422 with errors.acceptTerms', async () => {
+  const w = await seedWorkshop('Terms');
+  const { token } = await login('terms1');
+  const rd = await call('POST', '/api/redeem', { token, json: { code: w.code } });
+  const r = await call('POST', '/api/register', { token, json: { ...good, acceptTerms: false, redeemToken: rd.data.redeemToken } });
+  assert.equal(r.status, 422);
+  assert.ok(r.data.errors.acceptTerms);
+});
+
+test('register twice with the same redeemToken leaves one member row', async () => {
+  const w = await seedWorkshop('Twice');
+  const { token } = await login('twice1');
+  const rd = await call('POST', '/api/redeem', { token, json: { code: w.code } });
+  const body = { ...good, redeemToken: rd.data.redeemToken };
+  const [r1, r2] = await Promise.all([call('POST', '/api/register', { token, json: body }), call('POST', '/api/register', { token, json: body })]);
+  assert.equal(r1.status, 200);
+  assert.equal(r2.status, 200);
+  const out = d1("SELECT COUNT(*) AS n FROM members WHERE line_user_id = 'twice1'");
+  assert.match(out, /"n": 1\b/);
+  const en = d1("SELECT COUNT(*) AS n FROM enrollments WHERE line_user_id = 'twice1'");
+  assert.match(en, /"n": 1\b/);
+});
+
+test('isolation: other workshop and its files are 403', async () => {
+  const a = await seedWorkshop('Iso A');
+  const b = await seedWorkshop('Iso B');
+  const itemB = await addItem(b.id, { kind: 'slide', title: 'secret slide' });
+  d1(`UPDATE items SET r2_key = 'workshops/x/none', file_name = 'x.pdf', content_type = 'application/pdf', size = 1 WHERE id = ${itemB}`);
+  const { token } = await login('iso1');
+  const rd = await call('POST', '/api/redeem', { token, json: { code: a.code } });
+  await call('POST', '/api/register', { token, json: { ...good, redeemToken: rd.data.redeemToken } });
+
+  assert.equal((await call('GET', `/api/workshops/${a.id}`, { token })).status, 200);
+  assert.equal((await call('GET', `/api/workshops/${b.id}`, { token })).status, 403);
+  assert.equal((await call('POST', `/api/items/${itemB}/link`, { token })).status, 403);
+});

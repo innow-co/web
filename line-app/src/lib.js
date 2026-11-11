@@ -32,7 +32,8 @@ export async function signToken(secret, typ, payload, ttlSeconds, now = Date.now
 export async function verifyToken(secret, typ, token, now = Date.now()) {
   if (typeof token !== 'string' || !token.includes('.')) return null;
   const [body, sig] = token.split('.');
-  const ok = await crypto.subtle.verify('HMAC', await hmacKey(secret), b64urlDecode(sig), enc.encode(body));
+  let ok;
+  try { ok = await crypto.subtle.verify('HMAC', await hmacKey(secret), b64urlDecode(sig), enc.encode(body)); } catch { return null; }
   if (!ok) return null;
   let data;
   try { data = JSON.parse(new TextDecoder().decode(b64urlDecode(body))); } catch { return null; }

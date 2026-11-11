@@ -99,3 +99,9 @@ test('slugify yields non-empty [a-z0-9-] only', () => {
   }
   assert.match(slugify('Claude Code 2 วัน'), /^claude-code-2-/);
 });
+
+test('verifyToken returns null (not throw) for a non-base64url signature', async () => {
+  assert.equal(await verifyToken(SECRET, 'sess', 'abc.%%%'), null);
+  assert.equal(await verifyToken(SECRET, 'sess', 'a.b.c'), null);
+  assert.equal(await verifyToken(SECRET, 'sess', '.'), null);
+});
