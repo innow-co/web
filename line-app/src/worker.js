@@ -9,7 +9,9 @@ const REDEEM_TTL = 60 * 30;                // time to finish registration after 
 const FILE_LINK_TTL = 60 * 5;              // signed file URL: 5 minutes
 const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
 const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
-const ADMIN_MAX_FAILS = 10;
+const ADMIN_MAX_FAILS = 10;                // per IP / 10 min
+const ADMIN_GLOBAL = 'admin:*';
+const ADMIN_GLOBAL_MAX_FAILS = 50;         // all IPs together / 10 min
 const MAX_UPLOAD = 40 * 1024 * 1024;      // req.formData() buffers ~2x the body; 128 MB isolate. Keep in sync with MAX_UPLOAD_BYTES in public/lib-admin.js
 
 class HttpError extends Error {
@@ -35,14 +37,44 @@ async function audit(env, actor, action, detail = {}) {
     .bind(actor, action, JSON.stringify(detail), now()).run();
 }
 
+// Atomic check-and-record: one INSERT ... SELECT that only inserts while the recent failure count is under the
+// limit, so parallel requests cannot all read the old count. The row is recorded as a failure (ok = 0) up front;
+// callers flip it to ok = 1 with releaseAttempt() when the credential turns out to be correct.
+// Returns the new row id, or null when the subject is locked out.
+async function reserveAttempt(env, subject, max) {
+  const t = now();
+  const r = await env.DB.prepare(
+    `INSERT INTO attempts (subject, ok, created_at)
+     SELECT ?, 0, ? WHERE (SELECT COUNT(*) FROM attempts WHERE subject = ? AND ok = 0 AND created_at > ?) < ?`)
+    .bind(subject, t, subject, t - FAIL_WINDOW, max).run();
+  return r.meta.changes ? r.meta.last_row_id : null;
+}
+
+// Admin login: per-IP cap and a global cap (subject 'admin:*') in one D1 batch (a transaction), so neither can be overrun.
+async function reserveAdminAttempt(env, ip) {
+  const t = now();
+  const since = t - FAIL_WINDOW;
+  const subject = 'admin:' + ip;
+  const [a, g] = await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO attempts (subject, ok, created_at)
+       SELECT ?, 0, ? WHERE (SELECT COUNT(*) FROM attempts WHERE subject = ? AND ok = 0 AND created_at > ?) < ?
+         AND (SELECT COUNT(*) FROM attempts WHERE subject = ? AND ok = 0 AND created_at > ?) < ?`)
+      .bind(subject, t, subject, since, ADMIN_MAX_FAILS, ADMIN_GLOBAL, since, ADMIN_GLOBAL_MAX_FAILS),
+    env.DB.prepare(`INSERT INTO attempts (subject, ok, created_at) SELECT ?, 0, ? WHERE changes() > 0`).bind(ADMIN_GLOBAL, t),
+  ]);
+  return a.meta.changes ? [a.meta.last_row_id, g.meta.last_row_id] : null;
+}
+
+async function releaseAttempt(env, ...ids) {
+  const list = ids.flat();
+  await env.DB.prepare(`UPDATE attempts SET ok = 1 WHERE id IN (${list.map(() => '?').join(',')})`).bind(...list).run();
+}
+
 async function recentFails(env, subject) {
   const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM attempts WHERE subject = ? AND ok = 0 AND created_at > ?')
     .bind(subject, now() - FAIL_WINDOW).first();
   return row?.n ?? 0;
-}
-
-async function recordAttempt(env, subject, ok) {
-  await env.DB.prepare('INSERT INTO attempts (subject, ok, created_at) VALUES (?, ?, ?)').bind(subject, ok ? 1 : 0, now()).run();
 }
 
 // ---------- LINE verification ----------
@@ -149,7 +181,8 @@ const member = {
     const s = await memberSession(req, env);
     const { code } = await body(req);
     const subject = 'user:' + s.uid;
-    if ((await recentFails(env, subject)) >= MAX_FAILS) {
+    const attemptId = await reserveAttempt(env, subject, MAX_FAILS);
+    if (attemptId === null) {
       await audit(env, s.uid, 'redeem_blocked', {});
       throw new HttpError(429, 'กรอกรหัสผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่');
     }
@@ -159,12 +192,11 @@ const member = {
            WHERE c.code = ? AND c.revoked = 0 AND c.expires_at > ? AND w.active = 1 ORDER BY c.created_at DESC LIMIT 1`).bind(code, now()).first()
       : null;
     if (!row) {
-      await recordAttempt(env, subject, false);
       await audit(env, s.uid, 'redeem_fail', { code: isFourDigits(code) ? code : 'invalid' });
       const left = MAX_FAILS - (await recentFails(env, subject));
       throw new HttpError(400, left > 0 ? `รหัสไม่ถูกต้องหรือหมดอายุ (ลองได้อีก ${left} ครั้ง)` : 'กรอกรหัสผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่');
     }
-    await recordAttempt(env, subject, true);
+    await releaseAttempt(env, attemptId);
     const workshop = { id: row.workshop_id, title: row.title, description: row.description, eventDate: row.event_date };
 
     if (await enrolled(env, s.uid, row.workshop_id)) return json({ status: 'already', workshop });
@@ -259,15 +291,14 @@ async function serveFile(req, env, itemId, { token, admin = false } = {}) {
 const admin = {
   async login(req, env) {
     const ip = req.headers.get('cf-connecting-ip') || 'unknown';
-    const subject = 'admin:' + ip;
-    if ((await recentFails(env, subject)) >= ADMIN_MAX_FAILS) throw new HttpError(429, 'ลองผิดหลายครั้ง กรุณารอ 10 นาที');
     const { password } = await body(req);
+    const ids = await reserveAdminAttempt(env, ip);
+    if (!ids) throw new HttpError(429, 'ลองผิดหลายครั้ง กรุณารอ 10 นาที');
     if (!env.ADMIN_PASSWORD || !timingSafeEqualStr(password ?? '', env.ADMIN_PASSWORD)) {
-      await recordAttempt(env, subject, false);
       await audit(env, 'admin', 'admin_login_fail', { ip });
       throw new HttpError(401, 'รหัสผ่านไม่ถูกต้อง');
     }
-    await recordAttempt(env, subject, true);
+    await releaseAttempt(env, ids);
     await audit(env, 'admin', 'admin_login', { ip });
     return json({ token: await signToken(secret(env), 'admin', { ip }, ADMIN_TTL) });
   },

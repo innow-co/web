@@ -73,6 +73,30 @@ test('wrong codes: generic 400, sixth attempt is 429, other users unaffected', a
   assert.equal(rb.status, 400);
 });
 
+test('rate limit holds under parallel requests: 30 wrong codes from one user', async () => {
+  const { token } = await login('ratelimit-par');
+  const wrong = unusedCode();
+  const rs = await Promise.all(Array.from({ length: 30 }, () => call('POST', '/api/redeem', { token, json: { code: wrong } })));
+  const limited = rs.filter((r) => r.status === 429).length;
+  const rejected = rs.filter((r) => r.status === 400).length;
+  assert.ok(rejected <= 5, 'only 5 wrong codes may be evaluated, got ' + rejected);
+  assert.ok(limited >= 25, 'at least 25 must be 429, got ' + limited);
+  assert.equal(rejected + limited, 30);
+  const { token: other } = await login('ratelimit-par-other');
+  assert.equal((await call('POST', '/api/redeem', { token: other, json: { code: wrong } })).status, 400);
+});
+
+test('a successful redeem after failures is not counted as a failure', async () => {
+  const w = await seedWorkshop('Success not counted');
+  const { token } = await login('ratelimit-ok');
+  const wrong = unusedCode();
+  for (let i = 0; i < 4; i++) assert.equal((await call('POST', '/api/redeem', { token, json: { code: wrong } })).status, 400);
+  assert.equal((await call('POST', '/api/redeem', { token, json: { code: w.code } })).status, 200);
+  // 4 failures + 1 success: a fifth failure is still allowed, the sixth is blocked.
+  assert.equal((await call('POST', '/api/redeem', { token, json: { code: wrong } })).status, 400);
+  assert.equal((await call('POST', '/api/redeem', { token, json: { code: wrong } })).status, 429);
+});
+
 test('issued code is a 4-digit string', async () => {
   const w = await seedWorkshop('Format');
   assert.equal(typeof w.code, 'string');
