@@ -66,6 +66,8 @@ select.sel { width: auto; }
 .chip { display: inline-block; white-space: nowrap; font-size: 12px; padding: 2px 9px; border-radius: 99px; background: var(--pale); color: #23649d; font-weight: 600; }
 .chip.off { background: #eef0f4; color: #5b6b83; }
 .chip.ok { background: #e3f6ee; color: var(--green); }
+.chip.bad { background: #fdebee; color: var(--red); white-space: normal; }
+td.nowrap { white-space: nowrap; }
 .chip.warn { background: #fff4dd; color: var(--amber); }
 .meta { font-size: 13px; color: var(--muted); }
 .empty { text-align: center; color: var(--muted); padding: 28px 10px; font-size: 15px; }

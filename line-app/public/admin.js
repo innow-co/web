@@ -2,7 +2,7 @@
 // All server-provided text goes through h() / textContent; nothing is ever put into innerHTML.
 import {
   clockOffset, remainingMs, formatCountdown, formatCode, formatSize, isHttps, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
-  actionLabel, csvFilename, prettyDetail, kindLabel,
+  actionLabel, csvFilename, prettyDetail, kindLabel, mailtoHref, forwardBadge,
 } from './lib-admin.js';
 
 const TOKEN_KEY = 'innow_admin_token';
@@ -141,6 +141,7 @@ function parseHash() {
   if (p[0] === 'w' && /^[\w-]+$/.test(p[1] || '')) return { name: 'workshop', id: p[1], tab: TABS.some(([k]) => k === p[2]) ? p[2] : 'code' };
   if (p[0] === 'members') return { name: 'members' };
   if (p[0] === 'audit') return { name: 'audit' };
+  if (p[0] === 'inquiries') return { name: 'inquiries' };
   return { name: 'home' };
 }
 
@@ -158,6 +159,7 @@ async function route() {
     if (r.name === 'home') view = await homeView();
     else if (r.name === 'workshop') view = await workshopView(r);
     else if (r.name === 'members') view = await membersView(null);
+    else if (r.name === 'inquiries') view = await inquiriesView();
     else view = await auditView();
     if (seq !== renderSeq) return;
     main.replaceChildren(...view.nodes.filter(Boolean));
@@ -177,6 +179,7 @@ function shell(r) {
     h('nav', { class: 'nav', 'aria-label': 'เมนูผู้ดูแล' },
       h('a', { href: '#/', 'aria-current': r.name === 'home' || r.name === 'workshop' ? 'page' : null }, 'Workshop'),
       h('a', { href: '#/members', 'aria-current': cur('members') }, 'ผู้เรียนทั้งหมด'),
+      h('a', { href: '#/inquiries', 'aria-current': cur('inquiries') }, 'คำขอใบเสนอราคา'),
       h('a', { href: '#/audit', 'aria-current': cur('audit') }, 'บันทึกกิจกรรม'),
       h('button', { type: 'button', onclick: () => logout() }, 'ออกจากระบบ'))));
 }
@@ -709,6 +712,34 @@ async function auditView() {
       log.length
         ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['เวลา', 'ผู้ทำ', 'การกระทำ', ''].map((c) => h('th', {}, c)))), h('tbody', {}, rows)))
         : h('div', { class: 'empty card' }, 'ยังไม่มีบันทึกกิจกรรม'),
+    ],
+  };
+}
+
+// ---------- quote requests (read-only) ----------
+async function inquiriesView() {
+  const { inquiries } = await api('/inquiries');
+  const rows = inquiries.map((q) => {
+    const href = mailtoHref(q.email);
+    const badge = forwardBadge(q);
+    return h('tr', {},
+      h('td', { class: 'nowrap' }, fmtDate(q.createdAt)),
+      h('td', {}, q.organization),
+      h('td', {}, href ? h('a', { href }, q.email) : q.email),
+      h('td', {}, q.course),
+      h('td', {}, q.expectation),
+      h('td', { class: 'num' }, q.learners),
+      h('td', {}, q.details ? h('details', {}, h('summary', {}, 'ดูรายละเอียด'), h('pre', { class: 'detail' }, q.details)) : '-'),
+      h('td', {}, q.memberName || '-'),
+      h('td', {}, h('span', { class: 'chip' + (badge.ok ? ' ok' : ' bad') }, badge.text)));
+  });
+  return {
+    nodes: [
+      h('div', { class: 'toolbar' }, h('h1', {}, 'คำขอใบเสนอราคา'), h('button', { type: 'button', class: 'btn ghost', onclick: route }, 'รีเฟรช')),
+      h('p', { class: 'lead' }, 'คำขอที่ผู้เรียนส่งจากเมนู "ติดต่อเรา" แสดง 200 รายการล่าสุด (อ่านอย่างเดียว)'),
+      inquiries.length
+        ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['เวลา', 'องค์กร', 'อีเมล', 'หลักสูตร', 'รูปแบบ', 'ผู้เรียน', 'รายละเอียด', 'ผู้ส่ง', 'สถานะอีเมล'].map((c) => h('th', {}, c)))), h('tbody', {}, rows)))
+        : h('div', { class: 'empty card' }, 'ยังไม่มีคำขอใบเสนอราคา'),
     ],
   };
 }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   clockOffset, serverTime, remainingMs, formatCountdown, formatCode, formatSize, isHttps,
-  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
+  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType, mailtoHref, forwardBadge,
 } from '../public/lib-admin.js';
 
 test('server clock offset beats a wrong browser clock', () => {
@@ -107,4 +107,16 @@ test('canPreviewType matches whole types only', () => {
   assert.ok(!canPreviewType('video/mp4x'));
   assert.ok(!canPreviewType(''));
   assert.equal(baseType(' Image/PNG ; a=b'), 'image/png');
+});
+
+test('mailtoHref only for well-formed addresses', () => {
+  assert.equal(mailtoHref('hr@example.com'), 'mailto:hr@example.com');
+  for (const e of ['', 'abc', 'a@b', 'a b@c.com', 'a@b.co\nbcc:evil@x.com', null, undefined]) assert.equal(mailtoHref(e), null, String(e));
+  assert.equal(mailtoHref('a'.repeat(250) + '@b.co'), null);
+});
+
+test('forwardBadge text', () => {
+  assert.deepEqual(forwardBadge({ forwarded: true, forwardError: '' }), { text: 'ส่งอีเมลแล้ว', ok: true });
+  assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '500' }), { text: 'ส่งอีเมลไม่สำเร็จ: 500', ok: false });
+  assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '' }), { text: 'ส่งอีเมลไม่สำเร็จ', ok: false });
 });

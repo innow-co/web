@@ -79,3 +79,14 @@ export function prettyDetail(detail) {
 }
 
 export const kindLabel = (k) => ({ slide: 'Slide', prompt: 'Prompt Library', bonus: 'Bonus' }[k] || k);
+
+// Quote requests: same email shape as the website's form. Only a matching address becomes a mailto: link.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const mailtoHref = (email) => {
+  const e = String(email ?? '');
+  return e.length <= 254 && EMAIL_RE.test(e) ? 'mailto:' + e : null;
+};
+
+export const forwardBadge = (q) => (q?.forwarded
+  ? { text: 'ส่งอีเมลแล้ว', ok: true }
+  : { text: 'ส่งอีเมลไม่สำเร็จ' + (q?.forwardError ? ': ' + q.forwardError : ''), ok: false });
