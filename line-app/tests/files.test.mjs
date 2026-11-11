@@ -228,3 +228,29 @@ test('copy-from with the same workshop as source is rejected with 400', async ()
   const w = await seedWorkshop('Copy Self');
   assert.equal((await call('POST', `/api/admin/workshops/${w.id}/copy-from/${w.id}`, { token: T })).status, 400);
 });
+
+test('stored content_type: non-allow-listed types are served as octet-stream attachments', async () => {
+  const w = await seedWorkshop('Files CT');
+  const id = (await upload(w.id, { bytes: new Uint8Array([1, 2, 3]), name: 'page.html', type: 'text/html' })).data.id;
+  const tok = await enroll('U-files-ct', w.code);
+  const res = await get((await link(tok, id)).data.url);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'application/octet-stream');
+  assert.ok(res.headers.get('content-disposition').startsWith('attachment; '));
+});
+
+test('stored content_type with CR/LF cannot crash the response', async () => {
+  const w = await seedWorkshop('Files CRLF');
+  const id = (await upload(w.id, pdf())).data.id;
+  const tok = await enroll('U-files-crlf', w.code);
+  d1(`UPDATE items SET content_type = 'application/pdf' || char(13) || char(10) || 'X-Evil: 1' WHERE id = ${id}`);
+  const res = await get((await link(tok, id)).data.url);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'application/octet-stream');
+  assert.equal(res.headers.get('x-evil'), null);
+  assert.ok(res.headers.get('content-disposition').startsWith('attachment; '));
+  d1(`UPDATE items SET content_type = 'application/pdf; charset=binary' WHERE id = ${id}`);
+  const ok = await get((await link(tok, id)).data.url);
+  assert.equal(ok.headers.get('content-type'), 'application/pdf');
+  assert.ok(ok.headers.get('content-disposition').startsWith('inline; '));
+});

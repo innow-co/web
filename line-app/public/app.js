@@ -689,6 +689,7 @@ async function boot() {
   } catch (e) {
     return errorScreen(e.message, boot);
   }
+  if (state.config.dev) window.__app = { go, state, parseRoute }; // debugging handle, local dev only
   try { state.session = sessionStorage.getItem('innow.session'); } catch { /* ignore */ }
   const dev = new URLSearchParams(location.search).get('dev');
   state.devId = state.config.dev && dev && /^[\w-]{1,40}$/.test(dev) ? dev : null;
@@ -725,5 +726,4 @@ for (const s of tabbar.querySelectorAll('[data-icon]')) s.replaceWith(icon(s.dat
 $('privacy-close').addEventListener('click', () => $('privacy').close());
 window.addEventListener('popstate', () => render(parseRoute(location.search)));
 
-window.__app = { go, state, parseRoute };
 boot();

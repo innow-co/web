@@ -17,6 +17,7 @@ function h(tag, attrs, ...children) {
     if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
     else if (k === 'class') el.className = v;
     else if (k === 'text') el.textContent = v;
+    else if (k === 'style') el.style.cssText = String(v); // CSSOM, so the admin CSP needs no 'unsafe-inline' for styles
     else if (v === true) el.setAttribute(k, '');
     else el.setAttribute(k, String(v));
   }

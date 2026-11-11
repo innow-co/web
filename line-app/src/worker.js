@@ -208,6 +208,9 @@ const member = {
     if (!r || r.uid !== s.uid) throw new HttpError(400, 'สิทธิ์หมดเวลา กรุณากรอกรหัส Workshop ใหม่อีกครั้ง');
     const v = validateRegistration(input);
     if (!v.ok) throw new HttpError(422, 'กรุณาตรวจสอบข้อมูล', { errors: v.errors });
+    const gone = new HttpError(410, 'Workshop นี้ไม่พร้อมใช้งานแล้ว กรุณากรอกรหัส Workshop ใหม่อีกครั้ง');
+    const w = await env.DB.prepare('SELECT * FROM workshops WHERE id = ?').bind(r.wid).first();
+    if (!w) throw gone;
     const t = now();
     await env.DB.prepare(
       `INSERT INTO members (line_user_id, first_name, last_name, email, display_name, picture_url, terms_accepted_at, marketing_consent, is_friend, last_seen_at, created_at)
@@ -215,9 +218,9 @@ const member = {
        ON CONFLICT(line_user_id) DO NOTHING`)
       .bind(s.uid, v.value.firstName, v.value.lastName, v.value.email, s.dn || '', s.pic || '', t, v.value.marketing ? 1 : 0, s.friend ? 1 : 0, t, t).run();
     await audit(env, s.uid, 'register', { marketing: v.value.marketing });
-    await enrollWorkshop(env, s.uid, r.wid, r.cid);
-    const w = await env.DB.prepare('SELECT * FROM workshops WHERE id = ?').bind(r.wid).first();
-    return json({ status: 'enrolled', workshop: w ? workshopSummary(w) : { id: r.wid } });
+    // The workshop can still vanish between the check above and this insert (foreign key failure).
+    try { await enrollWorkshop(env, s.uid, r.wid, r.cid); } catch (e) { if (/FOREIGN KEY/i.test(String(e?.message))) throw gone; throw e; }
+    return json({ status: 'enrolled', workshop: workshopSummary(w) });
   },
 
   async workshop(req, env, id) {
@@ -263,10 +266,12 @@ async function serveFile(req, env, itemId, { token, admin = false } = {}) {
   if (!it || !it.r2_key) return new Response('Not found', { status: 404 });
   const obj = await env.FILES.get(it.r2_key);
   if (!obj) return new Response('Not found', { status: 404 });
-  const inline = /^(application\/pdf|image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm))$/i.test(String(it.content_type || '').split(';')[0].trim());
+  // Only allow-listed types are echoed (and shown inline); anything else, including values with CR/LF, is a plain download.
+  const baseType = String(it.content_type || '').split(';')[0].trim().toLowerCase();
+  const inline = /^(application\/pdf|image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm))$/.test(baseType);
   return new Response(obj.body, {
     headers: {
-      'content-type': it.content_type || 'application/octet-stream',
+      'content-type': inline ? baseType : 'application/octet-stream',
       'content-length': String(obj.size),
       'content-disposition': `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeRfc5987(safeFileName(it.file_name))}`,
       'cache-control': 'private, no-store',

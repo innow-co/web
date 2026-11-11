@@ -1,7 +1,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { start, stop, call, d1, seedWorkshop, addItem, login, adminLogin, unusedCode } from './api.helper.mjs';
+import { start, stop, call, d1, seedWorkshop, addItem, login, adminLogin, unusedCode, BASE } from './api.helper.mjs';
 
 const norm = (m) => String(m).replace(/\d+/g, 'N');
 const good = { firstName: 'สมชาย', lastName: 'ใจดี', email: 'somchai@example.com', acceptTerms: true };
@@ -217,4 +217,38 @@ test('dev identity bypass works on loopback hosts only', async () => {
   const r = await callWithHost(publicHost, 'POST', '/api/auth', { accessToken: 'dev:hostcheck2' });
   assert.equal(r.status, 401);
   assert.equal(r.data.session, undefined);
+});
+
+test('register after the workshop was deleted is 410 asking to re-enter the code, not 500', async () => {
+  const w = await seedWorkshop('Deleted before register');
+  const { token } = await login('gone-ws1');
+  const rd = await call('POST', '/api/redeem', { token, json: { code: w.code } });
+  assert.equal(rd.data.status, 'register');
+  d1(`DELETE FROM workshops WHERE id = '${w.id}'`);
+  const r = await call('POST', '/api/register', { token, json: { ...good, redeemToken: rd.data.redeemToken } });
+  assert.equal(r.status, 410);
+  assert.match(r.data.error, /รหัส/);
+  assert.equal(d1("SELECT COUNT(*) AS n FROM members WHERE line_user_id = 'gone-ws1'").match(/"n":\s*(\d+)/)[1], '0');
+});
+
+test('tokens of the wrong type are rejected everywhere', async () => {
+  const w = await seedWorkshop('Token types');
+  const id = await addItem(w.id, { kind: 'prompt', title: 'p' });
+  const { token: member } = await login('typ1');
+  const rd = await call('POST', '/api/redeem', { token: member, json: { code: w.code } });
+  const admin = await adminLogin();
+  const redeemTok = rd.data.redeemToken;
+  assert.ok(redeemTok);
+
+  for (const p of ['/api/admin/workshops', '/api/admin/stats', '/api/admin/members']) {
+    assert.equal((await call('GET', p, { token: member })).status, 401, 'member token on ' + p);
+    assert.equal((await call('GET', p, { token: redeemTok })).status, 401, 'redeem token on ' + p);
+  }
+  assert.equal((await call('GET', '/api/me', { token: admin })).status, 401, 'admin token on /api/me');
+  assert.equal((await call('GET', '/api/me', { token: redeemTok })).status, 401, 'redeem token on /api/me');
+  assert.equal((await call('POST', '/api/redeem', { token: redeemTok, json: { code: '1234' } })).status, 401);
+  const f = await fetch(`${BASE}/f/${id}?t=${encodeURIComponent(member)}`);
+  assert.equal(f.status, 403, 'member token on /f');
+  const f2 = await fetch(`${BASE}/f/${id}?t=${encodeURIComponent(admin)}`);
+  assert.equal(f2.status, 403, 'admin token on /f');
 });
