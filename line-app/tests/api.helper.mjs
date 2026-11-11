@@ -118,3 +118,47 @@ export async function login(userId) {
   const r = await call('POST', '/api/auth', { json: { accessToken: 'dev:' + userId } });
   return { token: r.data.session, res: r };
 }
+
+// Keys currently stored in the local simulated R2 bucket (reads miniflare's sqlite index, read-only).
+export async function listR2Keys(prefix = '') {
+  const { DatabaseSync } = await import('node:sqlite');
+  const dir = path.join(STATE, 'v3', 'r2', 'miniflare-R2BucketObject');
+  if (!existsSync(dir)) return [];
+  const { readdirSync } = await import('node:fs');
+  const keys = [];
+  for (const f of readdirSync(dir).filter((n) => n.endsWith('.sqlite'))) {
+    const db = new DatabaseSync(path.join(dir, f), { readOnly: true });
+    try {
+      for (const r of db.prepare("SELECT key FROM _mf_objects").all()) if (r.key.startsWith(prefix)) keys.push(r.key);
+    } catch { /* not the objects db */ } finally { db.close(); }
+  }
+  return keys;
+}
+
+// Test-only: the signing secret from the git-ignored .dev.vars (never log or copy it).
+export function sessionSecret() {
+  return readFileSync(VARS, 'utf8').match(/^SESSION_SECRET=(.*)$/m)[1].trim();
+}
+
+// Multipart item save. file: {bytes|blob, name, type}. Returns the fetch Response.
+export async function saveItemMultipart(wid, fields, file, { itemId, token } = {}) {
+  const t = token || (await adminLogin());
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(fields)) fd.set(k, v);
+  if (file) fd.set('file', file.blob || new Blob([file.bytes], { type: file.type }), file.name);
+  const p = `/api/admin/workshops/${wid}/items` + (itemId ? '/' + itemId : '');
+  return fetch(BASE + p, { method: itemId ? 'PUT' : 'POST', headers: { authorization: 'Bearer ' + t }, body: fd });
+}
+
+// Local R2 read: object bytes, or null when absent (wrangler r2 --local only).
+export function r2Get(key) {
+  const out = path.join(WR, 'r2-probe-' + randomBytes(4).toString('hex'));
+  try {
+    wrangler(['r2', 'object', 'get', `innow-line-files/${key}`, '--local', '--persist-to', STATE, '--file', out]);
+    return readFileSync(out);
+  } catch { return null; } finally { rmSync(out, { force: true }); }
+}
+
+export function r2KeysOf(wid) {
+  return [...d1(`SELECT r2_key FROM items WHERE workshop_id='${wid}' AND r2_key != '' ORDER BY id`).matchAll(/"r2_key":\s*"([^"]+)"/g)].map((m) => m[1]);
+}

@@ -229,6 +229,9 @@ const member = {
   },
 };
 
+// RFC 5987 attr-char: encodeURIComponent also leaves ' ( ) * unescaped, which are not allowed.
+const encodeRfc5987 = (s) => encodeURIComponent(s).replace(/['()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+
 async function serveFile(req, env, itemId, { token, admin = false } = {}) {
   if (!admin) {
     const t = await verifyToken(secret(env), 'file', token);
@@ -243,7 +246,7 @@ async function serveFile(req, env, itemId, { token, admin = false } = {}) {
     headers: {
       'content-type': it.content_type || 'application/octet-stream',
       'content-length': String(obj.size),
-      'content-disposition': `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(safeFileName(it.file_name))}`,
+      'content-disposition': `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeRfc5987(safeFileName(it.file_name))}`,
       'cache-control': 'private, no-store',
       'x-content-type-options': 'nosniff',
     },
@@ -351,6 +354,8 @@ const admin = {
   async saveItem(req, env, wid, itemId) {
     const ct = req.headers.get('content-type') || '';
     let f;
+    // Refuse oversized bodies before buffering them (Workers have 128 MB of memory).
+    if (Number(req.headers.get('content-length')) > MAX_UPLOAD + 1024 * 1024) throw new HttpError(413, 'ไฟล์ใหญ่เกิน 95MB');
     if (ct.includes('multipart/form-data')) f = await req.formData();
     else { const b = await body(req); f = new Map(Object.entries(b)); }
     const get = (k) => String(f.get(k) ?? '').trim();
@@ -362,6 +367,12 @@ const admin = {
     if (url && !/^https:\/\//i.test(url)) throw new HttpError(422, 'ลิงก์ต้องขึ้นต้นด้วย https://');
     const fields = { kind, title, category: get('category'), body: get('body'), url, sort: Number(get('sort')) || 0 };
 
+    // Everything that can fail is checked before anything is written to R2 (no orphan objects).
+    let old = null;
+    if (itemId) {
+      old = await env.DB.prepare('SELECT * FROM items WHERE id = ? AND workshop_id = ?').bind(itemId, wid).first();
+      if (!old) throw new HttpError(404, 'ไม่พบรายการ');
+    }
     const file = f.get('file');
     let fileFields = null;
     if (file && typeof file === 'object' && file.size > 0) {
@@ -372,14 +383,13 @@ const admin = {
     }
 
     if (itemId) {
-      const old = await env.DB.prepare('SELECT * FROM items WHERE id = ? AND workshop_id = ?').bind(itemId, wid).first();
-      if (!old) throw new HttpError(404, 'ไม่พบรายการ');
       const removeFile = get('removeFile') === '1';
       const ff = fileFields || (removeFile ? { r2_key: '', file_name: '', content_type: '', size: 0 } : null);
-      if (ff && old.r2_key) await env.FILES.delete(old.r2_key);
       const merged = { ...fields, ...(ff || { r2_key: old.r2_key, file_name: old.file_name, content_type: old.content_type, size: old.size }) };
       await env.DB.prepare('UPDATE items SET kind=?, title=?, category=?, body=?, url=?, sort=?, r2_key=?, file_name=?, content_type=?, size=? WHERE id=?')
         .bind(merged.kind, merged.title, merged.category, merged.body, merged.url, merged.sort, merged.r2_key, merged.file_name, merged.content_type, merged.size, itemId).run();
+      // Delete the replaced object only after the row points at the new one.
+      if (ff && old.r2_key) await env.FILES.delete(old.r2_key);
     } else {
       const ff = fileFields || { r2_key: '', file_name: '', content_type: '', size: 0 };
       const r = await env.DB.prepare('INSERT INTO items (workshop_id, kind, title, category, body, url, sort, r2_key, file_name, content_type, size, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
@@ -426,6 +436,7 @@ const admin = {
   },
 
   async copyFrom(req, env, wid, sourceId) {
+    if (wid === sourceId) throw new HttpError(400, 'ไม่สามารถคัดลอกจาก Workshop เดียวกัน');
     const [dst, src] = await Promise.all([
       env.DB.prepare('SELECT id FROM workshops WHERE id = ?').bind(wid).first(),
       env.DB.prepare('SELECT id FROM workshops WHERE id = ?').bind(sourceId).first(),
