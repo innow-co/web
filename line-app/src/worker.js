@@ -348,7 +348,7 @@ const admin = {
 
   async items(req, env, wid) {
     const { results } = await env.DB.prepare('SELECT * FROM items WHERE workshop_id = ? ORDER BY kind, sort, id').bind(wid).all();
-    return json({ items: results.map(publicItem) });
+    return json({ items: results.map((it) => ({ ...publicItem(it), sort: it.sort })) });
   },
 
   // multipart/form-data: kind, title, category, body, url, sort, file?

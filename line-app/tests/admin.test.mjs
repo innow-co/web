@@ -78,6 +78,14 @@ test('item validation: title, https url, kind', async () => {
   assert.equal((await post({ kind: 'bonus', title: 't', url: 'https://example.com' })).status, 200);
 });
 
+test('admin item list includes the sort order so the editor can show and keep it', async () => {
+  const w = await seedWorkshop('Sort WS');
+  await call('POST', `/api/admin/workshops/${w.id}/items`, { token: T, json: { kind: 'prompt', title: 'Sorted', sort: 7 } });
+  const items = (await call('GET', `/api/admin/workshops/${w.id}/items`, { token: T })).data.items;
+  assert.equal(items.length, 1);
+  assert.equal(items[0].sort, 7);
+});
+
 test('removing an enrollment makes the learner workshop view 403 again', async () => {
   const w = await seedWorkshop('Unenroll WS');
   const token = await enroll('unenroll1', w.code);
