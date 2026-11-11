@@ -24,7 +24,7 @@ A first draft already exists, written before the plan was approved, and is **unt
 - Upload limit 40 MB through the Worker; larger material is an `https://` link item.
 - `ADMIN_PASSWORD` (value supplied by the owner in chat; set it with `wrangler secret put`, never write it to a file) and `SESSION_SECRET` (random, 32+ chars) are Worker secrets, never committed. `.dev.vars` is git-ignored.
 - Email stored unverified; marketing consent is a separate unticked checkbox.
-- Rich menu: 2500 x 1686, 3 x 2, buttons Workshop, รับสิทธิ์, Prompt Library, Bonus, ข่าวสาร (https://www.facebook.com/innow.co.th), ติดต่อเรา (opens OA chat).
+- Rich menu: 2500 x 1686, 3 x 2, buttons Workshop, รับสิทธิ์, Prompt Library, ดูผลงานของเรา (uri https://innow.co.th; replaced Bonus by owner decision), ข่าวสาร (https://www.facebook.com/innow.co.th), ติดต่อเรา (sublabel สอบถามข้อมูล; uri `?p=contact`; was the OA chat).
 - Workshop = one class round. Prompt Library and Bonus menu buttons show combined items of all enrolled workshops, grouped by workshop.
 - Do not touch the existing Vercel contact form (`api/`, `lib/`, root `index.html`).
 
@@ -163,3 +163,34 @@ A first draft already exists, written before the plan was approved, and is **unt
 - Spec coverage: six-step journey (Tasks 2, 5), gate and Add/Unblock (Tasks 2, 5), 4-digit codes and limits (Tasks 1, 2, 3), library and four sections (Task 5), rich menu (Task 7), admin incl. codes/files/prompts/members/audit (Tasks 3, 4, 6), signed files (Task 4), PDPA notice and CSV (Tasks 3, 5), Cloudflare deploy (Task 8). Out-of-scope items are not planned.
 - Not planned on purpose: email verification, Service Message, certificates, production OA cut-over (same Worker, change vars and run `create.mjs` with the production token after dev passes).
 - Known risk: `liff.openWindow` behaviour for PDFs inside LINE's in-app browser is verified only in Task 8 on a real phone.
+
+---
+
+## Addendum: contact menu (approved 2026-11-11; see the spec's "Contact menu")
+
+### Task 9: Inquiry backend and admin tab
+
+**Files:**
+- Create: `line-app/migrations/0002_inquiries.sql`, `line-app/tests/inquiry.test.mjs`
+- Modify: `line-app/src/worker.js`, `line-app/src/lib.js`, `line-app/wrangler.jsonc` (var `INQUIRY_FORWARD_URL` = `https://innow.co.th/api/contact`), `line-app/public/admin.html`, `public/admin.js`, `public/lib-admin.js`, `public/admin.css`
+
+**Interfaces:**
+- Produces: `POST /api/inquiry` (member session; body `{organization, email, course, expectation, details, learners}`; 200 `{ok:true, forwarded:boolean}`, 422 `{errors:{field:message}}`, 429 limit, 403 notFriend); `GET /api/admin/inquiries` -> `{inquiries:[{id, createdAt, organization, email, course, expectation, details, learners, memberName, forwarded, forwardError}]}`; `lib.validateInquiry(input): {ok, errors, value}` using the website's rules (organization 1-160, no CR/LF; email <=254 and `^[^\s@]+@[^\s@]+\.[^\s@]+$`; course 1-200 no CR/LF; expectation 1-300 no CR/LF; details <=2000; learners safe integer 1..100000).
+
+- [ ] Tests first: validation rules (each field, boundaries, CR/LF), 200 path stores a row and forwards once with the exact JSON the website expects (stub the forward target with a local test server or an injectable fetch; never call innow.co.th from tests), forward failure and timeout (8 s) still 200 `forwarded:false` and the row kept, 3 per hour per user atomic under 10 parallel requests (at most 3 succeed), another user unaffected, 401 without session, 403 non-friend, admin list requires admin token and never leaks to members, forward URL empty disables forwarding.
+- [ ] Implement per the spec; the forward body also carries an empty honeypot `website: ''` so the site's own filter passes; set a `User-Agent: innow-line-worker`; never log the email body.
+- [ ] Admin tab: read-only table with escaped text, forwarded badge, CSV not required.
+
+### Task 10: Contact page, wizard, and rich menu update
+
+**Files:**
+- Modify: `line-app/public/app.js`, `public/lib-app.js`, `public/app.css`, `public/index.html` (tab bar unchanged), `line-app/richmenu/richmenu.html`, `richmenu/create.mjs`, `richmenu/richmenu.png` (re-render), `tests/app-lib.test.mjs`, `tests/richmenu.test.mjs`
+
+**Interfaces:**
+- Consumes: Task 9 `POST /api/inquiry`; config `oaBasicId`.
+- Produces: route `?p=contact` (and `parseRoute` support); rich menu button 4 = label "ดูผลงานของเรา" / sublabel "innow.co.th" / uri `https://innow.co.th` (replaces Bonus, whose `?p=bonus` route stays in the app); rich menu button 6 uri `https://liff.line.me/<LIFF_ID>?p=contact`, label "ติดต่อเรา", sublabel "สอบถามข้อมูล".
+
+- [ ] Tests first (pure): `parseRoute('?p=contact')`; wizard step state machine (`nextStep/prevStep`, required vs optional steps, validation per step, answers kept when going back, summary), `oaMessageUrl(basicId, text)` encoding (`@` -> `%40`, Thai text percent-encoded), rich menu button 4 URL is exactly `https://innow.co.th` and button 6 URL is `https://liff.line.me/<id>?p=contact` (update tests/richmenu.test.mjs, which currently asserts button 4 = `?p=bonus` and button 6 = oaMessage), sublabels exact, and area tiling still exact.
+- [ ] UI: contact page with two large choice cards (สอบถามคอร์สอบรม -> wizard; สอบถามบทเรียนที่เรียนไปแล้ว -> OA chat via `oaMessageUrl`); wizard one question per screen with progress "ข้อ n จาก 6", large touch targets, radio cards for course/expectation (course groups: สายธุรกิจและผู้บริหาร / สายนักพัฒนา with the website's exact course names), numeric keypad for learners, email prefilled, optional step has "ข้าม", back button, summary screen with edit links, submit disables while in flight, 429/422/network errors in Thai, success screen, draft in sessionStorage.
+- [ ] Walk it in the browser pane on port 8788: both choices, full wizard happy path, back/forward keeping answers, validation per step, 375 px width, admin tab shows the row.
+- [ ] Re-render the rich menu PNG, view it, commit it.

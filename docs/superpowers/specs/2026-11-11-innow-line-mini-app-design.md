@@ -19,7 +19,7 @@ Success: on workshop day an attendee scans a QR code, adds the OA, enters a 4-di
 
 New member: valid code, register, entitlement saved, workshop opens. Existing member: valid code, entitlement added to the existing account at once, no form.
 
-Rich menu, 6 buttons (3 x 2): Workshop, รับสิทธิ์, Prompt Library, Bonus, ข่าวสาร (opens facebook.com/innow.co.th), ติดต่อเรา (opens OA chat).
+Rich menu, 6 buttons (3 x 2): Workshop, รับสิทธิ์, Prompt Library, **ดูผลงานของเรา** (opens https://innow.co.th directly; replaces the blueprint's Bonus button, owner decision 2026-11-11), ข่าวสาร (opens facebook.com/innow.co.th), ติดต่อเรา (sublabel **สอบถามข้อมูล**; opens the contact page, see "Contact menu"). Bonus material is still reachable inside each workshop and at `?p=bonus`, just not from the rich menu.
 
 ## Goals
 
@@ -78,3 +78,18 @@ Visual details of the learner app and admin page (Innow brand: Anuphan, IBM Plex
 - Uploads go through the Worker, max 40 MB per file. Larger material is attached as an https link.
 - The privacy notice text is written by me and shown in the app; the owner or a lawyer should review it before launch. Admin can export members as CSV and remove a learner's enrollment.
 - Learner app is plain HTML/CSS/JS with the LIFF SDK. No build step.
+
+## Contact menu (added 2026-11-11 after owner request; approved in chat)
+
+The rich menu button 6 "ติดต่อเรา" opens the MINI App page `?p=contact` with **two** choices (owner cut it from three on 2026-11-11 because rich menu button 4 already opens the website):
+
+1. **สอบถามคอร์สอบรม**: the website's quote-request form (ขอใบเสนอราคาอบรม) rebuilt as a **one-field-at-a-time wizard** so it never looks long. The owner asked for this explicitly. Steps: ชื่อองค์กร, หลักสูตรที่สนใจ, รูปแบบและความคาดหวัง, จำนวนผู้เรียน, อีเมลติดต่อ (prefilled from the member's registration email, my call), รายละเอียดเพิ่มเติม (optional, skippable), then a summary and "ส่งคำขอใบเสนอราคา". Same field rules, course list and expectation list as the website form (`index.html` #quote-form, `lib/contact-message.mjs`). Back button keeps answers; a draft survives leaving the page (sessionStorage).
+2. **สอบถามบทเรียนที่เรียนไปแล้ว**: opens the OA chat (`https://line.me/R/oaMessage/%40<basic id>/?<text>`) with the text "สอบถามบทเรียนที่เรียนไปแล้ว" prefilled (my call).
+
+My calls for option 2 (owner can override):
+- The Worker validates the request with the website's rules, stores a copy in D1 (`inquiries`), then forwards it server-to-server to the existing website endpoint `https://innow.co.th/api/contact` (JSON; the endpoint already emails ask@innow.co.th through SES), so no AWS credentials are added to the Worker. The URL is a Worker var `INQUIRY_FORWARD_URL`; empty disables forwarding. A forward failure does not lose the request: the learner still sees success, the row is marked not forwarded, and the admin page shows it.
+- Only signed-in LINE members who are friends of the OA can submit. Limit: 3 submissions per hour per learner (atomic, same pattern as the code limit).
+- Admin gets a "คำขอใบเสนอราคา" tab (read-only list: time, organization, email, course, expectation, learners, details, member name, forwarded yes/no).
+- Rich menu button 6 keeps the label "ติดต่อเรา" with the sublabel "สอบถามข้อมูล" (owner decision) and opens `?p=contact` instead of the OA chat directly.
+- Rich menu button 4 label "ดูผลงานของเรา", sublabel "innow.co.th" (my call), with a simple portfolio/globe icon.
+- Unverified: that the website's `/api/contact` is live and accepts server-side JSON posts from the Worker. To be checked at deploy.
