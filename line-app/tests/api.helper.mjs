@@ -66,7 +66,7 @@ export async function start(extraVars = {}) {
   const stale = await fetch(BASE + '/api/config').then(() => true, () => false);
   if (stale) throw new Error(`Port ${PORT} already answers (stale wrangler dev from an aborted run?). Kill it and retry.`);
   const out = openSync(LOG, 'w');
-  child = spawn(BIN, ['dev', '--local', '--port', String(PORT), '--ip', '127.0.0.1', '--persist-to', STATE, ...Object.entries(extraVars).flatMap(([k, v]) => ['--var', `${k}:${v}`])], {
+  child = spawn(BIN, ['dev', '--local', '--port', String(PORT), '--ip', '127.0.0.1', '--infer-origin-from-routes', 'false', '--persist-to', STATE, ...Object.entries(extraVars).flatMap(([k, v]) => ['--var', `${k}:${v}`])], {
     cwd: ROOT, detached: true, stdio: ['ignore', out, out],
     env: { ...process.env, WRANGLER_SEND_METRICS: 'false', NO_COLOR: '1' },
   });
