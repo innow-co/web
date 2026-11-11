@@ -229,6 +229,16 @@ test('CLI --user: missing or malformed user id is rejected with no network call'
   }
 });
 
+test('CLI: --user=<id>, --userX and unknown flags are refused before any network call, never the default menu', () => {
+  for (const args of [['--confirm', `--user=${UID}`], ['--confirm', '--userX'], ['--confirm', '--users', UID], ['--confirm', '--bogus'], ['--confirm', '--user', UID, '--bogus'], ['--confirm', 'stray']]) {
+    const r = runCli(args, FULL_ENV);
+    assert.notEqual(r.status, 0, args.join(' '));
+    assert.equal(r.calls.length, 0, args.join(' '));
+    assert.ok(!r.calls.some((c) => c.url.includes('user/all')));
+    assert.ok(!r.stdout.includes(FAKE_TOKEN) && !r.stderr.includes(FAKE_TOKEN));
+  }
+});
+
 // ---- Image ------------------------------------------------------------------
 test('richmenu.png is 2500 x 1686 and under 1 MB', () => {
   assert.ok(existsSync(PNG), 'run: node richmenu/render.mjs');

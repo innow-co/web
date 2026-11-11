@@ -64,6 +64,12 @@ async function lineError(res) {
 export async function main(argv = process.argv.slice(2), env = process.env) {
   const out = (s) => process.stdout.write(s + '\n');
   const err = (s) => process.stderr.write(s + '\n');
+  // Strict parsing: an unrecognised flag (e.g. --user=U..., --userX) must never fall through to the default menu.
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--user') { i++; continue; }
+    if (a !== '--dry-run' && a !== '--confirm') { err(`Unknown argument: ${a.startsWith('--user') ? '--user (use "--user <id>", not "--user=<id>")' : a.split('=')[0]}`); return 1; }
+  }
   const dry = argv.includes('--dry-run');
   const confirm = argv.includes('--confirm');
   const ui = argv.indexOf('--user');
