@@ -30,7 +30,19 @@ export function formatSize(bytes) {
 
 export const isHttps = (u) => /^https:\/\/[^\s]+$/i.test(String(u ?? ''));
 
+// Keep in sync with MAX_UPLOAD in src/worker.js (public/ and src/ cannot share a module; a test compares them).
 export const MAX_UPLOAD_BYTES = 40 * 1024 * 1024;
+
+export const exceedsUpload = (size) => Number(size) > MAX_UPLOAD_BYTES;
+
+export const uploadLimitLabel = () => Math.round(MAX_UPLOAD_BYTES / 1024 / 1024) + 'MB';
+
+// Same wording as the Worker's 413 message, with the limit taken from the constant.
+export const tooBigMessage = (size) => `ไฟล์นี้ใหญ่ ${formatSize(size)} เกิน ${uploadLimitLabel()} กรุณาแนบเป็นลิงก์ https แทน`;
+
+// Whole media type only (parameters stripped), so "application/pdfX" never passes.
+export const baseType = (ct) => String(ct ?? '').split(';')[0].trim().toLowerCase();
+export const canPreviewType = (ct) => /^(application\/pdf|image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm))$/.test(baseType(ct));
 
 export const ACTION_LABELS = {
   admin_login: 'ผู้ดูแลเข้าสู่ระบบ',

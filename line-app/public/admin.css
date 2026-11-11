@@ -109,7 +109,7 @@ th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--li
 th { background: #f0f5fc; color: #37516d; font-size: 13px; white-space: nowrap; }
 tr:last-child td { border-bottom: 0; }
 td.num, th.num { text-align: right; }
-details summary { cursor: pointer; color: var(--blue); min-height: 32px; }
+details summary { cursor: pointer; color: var(--blue); min-height: 44px; display: flex; align-items: center; }
 pre.detail { margin: 6px 0 0; background: #f6f9fd; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
 
 /* dialog */

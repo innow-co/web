@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   clockOffset, serverTime, remainingMs, formatCountdown, formatCode, formatSize, isHttps,
-  actionLabel, csvFilename, prettyDetail, kindLabel,
+  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
 } from '../public/lib-admin.js';
 
 test('server clock offset beats a wrong browser clock', () => {
@@ -70,4 +71,40 @@ test('prettyDetail and kindLabel', () => {
   assert.equal(prettyDetail('{"a":1}'), '{\n  "a": 1\n}');
   assert.equal(prettyDetail('not json'), 'not json');
   assert.equal(kindLabel('prompt'), 'Prompt Library');
+});
+
+test('client and Worker upload limits are the same number', () => {
+  const worker = readFileSync(new URL('../src/worker.js', import.meta.url), 'utf8');
+  const client = readFileSync(new URL('../public/lib-admin.js', import.meta.url), 'utf8');
+  const num = (src, name) => {
+    const m = src.match(new RegExp('const ' + name + '\\s*=\\s*([\\d\\s*]+);'));
+    assert.ok(m, name + ' not found');
+    return m[1].split('*').map((x) => Number(x.trim())).reduce((a, b) => a * b, 1);
+  };
+  assert.equal(num(client, 'MAX_UPLOAD_BYTES'), num(worker, 'MAX_UPLOAD'));
+  assert.equal(num(client, 'MAX_UPLOAD_BYTES'), MAX_UPLOAD_BYTES);
+});
+
+test('exceedsUpload: exactly the limit is allowed, one byte more is not', () => {
+  assert.ok(!exceedsUpload(0));
+  assert.ok(!exceedsUpload(MAX_UPLOAD_BYTES));
+  assert.ok(exceedsUpload(MAX_UPLOAD_BYTES + 1));
+  assert.ok(exceedsUpload(43_000_000));
+  assert.ok(!exceedsUpload(undefined));
+});
+
+test('tooBigMessage names the limit from the constant and points to a link', () => {
+  const m = tooBigMessage(43_000_000);
+  assert.ok(m.includes('41.0 MB') && m.includes('40MB') && m.includes('https'));
+});
+
+test('canPreviewType matches whole types only', () => {
+  assert.ok(canPreviewType('application/pdf'));
+  assert.ok(canPreviewType('Application/PDF; charset=binary'));
+  assert.ok(canPreviewType('image/png'));
+  assert.ok(!canPreviewType('application/pdfX'));
+  assert.ok(!canPreviewType('image/svg+xml'));
+  assert.ok(!canPreviewType('video/mp4x'));
+  assert.ok(!canPreviewType(''));
+  assert.equal(baseType(' Image/PNG ; a=b'), 'image/png');
 });

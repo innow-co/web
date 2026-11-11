@@ -10,7 +10,7 @@ const FILE_LINK_TTL = 60 * 5;              // signed file URL: 5 minutes
 const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
 const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
 const ADMIN_MAX_FAILS = 10;
-const MAX_UPLOAD = 40 * 1024 * 1024;      // req.formData() buffers ~2x the body; 128 MB isolate
+const MAX_UPLOAD = 40 * 1024 * 1024;      // req.formData() buffers ~2x the body; 128 MB isolate. Keep in sync with MAX_UPLOAD_BYTES in public/lib-admin.js
 
 class HttpError extends Error {
   constructor(status, message, extra = {}) { super(message); this.status = status; this.extra = extra; }

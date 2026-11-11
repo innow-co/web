@@ -1,7 +1,7 @@
 // Innow Workshop admin page. Plain ES modules, no build step.
 // All server-provided text goes through h() / textContent; nothing is ever put into innerHTML.
 import {
-  clockOffset, remainingMs, formatCountdown, formatCode, formatSize, isHttps, MAX_UPLOAD_BYTES,
+  clockOffset, remainingMs, formatCountdown, formatCode, formatSize, isHttps, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
   actionLabel, csvFilename, prettyDetail, kindLabel,
 } from './lib-admin.js';
 
@@ -93,7 +93,9 @@ function toast(msg) {
 
 const dlg = $('#dlg');
 let dlgOpener = null;
+let dlgId = 0; // identifies the dialog currently shown, so late async results can tell if it is still theirs
 function openDialog(content, { wide = false, onClose } = {}) {
+  dlgId++;
   dlgOpener = document.activeElement;
   dlg.className = wide ? 'wide' : '';
   dlg.replaceChildren(content);
@@ -485,7 +487,7 @@ function itemCard(w, it) {
   const meta = [it.category ? 'หมวด: ' + it.category : '', 'ลำดับ ' + (it.sort || 0)].filter(Boolean).join(' · ');
   const fileRow = it.hasFile ? h('div', { class: 'row', style: 'margin-top:8px' },
     h('span', { class: 'chip' }, 'ไฟล์'), h('span', { class: 'meta' }, `${it.fileName} (${formatSize(it.size)})`),
-    canPreview(it.contentType) ? h('button', { type: 'button', class: 'btn ghost sm', onclick: () => previewFile(it) }, 'เปิดดู') : null,
+    canPreview(it.contentType) ? h('button', { type: 'button', class: 'btn ghost sm', onclick: (ev) => previewFile(it, ev.currentTarget) }, 'เปิดดู') : null,
     h('button', { type: 'button', class: 'btn ghost sm', onclick: () => downloadFile(it) }, 'ดาวน์โหลด')) : null;
   return h('div', { class: 'card item' },
     h('div', { class: 'info' },
@@ -506,7 +508,7 @@ async function deleteItem(w, it) {
 }
 
 // Anchors cannot send Authorization headers: fetch the file, then hand the browser a blob URL.
-const canPreview = (ct) => /^(application\/pdf|image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm))/i.test(String(ct || ''));
+const canPreview = canPreviewType;
 
 async function fetchFileBlob(it) {
   const res = await api(`/items/${it.id}/file`, { raw: true });
@@ -523,11 +525,13 @@ async function downloadFile(it) {
   } catch (e) { if (e.status !== 401) toast(e.message); }
 }
 
-async function previewFile(it) {
+async function previewFile(it, btn) {
+  if (btn) { if (btn.disabled) return; btn.disabled = true; }
   try {
     const blob = await fetchFileBlob(it);
-    const url = URL.createObjectURL(new Blob([blob], { type: it.contentType }));
-    const ct = String(it.contentType);
+    const ct = baseType(it.contentType);
+    // the iframe branch is always typed as a PDF, whatever the stored type string looked like
+    const url = URL.createObjectURL(new Blob([blob], { type: ct === 'application/pdf' ? 'application/pdf' : ct }));
     const view = ct.startsWith('image/') ? h('img', { class: 'preview', src: url, alt: it.title })
       : ct.startsWith('video/') ? h('video', { class: 'preview', src: url, controls: true })
         : h('iframe', { class: 'preview', src: url, title: it.title });
@@ -535,6 +539,7 @@ async function previewFile(it) {
       h('h2', { id: 'dlg-title' }, it.title), view,
       h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn', onclick: closeDialog }, 'ปิด'))), { wide: true, onClose: () => URL.revokeObjectURL(url) });
   } catch (e) { if (e.status !== 401) toast(e.message); }
+  finally { if (btn) btn.disabled = false; }
 }
 
 function itemDialog(w, kind, it) {
@@ -557,8 +562,8 @@ function itemDialog(w, kind, it) {
 
   file.addEventListener('change', () => {
     const f = file.files[0];
-    fileHint.textContent = f && f.size > MAX_UPLOAD_BYTES
-      ? `ไฟล์นี้ใหญ่ ${formatSize(f.size)} เกิน 40MB กรุณาแนบเป็นลิงก์แทน`
+    fileHint.textContent = f && exceedsUpload(f.size)
+      ? tooBigMessage(f.size)
       : `ขนาดไม่เกิน ${formatSize(MAX_UPLOAD_BYTES)} ไฟล์ใหญ่กว่านี้ให้แนบเป็นลิงก์ https แทน`;
   });
 
@@ -583,6 +588,10 @@ function itemDialog(w, kind, it) {
     const link = url.value.trim();
     if (link && !isHttps(link)) { urlErr.textContent = 'ลิงก์ต้องขึ้นต้นด้วย https:// และไม่มีช่องว่าง'; url.setAttribute('aria-invalid', 'true'); url.focus(); return; }
 
+    // Client-side limit: never start an upload the server will refuse.
+    const picked = file.files[0];
+    if (picked && exceedsUpload(picked.size)) { err.textContent = tooBigMessage(picked.size); file.focus(); return; }
+
     const fd = new FormData();
     fd.set('kind', kind); fd.set('title', title.value.trim()); fd.set('category', category.value.trim());
     fd.set('body', body.value); fd.set('url', link); fd.set('sort', String(Number(sort.value) || 0));
@@ -590,6 +599,8 @@ function itemDialog(w, kind, it) {
     if (file.files[0]) fd.set('file', file.files[0]);
 
     const wid = encodeURIComponent(w.id);
+    const myDlg = dlgId;
+    const mine = () => myDlg === dlgId && dlg.open; // false once Esc/cancel closed this dialog or another opened
     xhr = new XMLHttpRequest();
     xhr.open(it ? 'PUT' : 'POST', `/api/admin/workshops/${wid}/items${it ? '/' + it.id : ''}`);
     xhr.setRequestHeader('authorization', 'Bearer ' + token);
@@ -605,6 +616,7 @@ function itemDialog(w, kind, it) {
     }
     const fail = (m) => { err.textContent = m; setBusy(save, false, 'บันทึก'); progress.hidden = true; progressText.hidden = true; xhr = null; };
     xhr.onload = () => {
+      if (!mine()) { xhr = null; return; }
       let data = {};
       try { data = JSON.parse(xhr.responseText); } catch { /* not JSON */ }
       if (xhr.status === 401) { closeDialog(); logout('เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง'); return; }
@@ -613,13 +625,13 @@ function itemDialog(w, kind, it) {
       // the server already says "attach a link instead" for 411/413; keep its text verbatim
       fail(m);
     };
-    xhr.onerror = () => fail(hasFile ? 'อัปโหลดไม่สำเร็จ (ไฟล์อาจใหญ่เกินไปหรือการเชื่อมต่อขัดข้อง) ไฟล์ใหญ่กรุณาแนบเป็นลิงก์แทน' : 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่');
+    xhr.onerror = () => mine() && fail(hasFile ? 'อัปโหลดไม่สำเร็จ (ไฟล์อาจใหญ่เกินไปหรือการเชื่อมต่อขัดข้อง) ไฟล์ใหญ่กรุณาแนบเป็นลิงก์แทน' : 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่');
     xhr.onabort = () => { xhr = null; };
     setBusy(save, true, hasFile ? 'กำลังอัปโหลด...' : 'กำลังบันทึก...');
     xhr.send(fd);
   });
 
-  openDialog(form, { wide: true });
+  openDialog(form, { wide: true, onClose: () => { if (xhr) { const x = xhr; xhr = null; x.abort(); } } });
   title.focus();
 }
 
