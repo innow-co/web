@@ -6,7 +6,8 @@ import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, LIMITS, emptyAnswers, validateStep, nextStep, prevStep,
   stepNumber, summaryRows, buildPayload, firstFailingStep, parseDraft,
 } from '../public/lib-wizard.js';
-import { validateInquiry } from '../src/lib.js';
+import { validateInquiry, validateConsultation } from '../src/lib.js';
+import * as consult from '../public/lib-consult.js';
 
 const good = () => ({ organization: 'บริษัท ตัวอย่าง', course: COURSE_DEFAULT, expectation: EXPECTATIONS[1], learners: '20', email: 'hr@example.com', details: '' });
 
@@ -210,4 +211,117 @@ test('parseDraft restores only known string fields and a valid step', () => {
   assert.equal(parseDraft(JSON.stringify({ step: 'summary', answers: good() }), '').step, 'summary');
   // a draft with an empty email falls back to the prefill
   assert.equal(parseDraft(JSON.stringify({ step: 'email', answers: { ...good(), email: '' } }), 'p@x.co').answers.email, 'p@x.co');
+});
+
+// ================= AI consultation wizard (public/lib-consult.js) =================
+
+const cgood = () => ({ organization: 'บริษัท ตัวอย่าง', systems: 'Excel, LINE OA', goals: 'สรุปยอดขายอัตโนมัติ', teamSize: '20', email: 'hr@example.com' });
+
+test('consult: steps in the specified order, only team size is optional', () => {
+  assert.deepEqual(consult.STEPS.map((s) => s.id), ['organization', 'systems', 'goals', 'teamSize', 'email']);
+  assert.deepEqual(consult.STEPS.filter((s) => !s.required).map((s) => s.id), ['teamSize']);
+  assert.equal(consult.DRAFT_KEY, 'innow.consult');
+  assert.notEqual(consult.DRAFT_KEY, 'innow.inquiry');
+});
+
+test('consult: shared machine walks the order and ends at the summary; quote machine is unchanged', () => {
+  assert.equal(consult.nextStep('organization'), 'systems');
+  assert.equal(consult.nextStep('teamSize'), 'email');
+  assert.equal(consult.nextStep('email'), 'summary');
+  assert.equal(consult.nextStep('summary'), null);
+  assert.equal(consult.prevStep('summary'), 'email');
+  assert.equal(consult.prevStep('organization'), null);
+  assert.equal(consult.prevStep('nope'), null);
+  assert.equal(consult.stepNumber('teamSize'), 4);
+  assert.equal(consult.stepNumber('summary'), 5);
+  // the quote wizard still has its own ids
+  assert.equal(nextStep('email'), 'details');
+  assert.equal(nextStep('systems'), null);
+});
+
+test('consult: emptyAnswers prefills the email only', () => {
+  assert.deepEqual(consult.emptyAnswers(), { organization: '', systems: '', goals: '', teamSize: '', email: '' });
+  assert.equal(consult.emptyAnswers('a@b.co').email, 'a@b.co');
+  assert.equal(consult.emptyAnswers(7).email, '');
+});
+
+test('consult PARITY: every step gives the same verdict and message as validateConsultation on boundary inputs', () => {
+  const long = (n) => 'x'.repeat(n);
+  const mail = (n) => 'a'.repeat(n - '@b.co'.length) + '@b.co';
+  const cases = {
+    organization: ['', ' ', 'x', long(160), long(161), 'a\nb', 'a\rb', ' ' + long(160) + ' ', 'บริษัท'],
+    systems: ['', ' ', ' \n ', 'x', long(2000), long(2001), 'a\nb\r\nc', ' ' + long(2000) + ' '],
+    goals: ['', ' ', ' \n ', 'x', long(2000), long(2001), 'a\nb\r\nc', ' ' + long(2000) + ' '],
+    teamSize: ['', ' ', '1', '20', ' 20 ', '100000', '100001', '0', '20.5', '1e3', '-1', 'abc', '0x10', '2 0', '007', '99999999999999999999'],
+    email: ['', ' ', 'abc', 'a@b', 'a b@c.com', '@b.com', 'a@@b.com', 'hr@example.com', ' hr@example.com ', mail(254), mail(255), 'a@b .com'],
+  };
+  let n = 0;
+  for (const [field, values] of Object.entries(cases)) {
+    for (const value of values) {
+      const answers = { ...cgood(), [field]: value };
+      const server = validateConsultation(answers);
+      const client = consult.validateStep(field, answers);
+      assert.equal(client.ok, !server.errors[field], `${field}=${JSON.stringify(value).slice(0, 40)} client ${client.ok} server ${!server.errors[field]}`);
+      if (!client.ok) assert.equal(client.error, server.errors[field], `${field} message`);
+      n++;
+    }
+  }
+  assert.ok(n > 50);
+});
+
+test('consult: team size skipped is valid, and so is an absent answer', () => {
+  assert.equal(consult.validateStep('teamSize', { ...cgood(), teamSize: '' }).ok, true);
+  assert.equal(consult.validateStep('teamSize', {}).ok, true);
+  assert.equal(consult.validateStep('nope', cgood()).ok, false);
+});
+
+test('consult: PARITY of published limits with src/lib.js', () => {
+  const src = readFileSync(new URL('../src/lib.js', import.meta.url), 'utf8');
+  assert.deepEqual(consult.LIMITS, { organization: 160, email: 254, systems: 2000, goals: 2000, teamSizeMin: 1, teamSizeMax: 100000 });
+  assert.match(src, /systems\.length > 2000/); assert.match(src, /goals\.length > 2000/); assert.match(src, /teamSize < 1 \|\| teamSize > 100000/);
+});
+
+test('consult: a valid wizard passes the server validator; buildPayload trims and omits a skipped team size', () => {
+  const a = cgood();
+  for (const s of consult.STEPS) assert.equal(consult.validateStep(s.id, a).ok, true, s.id);
+  const body = consult.buildPayload({ ...a, organization: '  บริษัท  ', systems: ' a\nb ', teamSize: ' 20 ' });
+  assert.deepEqual(body, { organization: 'บริษัท', systems: 'a\nb', goals: 'สรุปยอดขายอัตโนมัติ', teamSize: '20', email: 'hr@example.com' });
+  assert.equal(validateConsultation(body).value.teamSize, 20);
+  const skipped = consult.buildPayload({ ...a, teamSize: '' });
+  assert.ok(!('teamSize' in skipped));
+  assert.equal(validateConsultation(skipped).ok, true);
+  assert.equal(validateConsultation(skipped).value.teamSize, null);
+});
+
+test('consult: summaryRows has one row per answer with an edit target; skipped team size shown as not given', () => {
+  const rows = consult.summaryRows(cgood());
+  assert.deepEqual(rows.map((r) => r.step), ['organization', 'systems', 'goals', 'teamSize', 'email']);
+  assert.deepEqual(rows.map((r) => r.label), ['ชื่อองค์กร', 'ระบบที่ใช้อยู่ตอนนี้', 'งานที่อยากให้ AI ช่วยทำอัตโนมัติ', 'ขนาดทีมที่ใช้ระบบ', 'อีเมลติดต่อ']);
+  assert.equal(rows[3].value, '20 คน');
+  assert.equal(consult.summaryRows({ ...cgood(), teamSize: ' ' })[3].value, 'ไม่ได้ระบุ');
+  assert.equal(rows[1].value, 'Excel, LINE OA');
+});
+
+test('consult: firstFailingStep follows the consultation order', () => {
+  assert.equal(consult.firstFailingStep({ email: 'x', goals: 'y' }), 'goals');
+  assert.equal(consult.firstFailingStep({ teamSize: 'x', email: 'y' }), 'teamSize');
+  assert.equal(consult.firstFailingStep({ course: 'x' }), null);
+  assert.equal(consult.firstFailingStep(null), null);
+});
+
+test('consult: parseDraft restores known string fields and a valid step; corrupt or foreign drafts are rejected safely', () => {
+  const raw = JSON.stringify({ step: 'goals', answers: { ...cgood(), organization: 'A', evil: 'x', teamSize: 5 } });
+  const d = consult.parseDraft(raw, 'prefill@x.co');
+  assert.equal(d.step, 'goals');
+  assert.equal(d.answers.organization, 'A');
+  assert.equal(d.answers.teamSize, '');
+  assert.ok(!('evil' in d.answers));
+  assert.equal(consult.parseDraft('{not json', ''), null);
+  assert.equal(consult.parseDraft(null, ''), null);
+  assert.equal(consult.parseDraft('[]', ''), null);
+  assert.equal(consult.parseDraft(JSON.stringify({ step: 'zzz', answers: {} }), '').step, 'organization');
+  // a quote-wizard step id is unknown here
+  assert.equal(consult.parseDraft(JSON.stringify({ step: 'details', answers: {} }), '').step, 'organization');
+  assert.equal(consult.parseDraft(JSON.stringify({ step: 'summary', answers: cgood() }), '').step, 'summary');
+  assert.equal(consult.parseDraft(JSON.stringify({ step: 'email', answers: { ...cgood(), email: '' } }), 'p@x.co').answers.email, 'p@x.co');
 });

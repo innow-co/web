@@ -37,7 +37,6 @@ export const STEPS = [
   { id: 'details', required: false, label: 'รายละเอียดเพิ่มเติม', question: 'รายละเอียดเพิ่มเติมหรือหัวข้อ Workshop ที่ต้องการ' },
 ];
 
-const IDS = STEPS.map((s) => s.id);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const str = (v) => (typeof v === 'string' ? v.trim() : '');
 
@@ -45,26 +44,50 @@ export function emptyAnswers(prefillEmail) {
   return { organization: '', course: COURSE_DEFAULT, expectation: '', learners: '', email: typeof prefillEmail === 'string' ? prefillEmail : '', details: '' };
 }
 
-// 'summary' follows the last question. Unknown ids have no neighbours.
-export function nextStep(id) {
-  if (id === 'summary') return null;
-  const i = IDS.indexOf(id);
-  if (i < 0) return null;
-  return i === IDS.length - 1 ? 'summary' : IDS[i + 1];
+// Shared state machine for the one-question-at-a-time wizards (quote request here, AI consultation in lib-consult.js).
+// `steps` are the question steps in order, `empty(prefill)` builds blank answers. 'summary' follows the last question.
+export function createMachine(steps, empty) {
+  const ids = steps.map((x) => x.id);
+  return {
+    // Unknown ids have no neighbours.
+    nextStep(id) {
+      if (id === 'summary') return null;
+      const i = ids.indexOf(id);
+      if (i < 0) return null;
+      return i === ids.length - 1 ? 'summary' : ids[i + 1];
+    },
+    prevStep(id) {
+      if (id === 'summary') return ids[ids.length - 1];
+      const i = ids.indexOf(id);
+      return i > 0 ? ids[i - 1] : null;
+    },
+    // "ข้อ n จาก N": the summary screen counts as the last step.
+    stepNumber(id) {
+      if (id === 'summary') return ids.length;
+      const i = ids.indexOf(id);
+      return i < 0 ? 0 : i + 1;
+    },
+    // 422 {errors:{field:msg}}: the earliest step that has an error.
+    firstFailingStep(errors) {
+      if (!errors || typeof errors !== 'object') return null;
+      return ids.find((id) => typeof errors[id] === 'string' && errors[id]) || null;
+    },
+    // sessionStorage draft: { step, answers }. Only known string fields survive; anything else is dropped.
+    parseDraft(raw, prefillEmail) {
+      let d;
+      try { d = JSON.parse(raw); } catch { return null; }
+      if (!d || typeof d !== 'object' || !d.answers || typeof d.answers !== 'object') return null;
+      const answers = empty(prefillEmail);
+      for (const id of ids) if (typeof d.answers[id] === 'string') answers[id] = d.answers[id];
+      if (!answers.email && typeof prefillEmail === 'string') answers.email = prefillEmail;
+      const step = ids.includes(d.step) || d.step === 'summary' ? d.step : ids[0];
+      return { step, answers };
+    },
+  };
 }
 
-export function prevStep(id) {
-  if (id === 'summary') return IDS[IDS.length - 1];
-  const i = IDS.indexOf(id);
-  return i > 0 ? IDS[i - 1] : null;
-}
-
-// "ข้อ n จาก 6": the summary screen counts as the last step.
-export function stepNumber(id) {
-  if (id === 'summary') return IDS.length;
-  const i = IDS.indexOf(id);
-  return i < 0 ? 0 : i + 1;
-}
+const machine = createMachine(STEPS, (e) => emptyAnswers(e));
+export const { nextStep, prevStep, stepNumber, firstFailingStep, parseDraft } = machine;
 
 const noLineBreak = (s) => !/[\r\n]/.test(s);
 
@@ -116,22 +139,4 @@ export function summaryRows(answers) {
 export function buildPayload(answers) {
   const a = answers || {};
   return { organization: str(a.organization), email: str(a.email), course: str(a.course), expectation: str(a.expectation), details: str(a.details), learners: str(a.learners) };
-}
-
-// 422 {errors:{field:msg}}: the earliest step that has an error.
-export function firstFailingStep(errors) {
-  if (!errors || typeof errors !== 'object') return null;
-  return IDS.find((id) => typeof errors[id] === 'string' && errors[id]) || null;
-}
-
-// sessionStorage draft: { step, answers }. Only known string fields survive; anything else is dropped.
-export function parseDraft(raw, prefillEmail) {
-  let d;
-  try { d = JSON.parse(raw); } catch { return null; }
-  if (!d || typeof d !== 'object' || !d.answers || typeof d.answers !== 'object') return null;
-  const answers = emptyAnswers(prefillEmail);
-  for (const id of IDS) if (typeof d.answers[id] === 'string') answers[id] = d.answers[id];
-  if (!answers.email && typeof prefillEmail === 'string') answers.email = prefillEmail;
-  const step = IDS.includes(d.step) || d.step === 'summary' ? d.step : IDS[0];
-  return { step, answers };
 }
