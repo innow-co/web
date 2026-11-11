@@ -1,0 +1,33 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "innow-line",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/f/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "innow-line",
+      "database_id": "8025266b-92c7-4e9a-af71-eed025bde34e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "FILES", "bucket_name": "innow-line-files" }
+  ],
+  "vars": {
+    // LINE MINI App / LINE Login channel (same provider as the Innow OA)
+    "LIFF_ID": "",
+    "LINE_LOGIN_CHANNEL_ID": "",
+    // OA basic ID, e.g. "@innow"
+    "OA_BASIC_ID": "",
+    "FACEBOOK_URL": "https://www.facebook.com/innow.co.th",
+    "REQUIRE_FRIEND": "true"
+  },
+  "observability": { "enabled": true }
+  // Secrets (wrangler secret put): ADMIN_PASSWORD, SESSION_SECRET
+}

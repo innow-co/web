@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#014799" />
+  <title>Innow Workshop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">innow</div>
+    <div class="brand-sub">Your Workshop Learning Space</div>
+  </header>
+  <main id="view" aria-live="polite">
+    <div class="center"><div class="spinner" aria-label="กำลังโหลด"></div></div>
+  </main>
+  <nav class="tabbar" id="tabbar" hidden>
+    <button data-go="home"><span>⌂</span>หน้าหลัก</button>
+    <button data-go="workshops"><span>▦</span>Workshop</button>
+    <button data-go="redeem"><span>#</span>รับสิทธิ์</button>
+    <button data-go="profile"><span>☺</span>โปรไฟล์</button>
+  </nav>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <dialog id="privacy">
+    <article class="privacy">
+      <h2>นโยบายความเป็นส่วนตัว (Privacy Notice)</h2>
+      <p>บริษัท อินโนว จำกัด (“Innow”) เก็บรวบรวมข้อมูลของคุณเพื่อจัดการสิทธิ์เข้าถึงสื่อการเรียนของ Workshop ที่คุณเข้าร่วม และติดต่อคุณเกี่ยวกับการเรียน</p>
+      <h3>ข้อมูลที่เก็บ</h3>
+      <ul>
+        <li>LINE User ID ชื่อที่แสดง และรูปโปรไฟล์ LINE (ได้รับจาก LINE Login)</li>
+        <li>ชื่อจริง นามสกุลจริง และอีเมลที่คุณกรอก</li>
+        <li>รายการ Workshop ที่คุณได้รับสิทธิ์ และประวัติการรับสิทธิ์</li>
+        <li>สถานะการเป็นเพื่อน LINE Official Account ของ Innow</li>
+      </ul>
+      <h3>วัตถุประสงค์</h3>
+      <ul>
+        <li>ยืนยันตัวตนและให้สิทธิ์เข้าถึงสไลด์ Prompt และสื่อเสริมของ Workshop</li>
+        <li>ติดต่อเรื่องการเรียน เช่น แจ้งสื่อการเรียนใหม่ของ Workshop ที่คุณเข้าร่วม</li>
+        <li>ส่งข่าวสารและโปรโมชันเฉพาะเมื่อคุณให้ความยินยอมแยกไว้เท่านั้น</li>
+      </ul>
+      <h3>การเก็บรักษาและสิทธิ์ของคุณ</h3>
+      <p>ข้อมูลจัดเก็บบนระบบคลาวด์ที่มีการควบคุมการเข้าถึง และไม่เปิดเผยแก่บุคคลภายนอกโดยไม่มีฐานทางกฎหมาย คุณมีสิทธิ์ขอเข้าถึง แก้ไข ลบ หรือถอนความยินยอมได้ตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 โดยติดต่อทีมงานผ่าน LINE Official Account ของ Innow</p>
+      <button class="btn" onclick="this.closest('dialog').close()">ปิด</button>
+    </article>
+  </dialog>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js" charset="utf-8"></script>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

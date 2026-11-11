@@ -1,0 +1,503 @@
+import {
+  signToken, verifyToken, timingSafeEqualStr, randomCode, isFourDigits,
+  validateRegistration, slugify, safeFileName,
+} from './lib.js';
+
+const SESSION_TTL = 60 * 60 * 24 * 7;      // member session: 7 days
+const ADMIN_TTL = 60 * 60 * 12;            // admin session: 12 hours
+const REDEEM_TTL = 60 * 30;                // time to finish registration after a valid code
+const FILE_LINK_TTL = 60 * 5;              // signed file URL: 5 minutes
+const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
+const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
+const ADMIN_MAX_FAILS = 10;
+const MAX_UPLOAD = 95 * 1024 * 1024;
+
+class HttpError extends Error {
+  constructor(status, message, extra = {}) { super(message); this.status = status; this.extra = extra; }
+}
+
+const json = (data, status = 200, headers = {}) =>
+  new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers } });
+
+const now = () => Date.now();
+
+async function body(request) {
+  try { return await request.json(); } catch { throw new HttpError(400, 'รูปแบบข้อมูลไม่ถูกต้อง'); }
+}
+
+function secret(env) {
+  if (!env.SESSION_SECRET || env.SESSION_SECRET.length < 32) throw new HttpError(503, 'Server not configured');
+  return env.SESSION_SECRET;
+}
+
+async function audit(env, actor, action, detail = {}) {
+  await env.DB.prepare('INSERT INTO audit_log (actor, action, detail, created_at) VALUES (?, ?, ?, ?)')
+    .bind(actor, action, JSON.stringify(detail), now()).run();
+}
+
+async function recentFails(env, subject) {
+  const row = await env.DB.prepare('SELECT COUNT(*) AS n FROM attempts WHERE subject = ? AND ok = 0 AND created_at > ?')
+    .bind(subject, now() - FAIL_WINDOW).first();
+  return row?.n ?? 0;
+}
+
+async function recordAttempt(env, subject, ok) {
+  await env.DB.prepare('INSERT INTO attempts (subject, ok, created_at) VALUES (?, ?, ?)').bind(subject, ok ? 1 : 0, now()).run();
+}
+
+// ---------- LINE verification ----------
+
+async function verifyLine(accessToken, env) {
+  if (env.DEV_FAKE_LINE === '1' && typeof accessToken === 'string' && accessToken.startsWith('dev:')) {
+    const userId = accessToken.slice(4);
+    return { userId, displayName: 'Dev ' + userId.slice(-4), pictureUrl: '', isFriend: !userId.includes('nofriend') };
+  }
+  if (typeof accessToken !== 'string' || accessToken.length < 10) throw new HttpError(401, 'กรุณาเข้าสู่ระบบด้วย LINE');
+  if (!env.LINE_LOGIN_CHANNEL_ID) throw new HttpError(503, 'LINE channel not configured');
+
+  const v = await fetch('https://api.line.me/oauth2/v2.1/verify?access_token=' + encodeURIComponent(accessToken));
+  if (!v.ok) throw new HttpError(401, 'LINE token ไม่ถูกต้องหรือหมดอายุ');
+  const info = await v.json();
+  if (String(info.client_id) !== String(env.LINE_LOGIN_CHANNEL_ID) || !(info.expires_in > 0)) throw new HttpError(401, 'LINE token ไม่ถูกต้อง');
+
+  const auth = { Authorization: 'Bearer ' + accessToken };
+  const [p, f] = await Promise.all([
+    fetch('https://api.line.me/v2/profile', { headers: auth }),
+    fetch('https://api.line.me/friendship/v1/status', { headers: auth }),
+  ]);
+  if (!p.ok) throw new HttpError(401, 'ไม่สามารถอ่านข้อมูลบัญชี LINE');
+  const profile = await p.json();
+  let isFriend = false;
+  if (f.ok) isFriend = (await f.json()).friendFlag === true;
+  else console.warn('friendship check failed', f.status, await f.text());
+  return { userId: profile.userId, displayName: profile.displayName || '', pictureUrl: profile.pictureUrl || '', isFriend };
+}
+
+async function memberSession(request, env) {
+  const h = request.headers.get('authorization') || '';
+  const data = await verifyToken(secret(env), 'member', h.replace(/^Bearer\s+/i, ''));
+  if (!data) throw new HttpError(401, 'กรุณาเปิดแอปจาก LINE อีกครั้ง', { reauth: true });
+  if (env.REQUIRE_FRIEND !== 'false' && !data.friend) throw new HttpError(403, 'กรุณาเพิ่มเพื่อน Innow LINE OA ก่อน', { notFriend: true });
+  return data;
+}
+
+async function adminSession(request, env) {
+  const h = request.headers.get('authorization') || '';
+  const data = await verifyToken(secret(env), 'admin', h.replace(/^Bearer\s+/i, ''));
+  if (!data) throw new HttpError(401, 'กรุณาเข้าสู่ระบบผู้ดูแล');
+  return data;
+}
+
+async function enrolled(env, uid, workshopId) {
+  return !!(await env.DB.prepare('SELECT 1 FROM enrollments WHERE line_user_id = ? AND workshop_id = ?').bind(uid, workshopId).first());
+}
+
+const publicItem = (it) => ({
+  id: it.id, workshopId: it.workshop_id, kind: it.kind, title: it.title, category: it.category, body: it.body,
+  url: it.url, hasFile: !!it.r2_key, fileName: it.file_name, contentType: it.content_type, size: it.size,
+});
+
+async function enrollWorkshop(env, uid, workshopId, codeId) {
+  await env.DB.prepare('INSERT OR IGNORE INTO enrollments (line_user_id, workshop_id, code_id, created_at) VALUES (?, ?, ?, ?)')
+    .bind(uid, workshopId, codeId, now()).run();
+  await audit(env, uid, 'enroll', { workshopId, codeId });
+}
+
+const workshopSummary = (w) => ({ id: w.id, title: w.title, description: w.description, eventDate: w.event_date });
+
+// ---------- Member API ----------
+
+const member = {
+  async config(req, env) {
+    return json({ liffId: env.LIFF_ID || '', oaBasicId: env.OA_BASIC_ID || '', facebookUrl: env.FACEBOOK_URL || '', requireFriend: env.REQUIRE_FRIEND !== 'false', dev: env.DEV_FAKE_LINE === '1' });
+  },
+
+  async auth(req, env) {
+    const { accessToken } = await body(req);
+    const line = await verifyLine(accessToken, env);
+    const m = await env.DB.prepare('SELECT * FROM members WHERE line_user_id = ?').bind(line.userId).first();
+    if (m) {
+      await env.DB.prepare('UPDATE members SET display_name = ?, picture_url = ?, is_friend = ?, last_seen_at = ? WHERE line_user_id = ?')
+        .bind(line.displayName, line.pictureUrl, line.isFriend ? 1 : 0, now(), line.userId).run();
+    }
+    const session = await signToken(secret(env), 'member', { uid: line.userId, friend: line.isFriend, dn: line.displayName, pic: line.pictureUrl }, SESSION_TTL);
+    return json({
+      session, isFriend: line.isFriend,
+      profile: { displayName: line.displayName, pictureUrl: line.pictureUrl },
+      member: m ? { firstName: m.first_name, lastName: m.last_name, email: m.email } : null,
+    });
+  },
+
+  async me(req, env) {
+    const s = await memberSession(req, env);
+    const m = await env.DB.prepare('SELECT * FROM members WHERE line_user_id = ?').bind(s.uid).first();
+    const { results } = await env.DB.prepare(
+      `SELECT w.*, e.created_at AS enrolled_at,
+        (SELECT COUNT(*) FROM items i WHERE i.workshop_id = w.id AND i.kind='slide') AS slides,
+        (SELECT COUNT(*) FROM items i WHERE i.workshop_id = w.id AND i.kind='prompt') AS prompts,
+        (SELECT COUNT(*) FROM items i WHERE i.workshop_id = w.id AND i.kind='bonus') AS bonus
+       FROM enrollments e JOIN workshops w ON w.id = e.workshop_id
+       WHERE e.line_user_id = ? ORDER BY e.created_at DESC`).bind(s.uid).all();
+    return json({
+      profile: { displayName: s.dn, pictureUrl: s.pic },
+      member: m ? { firstName: m.first_name, lastName: m.last_name, email: m.email, emailVerified: !!m.email_verified, marketing: !!m.marketing_consent, since: m.created_at } : null,
+      workshops: results.map((w) => ({ ...workshopSummary(w), enrolledAt: w.enrolled_at, counts: { slide: w.slides, prompt: w.prompts, bonus: w.bonus } })),
+    });
+  },
+
+  async redeem(req, env) {
+    const s = await memberSession(req, env);
+    const { code } = await body(req);
+    const subject = 'user:' + s.uid;
+    if ((await recentFails(env, subject)) >= MAX_FAILS) {
+      await audit(env, s.uid, 'redeem_blocked', {});
+      throw new HttpError(429, 'กรอกรหัสผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่');
+    }
+    const row = isFourDigits(code)
+      ? await env.DB.prepare(
+          `SELECT c.id, c.workshop_id, w.title, w.description, w.event_date FROM codes c JOIN workshops w ON w.id = c.workshop_id
+           WHERE c.code = ? AND c.revoked = 0 AND c.expires_at > ? AND w.active = 1 ORDER BY c.created_at DESC LIMIT 1`).bind(code, now()).first()
+      : null;
+    if (!row) {
+      await recordAttempt(env, subject, false);
+      await audit(env, s.uid, 'redeem_fail', { code: isFourDigits(code) ? code : 'invalid' });
+      const left = MAX_FAILS - (await recentFails(env, subject));
+      throw new HttpError(400, left > 0 ? `รหัสไม่ถูกต้องหรือหมดอายุ (ลองได้อีก ${left} ครั้ง)` : 'กรอกรหัสผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่');
+    }
+    await recordAttempt(env, subject, true);
+    const workshop = { id: row.workshop_id, title: row.title, description: row.description, eventDate: row.event_date };
+
+    if (await enrolled(env, s.uid, row.workshop_id)) return json({ status: 'already', workshop });
+
+    const m = await env.DB.prepare('SELECT 1 FROM members WHERE line_user_id = ?').bind(s.uid).first();
+    if (m) {
+      await enrollWorkshop(env, s.uid, row.workshop_id, row.id);
+      return json({ status: 'enrolled', workshop });
+    }
+    const redeemToken = await signToken(secret(env), 'redeem', { uid: s.uid, wid: row.workshop_id, cid: row.id }, REDEEM_TTL);
+    await audit(env, s.uid, 'redeem_pending_register', { workshopId: row.workshop_id });
+    return json({ status: 'register', workshop, redeemToken });
+  },
+
+  async register(req, env) {
+    const s = await memberSession(req, env);
+    const input = await body(req);
+    const r = await verifyToken(secret(env), 'redeem', input.redeemToken);
+    if (!r || r.uid !== s.uid) throw new HttpError(400, 'สิทธิ์หมดเวลา กรุณากรอกรหัส Workshop ใหม่อีกครั้ง');
+    const v = validateRegistration(input);
+    if (!v.ok) throw new HttpError(422, 'กรุณาตรวจสอบข้อมูล', { errors: v.errors });
+    const t = now();
+    await env.DB.prepare(
+      `INSERT INTO members (line_user_id, first_name, last_name, email, display_name, picture_url, terms_accepted_at, marketing_consent, is_friend, last_seen_at, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(line_user_id) DO NOTHING`)
+      .bind(s.uid, v.value.firstName, v.value.lastName, v.value.email, s.dn || '', s.pic || '', t, v.value.marketing ? 1 : 0, s.friend ? 1 : 0, t, t).run();
+    await audit(env, s.uid, 'register', { marketing: v.value.marketing });
+    await enrollWorkshop(env, s.uid, r.wid, r.cid);
+    const w = await env.DB.prepare('SELECT * FROM workshops WHERE id = ?').bind(r.wid).first();
+    return json({ status: 'enrolled', workshop: w ? workshopSummary(w) : { id: r.wid } });
+  },
+
+  async workshop(req, env, id) {
+    const s = await memberSession(req, env);
+    if (!(await enrolled(env, s.uid, id))) throw new HttpError(403, 'คุณยังไม่มีสิทธิ์ใน Workshop นี้');
+    const w = await env.DB.prepare('SELECT * FROM workshops WHERE id = ?').bind(id).first();
+    if (!w) throw new HttpError(404, 'ไม่พบ Workshop');
+    const { results } = await env.DB.prepare('SELECT * FROM items WHERE workshop_id = ? ORDER BY kind, sort, id').bind(id).all();
+    return json({ workshop: workshopSummary(w), items: results.map(publicItem) });
+  },
+
+  // All prompts / bonus across the member's workshops (rich menu shortcuts)
+  async byKind(req, env, kind) {
+    const s = await memberSession(req, env);
+    const { results } = await env.DB.prepare(
+      `SELECT i.*, w.title AS workshop_title FROM items i
+       JOIN enrollments e ON e.workshop_id = i.workshop_id AND e.line_user_id = ?
+       JOIN workshops w ON w.id = i.workshop_id
+       WHERE i.kind = ? ORDER BY e.created_at DESC, i.sort, i.id`).bind(s.uid, kind).all();
+    return json({ items: results.map((it) => ({ ...publicItem(it), workshopTitle: it.workshop_title })) });
+  },
+
+  async fileLink(req, env, itemId) {
+    const s = await memberSession(req, env);
+    const it = await env.DB.prepare('SELECT * FROM items WHERE id = ?').bind(itemId).first();
+    if (!it || !it.r2_key) throw new HttpError(404, 'ไม่พบไฟล์');
+    if (!(await enrolled(env, s.uid, it.workshop_id))) throw new HttpError(403, 'คุณยังไม่มีสิทธิ์ในไฟล์นี้');
+    const t = await signToken(secret(env), 'file', { iid: it.id, uid: s.uid }, FILE_LINK_TTL);
+    await audit(env, s.uid, 'file_link', { itemId: it.id });
+    return json({ url: new URL('/f/' + it.id + '?t=' + encodeURIComponent(t), req.url).toString(), expiresIn: FILE_LINK_TTL });
+  },
+};
+
+async function serveFile(req, env, itemId, { token, admin = false } = {}) {
+  if (!admin) {
+    const t = await verifyToken(secret(env), 'file', token);
+    if (!t || String(t.iid) !== String(itemId)) return new Response('ลิงก์หมดอายุ กรุณาเปิดไฟล์จากแอป Innow อีกครั้ง', { status: 403, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  }
+  const it = await env.DB.prepare('SELECT * FROM items WHERE id = ?').bind(itemId).first();
+  if (!it || !it.r2_key) return new Response('Not found', { status: 404 });
+  const obj = await env.FILES.get(it.r2_key);
+  if (!obj) return new Response('Not found', { status: 404 });
+  const inline = /^(application\/pdf|image\/|video\/|text\/plain)/.test(it.content_type);
+  return new Response(obj.body, {
+    headers: {
+      'content-type': it.content_type || 'application/octet-stream',
+      'content-length': String(obj.size),
+      'content-disposition': `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(safeFileName(it.file_name))}`,
+      'cache-control': 'private, no-store',
+      'x-content-type-options': 'nosniff',
+    },
+  });
+}
+
+// ---------- Admin API ----------
+
+const admin = {
+  async login(req, env) {
+    const ip = req.headers.get('cf-connecting-ip') || 'unknown';
+    const subject = 'admin:' + ip;
+    if ((await recentFails(env, subject)) >= ADMIN_MAX_FAILS) throw new HttpError(429, 'ลองผิดหลายครั้ง กรุณารอ 10 นาที');
+    const { password } = await body(req);
+    if (!env.ADMIN_PASSWORD || !timingSafeEqualStr(password ?? '', env.ADMIN_PASSWORD)) {
+      await recordAttempt(env, subject, false);
+      await audit(env, 'admin', 'admin_login_fail', { ip });
+      throw new HttpError(401, 'รหัสผ่านไม่ถูกต้อง');
+    }
+    await recordAttempt(env, subject, true);
+    await audit(env, 'admin', 'admin_login', { ip });
+    return json({ token: await signToken(secret(env), 'admin', { ip }, ADMIN_TTL) });
+  },
+
+  async listWorkshops(req, env) {
+    const { results } = await env.DB.prepare(
+      `SELECT w.*,
+        (SELECT COUNT(*) FROM enrollments e WHERE e.workshop_id = w.id) AS members,
+        (SELECT COUNT(*) FROM items i WHERE i.workshop_id = w.id) AS items
+       FROM workshops w ORDER BY w.created_at DESC`).all();
+    return json({ workshops: results.map((w) => ({ ...workshopSummary(w), active: !!w.active, members: w.members, items: w.items, createdAt: w.created_at })) });
+  },
+
+  async saveWorkshop(req, env, id) {
+    const b = await body(req);
+    const title = String(b.title ?? '').trim();
+    if (!title) throw new HttpError(422, 'กรุณาใส่ชื่อ Workshop');
+    const description = String(b.description ?? '').trim();
+    const eventDate = String(b.eventDate ?? '').trim();
+    const active = b.active === false ? 0 : 1;
+    if (id) {
+      const r = await env.DB.prepare('UPDATE workshops SET title = ?, description = ?, event_date = ?, active = ? WHERE id = ?').bind(title, description, eventDate, active, id).run();
+      if (!r.meta.changes) throw new HttpError(404, 'ไม่พบ Workshop');
+    } else {
+      id = slugify(title);
+      await env.DB.prepare('INSERT INTO workshops (id, title, description, event_date, active, created_at) VALUES (?, ?, ?, ?, ?, ?)').bind(id, title, description, eventDate, active, now()).run();
+    }
+    await audit(env, 'admin', 'workshop_save', { id, title });
+    return json({ id });
+  },
+
+  async deleteWorkshop(req, env, id) {
+    const { results } = await env.DB.prepare("SELECT r2_key FROM items WHERE workshop_id = ? AND r2_key != ''").bind(id).all();
+    if (results.length) await env.FILES.delete(results.map((r) => r.r2_key));
+    await env.DB.batch([
+      env.DB.prepare('DELETE FROM items WHERE workshop_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM codes WHERE workshop_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM enrollments WHERE workshop_id = ?').bind(id),
+      env.DB.prepare('DELETE FROM workshops WHERE id = ?').bind(id),
+    ]);
+    await audit(env, 'admin', 'workshop_delete', { id });
+    return json({ ok: true });
+  },
+
+  async codes(req, env, wid) {
+    const { results } = await env.DB.prepare('SELECT * FROM codes WHERE workshop_id = ? ORDER BY created_at DESC LIMIT 20').bind(wid).all();
+    const t = now();
+    const redeemed = await env.DB.prepare('SELECT code_id, COUNT(*) AS n FROM enrollments WHERE workshop_id = ? GROUP BY code_id').bind(wid).all();
+    const counts = Object.fromEntries(redeemed.results.map((r) => [r.code_id, r.n]));
+    return json({
+      serverNow: t,
+      codes: results.map((c) => ({ id: c.id, code: c.code, expiresAt: c.expires_at, createdAt: c.created_at, active: !c.revoked && c.expires_at > t, revoked: !!c.revoked, redeemed: counts[c.id] || 0 })),
+    });
+  },
+
+  // Issue a new code; previous active codes for this workshop are revoked (rotate).
+  async newCode(req, env, wid) {
+    const b = await body(req).catch(() => ({}));
+    const minutes = Math.min(Math.max(Number(b.minutes) || 5, 1), 24 * 60);
+    const w = await env.DB.prepare('SELECT id FROM workshops WHERE id = ?').bind(wid).first();
+    if (!w) throw new HttpError(404, 'ไม่พบ Workshop');
+    const t = now();
+    const { results } = await env.DB.prepare('SELECT code FROM codes WHERE revoked = 0 AND expires_at > ?').bind(t).all();
+    const code = randomCode(new Set(results.map((r) => r.code)));
+    await env.DB.batch([
+      env.DB.prepare('UPDATE codes SET revoked = 1 WHERE workshop_id = ? AND revoked = 0 AND expires_at > ?').bind(wid, t),
+      env.DB.prepare('INSERT INTO codes (workshop_id, code, expires_at, created_at) VALUES (?, ?, ?, ?)').bind(wid, code, t + minutes * 60000, t),
+    ]);
+    await audit(env, 'admin', 'code_new', { workshopId: wid, minutes });
+    return json({ code, expiresAt: t + minutes * 60000, serverNow: t });
+  },
+
+  async revokeCodes(req, env, wid) {
+    await env.DB.prepare('UPDATE codes SET revoked = 1 WHERE workshop_id = ? AND revoked = 0').bind(wid).run();
+    await audit(env, 'admin', 'code_revoke', { workshopId: wid });
+    return json({ ok: true });
+  },
+
+  async items(req, env, wid) {
+    const { results } = await env.DB.prepare('SELECT * FROM items WHERE workshop_id = ? ORDER BY kind, sort, id').bind(wid).all();
+    return json({ items: results.map(publicItem) });
+  },
+
+  // multipart/form-data: kind, title, category, body, url, sort, file?
+  async saveItem(req, env, wid, itemId) {
+    const ct = req.headers.get('content-type') || '';
+    let f;
+    if (ct.includes('multipart/form-data')) f = await req.formData();
+    else { const b = await body(req); f = new Map(Object.entries(b)); }
+    const get = (k) => String(f.get(k) ?? '').trim();
+    const kind = get('kind');
+    if (!['slide', 'prompt', 'bonus'].includes(kind)) throw new HttpError(422, 'ประเภทไม่ถูกต้อง');
+    const title = get('title');
+    if (!title) throw new HttpError(422, 'กรุณาใส่ชื่อรายการ');
+    const url = get('url');
+    if (url && !/^https:\/\//i.test(url)) throw new HttpError(422, 'ลิงก์ต้องขึ้นต้นด้วย https://');
+    const fields = { kind, title, category: get('category'), body: get('body'), url, sort: Number(get('sort')) || 0 };
+
+    const file = f.get('file');
+    let fileFields = null;
+    if (file && typeof file === 'object' && file.size > 0) {
+      if (file.size > MAX_UPLOAD) throw new HttpError(413, 'ไฟล์ใหญ่เกิน 95MB');
+      const key = `workshops/${wid}/${crypto.randomUUID()}`;
+      await env.FILES.put(key, file.stream(), { httpMetadata: { contentType: file.type || 'application/octet-stream' } });
+      fileFields = { r2_key: key, file_name: safeFileName(file.name), content_type: file.type || 'application/octet-stream', size: file.size };
+    }
+
+    if (itemId) {
+      const old = await env.DB.prepare('SELECT * FROM items WHERE id = ? AND workshop_id = ?').bind(itemId, wid).first();
+      if (!old) throw new HttpError(404, 'ไม่พบรายการ');
+      const removeFile = get('removeFile') === '1';
+      const ff = fileFields || (removeFile ? { r2_key: '', file_name: '', content_type: '', size: 0 } : null);
+      if (ff && old.r2_key) await env.FILES.delete(old.r2_key);
+      const merged = { ...fields, ...(ff || { r2_key: old.r2_key, file_name: old.file_name, content_type: old.content_type, size: old.size }) };
+      await env.DB.prepare('UPDATE items SET kind=?, title=?, category=?, body=?, url=?, sort=?, r2_key=?, file_name=?, content_type=?, size=? WHERE id=?')
+        .bind(merged.kind, merged.title, merged.category, merged.body, merged.url, merged.sort, merged.r2_key, merged.file_name, merged.content_type, merged.size, itemId).run();
+    } else {
+      const ff = fileFields || { r2_key: '', file_name: '', content_type: '', size: 0 };
+      const r = await env.DB.prepare('INSERT INTO items (workshop_id, kind, title, category, body, url, sort, r2_key, file_name, content_type, size, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+        .bind(wid, kind, title, fields.category, fields.body, url, fields.sort, ff.r2_key, ff.file_name, ff.content_type, ff.size, now()).run();
+      itemId = r.meta.last_row_id;
+    }
+    await audit(env, 'admin', 'item_save', { workshopId: wid, itemId, kind, file: !!fileFields });
+    return json({ id: itemId });
+  },
+
+  async deleteItem(req, env, wid, itemId) {
+    const it = await env.DB.prepare('SELECT * FROM items WHERE id = ? AND workshop_id = ?').bind(itemId, wid).first();
+    if (!it) throw new HttpError(404, 'ไม่พบรายการ');
+    if (it.r2_key) await env.FILES.delete(it.r2_key);
+    await env.DB.prepare('DELETE FROM items WHERE id = ?').bind(itemId).run();
+    await audit(env, 'admin', 'item_delete', { workshopId: wid, itemId });
+    return json({ ok: true });
+  },
+
+  async members(req, env) {
+    const wid = new URL(req.url).searchParams.get('workshop');
+    const sql = wid
+      ? `SELECT m.*, (SELECT GROUP_CONCAT(w.title, ' | ') FROM enrollments e2 JOIN workshops w ON w.id = e2.workshop_id WHERE e2.line_user_id = m.line_user_id) AS workshops
+         FROM members m JOIN enrollments e ON e.line_user_id = m.line_user_id AND e.workshop_id = ? ORDER BY e.created_at DESC`
+      : `SELECT m.*, (SELECT GROUP_CONCAT(w.title, ' | ') FROM enrollments e2 JOIN workshops w ON w.id = e2.workshop_id WHERE e2.line_user_id = m.line_user_id) AS workshops
+         FROM members m ORDER BY m.created_at DESC`;
+    const { results } = await (wid ? env.DB.prepare(sql).bind(wid) : env.DB.prepare(sql)).all();
+    return json({
+      members: results.map((m) => ({
+        lineUserId: m.line_user_id, firstName: m.first_name, lastName: m.last_name, email: m.email, displayName: m.display_name,
+        marketing: !!m.marketing_consent, isFriend: !!m.is_friend, createdAt: m.created_at, lastSeenAt: m.last_seen_at, workshops: m.workshops || '',
+      })),
+    });
+  },
+
+  async removeEnrollment(req, env, wid, uid) {
+    await env.DB.prepare('DELETE FROM enrollments WHERE workshop_id = ? AND line_user_id = ?').bind(wid, uid).run();
+    await audit(env, 'admin', 'enroll_remove', { workshopId: wid, uid });
+    return json({ ok: true });
+  },
+
+  async audit(req, env) {
+    const { results } = await env.DB.prepare(
+      `SELECT a.*, m.first_name, m.last_name FROM audit_log a LEFT JOIN members m ON m.line_user_id = a.actor ORDER BY a.id DESC LIMIT 300`).all();
+    return json({ log: results.map((r) => ({ id: r.id, actor: r.actor, name: r.first_name ? `${r.first_name} ${r.last_name}` : '', action: r.action, detail: r.detail, createdAt: r.created_at })) });
+  },
+
+  async stats(req, env) {
+    const [m, w, e, f] = await env.DB.batch([
+      env.DB.prepare('SELECT COUNT(*) AS n FROM members'),
+      env.DB.prepare('SELECT COUNT(*) AS n FROM workshops'),
+      env.DB.prepare('SELECT COUNT(*) AS n FROM enrollments'),
+      env.DB.prepare("SELECT COUNT(*) AS n FROM audit_log WHERE action = 'redeem_fail' AND created_at > ?").bind(now() - 86400000),
+    ]);
+    return json({ members: m.results[0].n, workshops: w.results[0].n, enrollments: e.results[0].n, failedCodes24h: f.results[0].n });
+  },
+};
+
+// ---------- Router ----------
+
+async function route(req, env) {
+  const url = new URL(req.url);
+  const p = url.pathname.replace(/\/+$/, '') || '/';
+  const M = req.method;
+  let m;
+
+  if ((m = p.match(/^\/f\/(\d+)$/)) && M === 'GET') return serveFile(req, env, Number(m[1]), { token: url.searchParams.get('t') });
+
+  if (p === '/api/config' && M === 'GET') return member.config(req, env);
+  if (p === '/api/auth' && M === 'POST') return member.auth(req, env);
+  if (p === '/api/me' && M === 'GET') return member.me(req, env);
+  if (p === '/api/redeem' && M === 'POST') return member.redeem(req, env);
+  if (p === '/api/register' && M === 'POST') return member.register(req, env);
+  if (p === '/api/prompts' && M === 'GET') return member.byKind(req, env, 'prompt');
+  if (p === '/api/bonus' && M === 'GET') return member.byKind(req, env, 'bonus');
+  if ((m = p.match(/^\/api\/workshops\/([\w-]+)$/)) && M === 'GET') return member.workshop(req, env, m[1]);
+  if ((m = p.match(/^\/api\/items\/(\d+)\/link$/)) && M === 'POST') return member.fileLink(req, env, Number(m[1]));
+
+  if (p === '/api/admin/login' && M === 'POST') return admin.login(req, env);
+  if (p.startsWith('/api/admin/')) {
+    await adminSession(req, env);
+    if (p === '/api/admin/stats' && M === 'GET') return admin.stats(req, env);
+    if (p === '/api/admin/workshops' && M === 'GET') return admin.listWorkshops(req, env);
+    if (p === '/api/admin/workshops' && M === 'POST') return admin.saveWorkshop(req, env, null);
+    if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)$/))) {
+      if (M === 'PUT') return admin.saveWorkshop(req, env, m[1]);
+      if (M === 'DELETE') return admin.deleteWorkshop(req, env, m[1]);
+    }
+    if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/codes$/))) {
+      if (M === 'GET') return admin.codes(req, env, m[1]);
+      if (M === 'POST') return admin.newCode(req, env, m[1]);
+      if (M === 'DELETE') return admin.revokeCodes(req, env, m[1]);
+    }
+    if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/items$/))) {
+      if (M === 'GET') return admin.items(req, env, m[1]);
+      if (M === 'POST') return admin.saveItem(req, env, m[1], null);
+    }
+    if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/items\/(\d+)$/))) {
+      if (M === 'POST' || M === 'PUT') return admin.saveItem(req, env, m[1], Number(m[2]));
+      if (M === 'DELETE') return admin.deleteItem(req, env, m[1], Number(m[2]));
+    }
+    if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/members\/([\w-]+)$/)) && M === 'DELETE') return admin.removeEnrollment(req, env, m[1], m[2]);
+    if ((m = p.match(/^\/api\/admin\/items\/(\d+)\/file$/)) && M === 'GET') return serveFile(req, env, Number(m[1]), { admin: true });
+    if (p === '/api/admin/members' && M === 'GET') return admin.members(req, env);
+    if (p === '/api/admin/audit' && M === 'GET') return admin.audit(req, env);
+  }
+  if (p.startsWith('/api/')) throw new HttpError(404, 'Not found');
+  return env.ASSETS.fetch(req);
+}
+
+export default {
+  async fetch(req, env) {
+    try {
+      return await route(req, env);
+    } catch (e) {
+      if (e instanceof HttpError) return json({ error: e.message, ...e.extra }, e.status);
+      console.error(e);
+      return json({ error: 'เกิดข้อผิดพลาด กรุณาลองใหม่' }, 500);
+    }
+  },
+};
