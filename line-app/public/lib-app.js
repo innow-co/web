@@ -4,10 +4,6 @@ export const ROUTES = ['home', 'workshops', 'workshop', 'prompts', 'bonus', 'red
 
 const SAFE_ID = /^[\w-]{1,80}$/;
 
-const HTML_ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-// The app renders with textContent; this is for the few places a string must be put in markup.
-export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => HTML_ESC[c]);
-
 // Accepts "?p=workshops&id=x" or a full location.search. Handles LIFF's `liff.state` wrapper
 // (rich menu deep links arrive as ?liff.state=%3Fp%3Dworkshops on first open).
 export function parseRoute(search) {
@@ -42,6 +38,8 @@ export function addFriendUrl(basicId) {
   if (!id) return '';
   return 'https://line.me/R/ti/p/@' + encodeURIComponent(id);
 }
+
+export const isNotFriendError = (e) => !!e && e.notFriend === true;
 
 export const isHttps = (u) => /^https:\/\/[^\s]+$/i.test(String(u ?? ''));
 

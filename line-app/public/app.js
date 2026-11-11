@@ -2,7 +2,7 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError,
 } from './lib-app.js';
 
 const $ = (id) => document.getElementById(id);
@@ -100,7 +100,7 @@ async function request(path, { method = 'GET', body, auth = true } = {}) {
   let data = null;
   try { data = await res.json(); } catch { /* non-JSON error page: never show it */ }
   if (!res.ok) {
-    const msg = typeof data?.error === 'string' && data.error ? data.error : (res.status >= 500 ? MSG.generic : MSG.generic);
+    const msg = typeof data?.error === 'string' && data.error ? data.error : MSG.generic;
     throw new ApiError(res.status, msg, { reauth: !!data?.reauth, notFriend: !!data?.notFriend, errors: data?.errors || null });
   }
   return data;
@@ -244,7 +244,7 @@ function renderGate(note = '') {
   });
   const add = url
     ? h('a', {
-      class: 'btn line', href: url, target: '_blank', rel: 'noopener',
+      class: 'btn line', href: url, target: '_blank', rel: 'noopener noreferrer',
       onclick: (ev) => { if (state.inClient && window.liff) { ev.preventDefault(); liff.openWindow({ url, external: false }); } },
       text: 'เพิ่มเพื่อน Innow',
     })
@@ -289,10 +289,28 @@ async function copyText(text) {
   return ok;
 }
 
-function openUrl(url, preOpened) {
+// Open in a new tab without ever navigating the app's own tab: a real anchor click honours noopener.
+function clickAnchor(url) {
+  const a = h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', class: 'offscreen' });
+  document.body.append(a);
+  a.click();
+  a.remove();
+}
+
+function linkToast(url) {
+  const t = $('toast');
+  t.replaceChildren('เบราว์เซอร์บล็อกการเปิดแท็บใหม่ ', h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', class: 'toast-link', text: 'แตะเพื่อเปิดไฟล์' }));
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 20000);
+}
+
+// preOpened: a blank tab opened synchronously on tap (null when blocked or not needed).
+function openUrl(url, preOpened, { deferred = false } = {}) {
   if (state.inClient && window.liff) { preOpened?.close(); liff.openWindow({ url, external: true }); return; }
-  if (preOpened) { preOpened.location.href = url; return; }
-  if (!window.open(url, '_blank', 'noopener')) location.assign(url);
+  if (preOpened && !preOpened.closed) { preOpened.location.href = url; return; }
+  if (deferred) return linkToast(url); // tab was blocked and we are no longer inside the tap
+  clickAnchor(url);
 }
 
 function actionError(e) {
@@ -303,11 +321,11 @@ function actionError(e) {
 async function openFile(item, btn) {
   // Open the tab synchronously (inside the tap) so the popup blocker allows it, then point it at the signed link.
   const pre = !state.inClient ? window.open('', '_blank') : null;
-  if (pre) pre.opener = null;
+  try { if (pre) pre.opener = null; } catch { /* ignore */ }
   setBusy(btn, true);
   try {
     const { url } = await api(`/api/items/${item.id}/link`, { method: 'POST' });
-    openUrl(url, pre);
+    openUrl(url, pre, { deferred: true });
   } catch (e) {
     pre?.close();
     actionError(e);
@@ -375,7 +393,7 @@ const screens = {
         recent.length
           ? h('div', { class: 'list' }, recent.map(wsCard))
           : emptyBox('คุณยังไม่มี Workshop กรอกรหัส 4 หลักจากผู้สอนเพื่อรับสิทธิ์', navBtn('กรอกรหัสรับสิทธิ์', 'redeem')),
-        state.config?.facebookUrl ? h('p', { class: 'lead gap-top' }, 'ติดตามข่าวสารได้ที่ ', h('a', { class: 'news-link', href: state.config.facebookUrl, target: '_blank', rel: 'noopener', text: 'Facebook Innow' })) : null,
+        isHttps(state.config?.facebookUrl) ? h('p', { class: 'lead gap-top' }, 'ติดตามข่าวสารได้ที่ ', h('a', { class: 'news-link', href: state.config.facebookUrl, target: '_blank', rel: 'noopener noreferrer', text: 'Facebook Innow' })) : null,
       ],
     };
   },
@@ -397,6 +415,7 @@ const screens = {
   async workshop(route) {
     let data;
     try { data = await api('/api/workshops/' + encodeURIComponent(route.id)); } catch (e) {
+      if (isNotFriendError(e)) throw e;
       if (e.status === 403 || e.status === 404) {
         return { title: 'Workshop', nodes: [backBtn('Workshop ทั้งหมด', 'workshops'), h('h1', { text: 'เปิด Workshop ไม่ได้' }),
           emptyBox(e.status === 404 ? 'ไม่พบ Workshop นี้' : 'คุณยังไม่มีสิทธิ์ใน Workshop นี้ กรอกรหัส 4 หลักเพื่อรับสิทธิ์', navBtn('กรอกรหัสรับสิทธิ์', 'redeem'))] };
@@ -492,7 +511,6 @@ const screens = {
         if (e2.notFriend) return renderGate();
         err.textContent = e2.message || MSG.generic;
         boxes.forEach((b) => b.setAttribute('aria-invalid', 'true'));
-        setBusy(submit, !codeComplete(values));
         submit.disabled = !codeComplete(values);
         boxes[3].focus();
       }

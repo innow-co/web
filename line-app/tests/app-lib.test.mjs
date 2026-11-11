@@ -1,13 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  esc, parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
+  isNotFriendError, parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
   formatSize, groupByWorkshop, tabFor,
 } from '../public/lib-app.js';
 
-test('esc neutralises markup', () => {
-  assert.equal(esc('<img src=x onerror="a()">&\''), '&lt;img src=x onerror=&quot;a()&quot;&gt;&amp;&#39;');
-  assert.equal(esc(null), '');
+test('isNotFriendError only matches notFriend errors', () => {
+  assert.ok(isNotFriendError({ status: 403, notFriend: true }));
+  assert.ok(!isNotFriendError({ status: 403 }));
+  assert.ok(!isNotFriendError(null));
 });
 
 test('parseRoute: plain, workshop id, unknown and unsafe input', () => {
