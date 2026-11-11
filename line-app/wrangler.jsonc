@@ -26,8 +26,8 @@
     "LIFF_ID": "2012557246-GV0GKhsl",
     // Comma-separated allowlist: Developing, Review and Published channel IDs of the MINI App.
     "LINE_LOGIN_CHANNEL_ID": "2012557246,2012557247,2012557248",
-    // Basic ID of the linked OA (Bot 2023)
-    "OA_BASIC_ID": "@276eafaf",
+    // Basic ID of the OA members are asked to add (production OA)
+    "OA_BASIC_ID": "@355rjzvz",
     "FACEBOOK_URL": "https://www.facebook.com/innow.co.th",
     "REQUIRE_FRIEND": "true",
     // Quote requests are copied server-to-server to the website's contact endpoint (it emails ask@innow.co.th). Empty disables.
