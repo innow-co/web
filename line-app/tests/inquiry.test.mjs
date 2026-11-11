@@ -130,6 +130,7 @@ test('stores a row and forwards once with exactly the JSON the website expects',
   assert.equal(hits[0].url, '/api/contact');
   assert.match(hits[0].headers['content-type'], /^application\/json/);
   assert.equal(hits[0].headers['user-agent'], 'innow-line-worker');
+  assert.equal(hits[0].headers['x-innow-origin'], 'line', 'loop guard so the website does not call the Worker back');
   assert.deepEqual(JSON.parse(hits[0].body), { organization: 'บริษัท ทดสอบ จำกัด', email: 'hr@example.com', course: 'Secure Coding', expectation: 'Bootcamp มุ่งสร้างผลงาน', details: 'บรรทัด 1\nบรรทัด 2', learners: 25, website: '' });
   const out = rows('inq-ok');
   assert.equal(rowCount('inq-ok'), 1);
@@ -298,8 +299,9 @@ test('admin list: 401 without token or with a member token; 200 with admin token
   const iB = list.findIndex((x) => x.organization === 'Org B');
   assert.ok(iA >= 0 && iB >= 0);
   assert.ok(iB < iA, 'newest first');
-  assert.deepEqual(Object.keys(list[iA]).sort(), ['course', 'createdAt', 'details', 'email', 'expectation', 'forwardError', 'forwarded', 'id', 'learners', 'memberName', 'organization']);
+  assert.deepEqual(Object.keys(list[iA]).sort(), ['course', 'createdAt', 'details', 'email', 'expectation', 'forwardError', 'forwarded', 'id', 'learners', 'memberName', 'organization', 'source']);
   assert.equal(list[iA].memberName, 'สมหญิง รักเรียน');
+  assert.equal(list[iA].source, 'line');
   assert.equal(list[iB].memberName, '');
   assert.equal(list[iA].forwarded, true);
   assert.equal(list[iA].learners, 25);

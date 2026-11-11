@@ -18,6 +18,7 @@ npx wrangler d1 migrations apply innow-line --remote
 openssl rand -base64 48            # copy the output, paste it at the next prompt
 npx wrangler secret put SESSION_SECRET
 npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put WEB_INQUIRY_SECRET   # website quote requests, see below
 
 npx wrangler deploy
 ```
@@ -25,6 +26,9 @@ npx wrangler deploy
 - Secrets are typed at the prompt only. Never commit them, never put them in a tracked file.
 - Do NOT run `wrangler secret bulk` with `.dev.vars`: it contains `DEV_FAKE_LINE`, which must never exist in production.
 - Rotating `SESSION_SECRET` logs everyone out (members and admin).
+- `WEB_INQUIRY_SECRET`: generate it with `openssl rand -base64 48`, never commit it. It must equal the website's Vercel env var `LINE_INQUIRY_SECRET`. Without it (or if shorter than 32 chars) the endpoint below answers 503.
+- Website quote requests: the website posts `POST /api/inquiry/web` with `Authorization: Bearer <WEB_INQUIRY_SECRET>` and JSON `{organization, email, course, expectation, details, learners, emailSent}` after it has emailed the request itself. The Worker only stores it (`source = 'web'`) so it shows in the admin tab "คำขอใบเสนอราคา"; it sends no email and has no CORS. A global cap of 120 requests/hour (`WEB_INQUIRY_CAP_PER_HOUR`) limits damage from a leaked secret.
+- Loop guard: the Worker's own forward of LINE quote requests to `INQUIRY_FORWARD_URL` carries `x-innow-origin: line`, so the website's handler must not call `/api/inquiry/web` for those requests (otherwise they would be recorded twice).
 - `wrangler deploy` prints the URL, expected form `https://innow-line.<account-subdomain>.workers.dev`. Use it as the Endpoint URL below.
 
 ## LINE console (test setup)

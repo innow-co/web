@@ -16,6 +16,8 @@ const INQUIRY_WINDOW = 60 * 60 * 1000;     // 1 hour
 const CONSULT_MAX = 3;                     // consultations per member / hour (same 1-hour window, every submission counts)
 const INQUIRY_MAX = 3;                     // quote requests per member / hour (every submission counts)
 const DEFAULT_FORWARD_TIMEOUT = 8000;
+const WEB_INQUIRY_DEFAULT_CAP = 120;       // website quote requests / hour, all callers together (limits a leaked secret)
+const WEB_INQUIRY_MAX_BYTES = 16 * 1024;
 const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
 const ADMIN_MAX_FAILS = 10;                // per IP / 10 min
 const ADMIN_GLOBAL = 'admin:*';
@@ -285,6 +287,35 @@ const member = {
     return json({ ok: true, forwarded: result.ok });
   },
 
+  // Quote request recorded by the marketing website (it already emailed ask@innow.co.th). Server-to-server only:
+  // authenticated by a shared secret, never by a member session or admin token; no CORS, no email, no forwarding.
+  async webInquiry(req, env) {
+    const expected = typeof env.WEB_INQUIRY_SECRET === 'string' ? env.WEB_INQUIRY_SECRET : '';
+    if (expected.length < 32) throw new HttpError(503, 'Service unavailable');
+    const m = /^Bearer (.+)$/.exec(req.headers.get('authorization') ?? '');
+    if (!m || !timingSafeEqualStr(m[1], expected)) throw new HttpError(401, 'Unauthorized');
+    const tooBig = () => new HttpError(413, 'Payload too large');
+    const declared = Number(req.headers.get('content-length'));
+    if (Number.isFinite(declared) && declared > WEB_INQUIRY_MAX_BYTES) throw tooBig();
+    const raw = new Uint8Array(await req.arrayBuffer());
+    if (raw.byteLength > WEB_INQUIRY_MAX_BYTES) throw tooBig();
+    let input;
+    try { input = JSON.parse(new TextDecoder().decode(raw)); } catch { throw new HttpError(400, 'รูปแบบข้อมูลไม่ถูกต้อง'); }
+    const v = validateInquiry(input);
+    if (!v.ok) throw new HttpError(422, 'กรุณาตรวจสอบข้อมูล', { errors: v.errors });
+    const capRaw = Number(env.WEB_INQUIRY_CAP_PER_HOUR);
+    const cap = Number.isSafeInteger(capRaw) && capRaw > 0 ? capRaw : WEB_INQUIRY_DEFAULT_CAP;
+    if ((await reserveAttempt(env, 'inquiry-web', cap, INQUIRY_WINDOW)) === null) throw new HttpError(429, 'Too many requests');
+    const q = v.value;
+    const sent = input.emailSent === true;
+    const ins = await env.DB.prepare(
+      `INSERT INTO inquiries (line_user_id, organization, email, course, expectation, details, learners, forwarded, forward_error, source, created_at)
+       VALUES ('', ?, ?, ?, ?, ?, ?, ?, ?, 'web', ?)`)
+      .bind(q.organization, q.email, q.course, q.expectation, q.details, q.learners, sent ? 1 : 0, sent ? '' : 'email-failed', now()).run();
+    await audit(env, 'web', 'inquiry_web', { id: ins.meta.last_row_id });
+    return json({ ok: true });
+  },
+
   // AI automation consultation. Stored only (no email, no forwarding in this version); the admin page is the review place.
   // line_user_id comes from the verified session, never from the body.
   async consultation(req, env) {
@@ -316,7 +347,7 @@ async function forwardInquiry(env, hostname, q) {
   try {
     const res = await fetch(url.toString(), {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'user-agent': 'innow-line-worker' },
+      headers: { 'content-type': 'application/json', 'user-agent': 'innow-line-worker', 'x-innow-origin': 'line' }, // loop guard: the website must not call the Worker back
       body: JSON.stringify({ organization: q.organization, email: q.email, course: q.course, expectation: q.expectation, details: q.details, learners: q.learners, website: '' }),
       signal: AbortSignal.timeout(timeout),
       redirect: 'manual', // never re-POST the lead body to a host the redirect names
@@ -594,7 +625,7 @@ const admin = {
     return json({ inquiries: results.map((q) => ({
       id: q.id, createdAt: q.created_at, organization: q.organization, email: q.email, course: q.course, expectation: q.expectation,
       details: q.details, learners: q.learners, memberName: q.first_name ? `${q.first_name} ${q.last_name}`.trim() : '',
-      forwarded: !!q.forwarded, forwardError: q.forward_error,
+      forwarded: !!q.forwarded, forwardError: q.forward_error, source: q.source === 'web' ? 'web' : 'line',
     })) });
   },
 
@@ -633,6 +664,7 @@ async function route(req, env) {
   if (p === '/api/auth' && M === 'POST') return member.auth(req, env);
   if (p === '/api/me' && M === 'GET') return member.me(req, env);
   if (p === '/api/inquiry' && M === 'POST') return member.inquiry(req, env);
+  if (p === '/api/inquiry/web' && M === 'POST') return member.webInquiry(req, env);
   if (p === '/api/consultation' && M === 'POST') return member.consultation(req, env);
   if (p === '/api/redeem' && M === 'POST') return member.redeem(req, env);
   if (p === '/api/register' && M === 'POST') return member.register(req, env);
