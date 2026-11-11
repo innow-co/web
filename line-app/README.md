@@ -31,7 +31,7 @@ npx wrangler deploy
 
 1. LINE Developers console, provider "Bot 2023", MINI App channel "Innow Test": `/console/channel/2012557246/mini-liff`.
 2. Developing channel: set the Endpoint URL to the deployed Worker URL (https, no trailing path).
-3. Confirm the linked OA is "Bot 2023" (@276eafaf). Under the MINI App settings turn on the "Add friend" option so members are prompted to add the OA.
+3. Confirm the linked OA is "Bot 2023" (@276eafaf). Turn on the "Add friend" option so members are prompted to add the OA (verify in the console where this setting lives).
 4. Roles: add every person who will test as a Tester (in Developing mode only testers can open the app).
 5. Open `https://miniapp.line.me/2012557246-GV0GKhsl` from LINE on a phone. Deep links: `...?p=workshops|redeem|prompts|contact`.
 
@@ -44,19 +44,22 @@ and `OA_BASIC_ID` in `wrangler.jsonc` with the production Innow values and redep
 Run by the OWNER in their own terminal (the channel access token must not be pasted into chat or files).
 The token is Messaging API > Channel access token of the OA, and is only sent to api.line.me.
 
+Typing the token inline (`LINE_CHANNEL_ACCESS_TOKEN=... node ...`) stores it in shell history. Read it silently instead
+(or start the line with a space if `HISTCONTROL=ignorespace`), and unset it afterwards:
+
 ```sh
 cd line-app
-LINE_CHANNEL_ACCESS_TOKEN=... LIFF_ID=2012557246-GV0GKhsl OA_BASIC_ID=@276eafaf node richmenu/create.mjs --dry-run   # no network
-LINE_CHANNEL_ACCESS_TOKEN=... LIFF_ID=2012557246-GV0GKhsl OA_BASIC_ID=@276eafaf node richmenu/create.mjs --confirm
+read -rs LINE_CHANNEL_ACCESS_TOKEN && export LINE_CHANNEL_ACCESS_TOKEN
+export LIFF_ID=2012557246-GV0GKhsl OA_BASIC_ID=@276eafaf
+node richmenu/create.mjs --dry-run                                            # no network
+node richmenu/create.mjs --confirm --user U0123456789abcdef0123456789abcdef   # test OA first: one user only
+node richmenu/create.mjs --confirm                                            # default menu for ALL friends
+unset LINE_CHANNEL_ACCESS_TOKEN
 ```
 
-WARNING: `--confirm` sets the menu as the DEFAULT for every friend of the OA. Use the test OA first.
-
-To show the menu to one person only, link it to that user instead of setting the default:
-
-```sh
-... node richmenu/create.mjs --confirm --user U0123456789abcdef0123456789abcdef
-```
+WARNING: `--confirm` without `--user` sets the menu as the DEFAULT for every friend of the OA. Use `--user <LINE user id>`
+first on the test OA. The script accepts only `--dry-run`, `--confirm` and `--user <id>` (separate argument); `--user=<id>`
+and any unknown flag are rejected before any network call.
 
 (`POST /v2/bot/user/{userId}/richmenu/{richMenuId}`; the user id is `U` + 32 hex characters.)
 On failure the script deletes the menu it just created. Buttons 1, 2, 3, 6 open `https://miniapp.line.me/<liffId>?p=...`.
