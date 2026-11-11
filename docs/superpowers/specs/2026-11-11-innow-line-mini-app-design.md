@@ -48,7 +48,7 @@ Made by the owner:
 
 My calls (owner can override):
 
-- Codes are per workshop, 5 minutes by default, adjustable at issue time (1 minute to 24 hours). Issuing a new code revokes the previous active code for that workshop.
+- Codes are per workshop, adjustable at issue time (1 minute to 90 days, or never expires; see 'Code lifetime option' at the end, which supersedes the original 5-minute/24-hour design). The admin UI preselects 3 months; the API fallback is 5 minutes. Issuing a new code revokes the previous active code for that workshop.
 - Wrong codes are limited to 5 per 10 minutes per LINE user, enforced on the server. Admin login is limited to 10 failures per 10 minutes per IP.
 - The admin password is stored as a Worker secret, never in the repository. The one the owner chose is weak for something guarding student personal data; I recommend changing it after launch.
 - Someone who is a friend of the OA but has no workshop yet sees an empty Workshop Library with a button to enter a code.
@@ -96,8 +96,8 @@ My calls for option 2 (owner can override):
 
 ## Code lifetime option: never expires (added 2026-11-11, owner request)
 
-Besides 1 minute to 24 hours, the admin can issue a 4-digit code that never expires ("ไม่หมดอายุ"). Owner's decision; it deliberately trades away the short-lifetime protection, so:
-- It is an explicit choice in the admin lifetime select with a short warning ("ใครได้รับรหัสสามารถรับสิทธิ์ได้ตลอด ควรยกเลิกเมื่อไม่ใช้แล้ว"). The default stays 5 minutes.
+The admin can issue a 4-digit code lasting from 1 minute up to 90 days (the select offers presets including 1 month = 30 days and 3 months = 90 days, owner request), or one that never expires ("ไม่หมดอายุ"). The admin UI preselects **3 months** (owner decision); the API fallback for a missing or invalid `minutes` stays 5 minutes (fail-safe short). Long lifetimes are the owner's decision; they deliberately trade away the short-lifetime protection, so:
+- It is an explicit choice in the admin lifetime select with a short warning ("ใครได้รับรหัสสามารถรับสิทธิ์ได้ตลอด ควรยกเลิกเมื่อไม่ใช้แล้ว"). A milder warning shows for the long presets (1 month and longer), including the 3-month default.
 - Stored with a sentinel expiry of 9999-12-31T23:59:59.999Z (253402300799000 ms) so every existing "expires_at > now" check keeps working; the API reports `neverExpires: true` and `expiresAt: null`.
 - Everything else is unchanged: issuing a new code for the workshop revokes the previous active one (including a never-expiring one), admin can revoke it at any time, the per-user limit (5 wrong codes / 10 min) still applies, wrong/expired/revoked codes still give the same generic message, collisions among active codes are still avoided.
 - The admin code screen shows "ไม่หมดอายุ" instead of a countdown, and the audit log records `never: true`.

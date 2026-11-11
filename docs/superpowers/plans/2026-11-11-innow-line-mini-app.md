@@ -17,7 +17,7 @@ A first draft already exists, written before the plan was approved, and is **unt
 ## Global Constraints
 
 - Brand: fonts Anuphan (display) and IBM Plex Sans Thai (reading); navy `#082955`, blue `#014799`; Thai UI copy, sentence case.
-- Code is 4 digits `^\d{4}$`, per workshop, default 5 minutes (admin range 1 minute to 24 hours); issuing a code revokes the workshop's previous active code.
+- Code is 4 digits `^\d{4}$`, per workshop, API fallback 5 minutes, admin UI preselects 3 months, admin range 1 minute to 90 days or never expires (superseded 2026-11-11, see the spec's 'Code lifetime option'); issuing a code revokes the workshop's previous active code.
 - Wrong codes: 5 failures per 10 minutes per LINE user. Admin login: 10 failures per 10 minutes per IP.
 - Wrong, expired and revoked codes give the same message; lockout has its own message.
 - Learner session: bearer token, 7 days, no cookies. Admin session: 12 hours. Signed file link: 5 minutes.
