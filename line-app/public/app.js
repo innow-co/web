@@ -2,7 +2,7 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply, hasCopyAction,
 } from './lib-app.js';
 import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
@@ -353,11 +353,11 @@ async function openFile(item, btn) {
 function itemCard(it, showWorkshop = false) {
   const meta = [it.category, it.hasFile ? [it.fileName, formatSize(it.size)].filter(Boolean).join(' · ') : ''].filter(Boolean);
   const actions = [];
-  if (it.kind === 'prompt') {
+  if (hasCopyAction(it)) {
     const copy = h('button', { class: 'btn small', type: 'button' }, icon('copy', 'ico sm'), 'คัดลอก');
     copy.addEventListener('click', async () => {
       const ok = await copyText(it.body || '');
-      toast(ok ? 'คัดลอก Prompt แล้ว' : 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก');
+      toast(ok ? 'คัดลอกแล้ว' : 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ข้อความเพื่อคัดลอก');
       if (ok) { copy.lastChild.textContent = 'คัดลอกแล้ว'; setTimeout(() => { copy.lastChild.textContent = 'คัดลอก'; }, 1800); }
     });
     actions.push(copy);
@@ -376,7 +376,7 @@ function itemCard(it, showWorkshop = false) {
     meta.length ? h('div', { class: 'meta' }, meta.map((m, i) => (i === 0 && it.category ? h('span', { class: 'chip', text: m }) : h('span', { text: (i ? ' ' : '') + m })))) : null,
     it.kind === 'prompt'
       ? (it.body ? h('pre', { class: 'prompt', tabindex: '0', text: it.body }) : null)
-      : (it.body ? h('p', { text: it.body }) : null),
+      : (it.body ? h('p', { class: 'item-body', text: it.body }) : null),
     actions.length ? h('div', { class: 'row' }, actions) : null);
 }
 

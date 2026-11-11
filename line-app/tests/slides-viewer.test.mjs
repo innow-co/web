@@ -147,3 +147,13 @@ test('without a promise (old webkit) success is verified, not assumed', () => {
   assert.ok(!/!\(r && typeof r\.then === 'function'\)/.test(fn), 'no success assumed for a non-promise result');
   assert.match(fn, /fullscreenchange/);
 });
+
+test('itemCard: one shared copy button for prompt and bonus, bonus body keeps line breaks via a CSS class', () => {
+  const fn = app.slice(app.indexOf('function itemCard('), app.indexOf('// ---------- Google Slides viewer'));
+  assert.match(fn, /if\s*\(\s*hasCopyAction\(\s*it\s*\)\s*\)/);
+  assert.equal((fn.match(/icon\('copy'/g) || []).length, 1, 'copy button is built once');
+  assert.match(fn, /toast\(ok \? 'คัดลอกแล้ว'/);
+  assert.match(fn, /h\('p',\s*\{\s*class:\s*'item-body'/);
+  assert.match(css, /\.item p\.item-body\s*\{[^}]*white-space:\s*pre-line[^}]*overflow-wrap:\s*anywhere|\.item p\.item-body\s*\{[^}]*overflow-wrap:\s*anywhere[^}]*white-space:\s*pre-line/);
+  assert.match(fn, /it\.kind === 'prompt'\s*\?\s*\(it\.body \? h\('pre'/, 'prompt <pre> unchanged');
+});

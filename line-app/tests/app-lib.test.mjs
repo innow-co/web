@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   isNotFriendError, parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply,
+  formatSize, groupByWorkshop, tabFor, canCallLiffLogin, googleSlidesInfo, slidesCardState, slidesCanEnter, slidesCanApply, hasCopyAction,
 } from '../public/lib-app.js';
 
 test('isNotFriendError only matches notFriend errors', () => {
@@ -240,4 +240,15 @@ test('slidesCanApply: a late timeout or promise on a released or detached card h
   assert.equal(slidesCanApply({ destroyed: true, connected: true }), false);
   assert.equal(slidesCanApply({ destroyed: false, connected: false }), false);
   assert.equal(slidesCanApply({}), false);
+});
+
+test('hasCopyAction: prompts always, bonus only with a non-blank body, other kinds never', () => {
+  assert.equal(hasCopyAction({ kind: 'prompt', body: 'x' }), true);
+  assert.equal(hasCopyAction({ kind: 'prompt', body: '' }), true, 'prompt behaviour unchanged');
+  assert.equal(hasCopyAction({ kind: 'bonus', body: '/sales:call-prep\n\nช่วยเตรียมคำถาม 5 ข้อ' }), true);
+  assert.equal(hasCopyAction({ kind: 'bonus', body: '' }), false);
+  assert.equal(hasCopyAction({ kind: 'bonus', body: '  \n ' }), false);
+  assert.equal(hasCopyAction({ kind: 'bonus' }), false);
+  assert.equal(hasCopyAction({ kind: 'slide', body: 'x' }), false);
+  assert.equal(hasCopyAction(null), false);
 });

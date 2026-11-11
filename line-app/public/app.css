@@ -198,3 +198,4 @@ h1:focus { outline: none; }
 .slides-frame:-webkit-full-screen { max-width: none; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; margin: 0; }
 body.slides-lock { overflow: hidden; }
 .slides-card .row .btn.small { flex: 1 1 140px; }
+.item p.item-body { white-space: pre-line; overflow-wrap: anywhere; }

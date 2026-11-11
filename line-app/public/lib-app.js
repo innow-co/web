@@ -142,3 +142,6 @@ export function slidesCardState(state, event, { native = false } = {}) {
 export const slidesCanEnter = ({ pending = false, destroyed = false, state = 'poster' } = {}) =>
   !pending && !destroyed && state !== 'native' && state !== 'overlay';
 export const slidesCanApply = ({ destroyed = false, connected = false } = {}) => !destroyed && connected === true;
+
+// Items with text worth copying: every prompt, and a bonus that carries a body (e.g. a command plus its prompt).
+export const hasCopyAction = (item) => !!item && (item.kind === 'prompt' || (item.kind === 'bonus' && String(item.body ?? '').trim() !== ''));
