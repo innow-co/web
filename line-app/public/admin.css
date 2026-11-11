@@ -76,6 +76,7 @@ select.sel { width: auto; }
 .chip.ok { background: #e3f6ee; color: var(--green); }
 .chip.bad { background: #fdebee; color: var(--red); white-space: normal; }
 td.nowrap { white-space: nowrap; }
+.chip.src-web { background: #efe9fb; color: #5b3fa0; }
 .chip.warn { background: #fff4dd; color: var(--amber); }
 .meta { font-size: 13px; color: var(--muted); }
 .empty { text-align: center; color: var(--muted); padding: 28px 10px; font-size: 15px; }

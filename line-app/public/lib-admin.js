@@ -116,6 +116,14 @@ export const forwardBadge = (q) => (q?.forwarded
   ? { text: 'ส่งอีเมลแล้ว', ok: true }
   : { text: 'ส่งอีเมลไม่สำเร็จ' + (q?.forwardError ? ': ' + q.forwardError : ''), ok: false });
 
+// Where a quote request came from: the LINE app (default) or the marketing website.
+export const sourceLabel = (q) => (q?.source === 'web' ? { text: 'เว็บไซต์', cls: 'web' } : { text: 'LINE', cls: 'line' });
+
+// Web rows are emailed by the website itself, so the status is about that email; LINE rows keep the forward wording.
+export const emailStatusLabel = (q) => (q?.source === 'web'
+  ? (q.forwarded ? { text: 'ส่งอีเมลแล้ว', ok: true } : { text: 'ส่งอีเมลไม่สำเร็จ', ok: false })
+  : forwardBadge(q));
+
 // AI consultation list (read-only). Team size is optional: anything that is not a positive whole number shows as '-'.
 export const teamSizeLabel = (n) => (Number.isSafeInteger(n) && n >= 1 ? String(n) : '-');
 

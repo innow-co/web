@@ -3,7 +3,7 @@
 import {
   clockOffset, remainingMs, formatCountdown, formatCode, formatSize, isHttps, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType,
   isNever, lifetimeWarning, LIFETIME_OPTIONS, DEFAULT_LIFETIME_MINUTES,
-  actionLabel, csvFilename, prettyDetail, kindLabel, mailtoHref, forwardBadge, consultationRow,
+  actionLabel, csvFilename, prettyDetail, kindLabel, mailtoHref, sourceLabel, emailStatusLabel, consultationRow,
 } from './lib-admin.js';
 
 const TOKEN_KEY = 'innow_admin_token';
@@ -736,7 +736,8 @@ async function inquiriesView() {
   const { inquiries } = await api('/inquiries');
   const rows = inquiries.map((q) => {
     const href = mailtoHref(q.email);
-    const badge = forwardBadge(q);
+    const badge = emailStatusLabel(q);
+    const src = sourceLabel(q);
     return h('tr', {},
       h('td', { class: 'nowrap' }, fmtDate(q.createdAt)),
       h('td', {}, q.organization),
@@ -745,15 +746,16 @@ async function inquiriesView() {
       h('td', {}, q.expectation),
       h('td', { class: 'num' }, q.learners),
       h('td', {}, q.details ? h('details', {}, h('summary', {}, 'ดูรายละเอียด'), h('pre', { class: 'detail' }, q.details)) : '-'),
-      h('td', {}, q.memberName || '-'),
+      h('td', {}, h('span', { class: 'chip src-' + src.cls }, src.text)),
+      h('td', {}, q.source === 'web' ? '-' : q.memberName || '-'),
       h('td', {}, h('span', { class: 'chip' + (badge.ok ? ' ok' : ' bad') }, badge.text)));
   });
   return {
     nodes: [
       h('div', { class: 'toolbar' }, h('h1', {}, 'คำขอใบเสนอราคา'), h('button', { type: 'button', class: 'btn ghost', onclick: route }, 'รีเฟรช')),
-      h('p', { class: 'lead' }, 'คำขอที่ผู้เรียนส่งจากเมนู "ติดต่อเรา" แสดง 200 รายการล่าสุด (อ่านอย่างเดียว)'),
+      h('p', { class: 'lead' }, 'คำขอที่ส่งจากเมนู "ติดต่อเรา" ในแอป LINE และจากเว็บไซต์ แสดง 200 รายการล่าสุด (อ่านอย่างเดียว)'),
       inquiries.length
-        ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['เวลา', 'องค์กร', 'อีเมล', 'หลักสูตร', 'รูปแบบ', 'ผู้เรียน', 'รายละเอียด', 'ผู้ส่ง', 'สถานะอีเมล'].map((c) => h('th', {}, c)))), h('tbody', {}, rows)))
+        ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['เวลา', 'องค์กร', 'อีเมล', 'หลักสูตร', 'รูปแบบ', 'ผู้เรียน', 'รายละเอียด', 'ที่มา', 'ผู้ส่ง', 'สถานะอีเมล'].map((c) => h('th', {}, c)))), h('tbody', {}, rows)))
         : h('div', { class: 'empty card' }, 'ยังไม่มีคำขอใบเสนอราคา'),
     ],
   };

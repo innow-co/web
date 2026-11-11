@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   clockOffset, serverTime, remainingMs, formatCountdown, formatCode, formatSize, isHttps,
-  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType, mailtoHref, forwardBadge, teamSizeLabel, consultationRow,
+  actionLabel, csvFilename, prettyDetail, kindLabel, MAX_UPLOAD_BYTES, exceedsUpload, tooBigMessage, canPreviewType, baseType, mailtoHref, forwardBadge, teamSizeLabel, consultationRow, sourceLabel, emailStatusLabel,
 } from '../public/lib-admin.js';
 
 test('server clock offset beats a wrong browser clock', () => {
@@ -126,6 +126,20 @@ test('forwardBadge text', () => {
   assert.deepEqual(forwardBadge({ forwarded: true, forwardError: '' }), { text: 'ส่งอีเมลแล้ว', ok: true });
   assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '500' }), { text: 'ส่งอีเมลไม่สำเร็จ: 500', ok: false });
   assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '' }), { text: 'ส่งอีเมลไม่สำเร็จ', ok: false });
+});
+
+test('sourceLabel: web rows are the website, everything else is LINE', () => {
+  assert.deepEqual(sourceLabel({ source: 'web' }), { text: 'เว็บไซต์', cls: 'web' });
+  assert.deepEqual(sourceLabel({ source: 'line' }), { text: 'LINE', cls: 'line' });
+  assert.deepEqual(sourceLabel({}), { text: 'LINE', cls: 'line' });
+  assert.deepEqual(sourceLabel(null), { text: 'LINE', cls: 'line' });
+});
+
+test('emailStatusLabel: web rows say the email was sent or failed, LINE rows keep the forward wording', () => {
+  assert.deepEqual(emailStatusLabel({ source: 'web', forwarded: true, forwardError: '' }), { text: 'ส่งอีเมลแล้ว', ok: true });
+  assert.deepEqual(emailStatusLabel({ source: 'web', forwarded: false, forwardError: 'email-failed' }), { text: 'ส่งอีเมลไม่สำเร็จ', ok: false });
+  assert.deepEqual(emailStatusLabel({ source: 'line', forwarded: false, forwardError: '500' }), { text: 'ส่งอีเมลไม่สำเร็จ: 500', ok: false });
+  assert.deepEqual(emailStatusLabel({ forwarded: true }), { text: 'ส่งอีเมลแล้ว', ok: true });
 });
 
 test('isNever: flag or null/absent expiry means never expires; ordinary values do not', async () => {
