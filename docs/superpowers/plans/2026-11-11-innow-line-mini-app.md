@@ -21,7 +21,7 @@ A first draft already exists, written before the plan was approved, and is **unt
 - Wrong codes: 5 failures per 10 minutes per LINE user. Admin login: 10 failures per 10 minutes per IP.
 - Wrong, expired and revoked codes give the same message; lockout has its own message.
 - Learner session: bearer token, 7 days, no cookies. Admin session: 12 hours. Signed file link: 5 minutes.
-- Upload limit 95 MB through the Worker; larger material is an `https://` link item.
+- Upload limit 40 MB through the Worker; larger material is an `https://` link item.
 - `ADMIN_PASSWORD` (value supplied by the owner in chat; set it with `wrangler secret put`, never write it to a file) and `SESSION_SECRET` (random, 32+ chars) are Worker secrets, never committed. `.dev.vars` is git-ignored.
 - Email stored unverified; marketing consent is a separate unticked checkbox.
 - Rich menu: 2500 x 1686, 3 x 2, buttons Workshop, รับสิทธิ์, Prompt Library, Bonus, ข่าวสาร (https://www.facebook.com/innow.co.th), ติดต่อเรา (opens OA chat).
@@ -97,7 +97,7 @@ A first draft already exists, written before the plan was approved, and is **unt
 **Interfaces:**
 - Consumes: Task 2 helpers; local R2 (wrangler simulates it, no account R2 needed for tests).
 
-- [ ] **Step 1: Write failing tests:** admin uploads a small PDF as a slide via multipart; enrolled learner `POST /api/items/:id/link` returns a URL; `GET` that URL returns the same bytes with `content-disposition` and `cache-control: private, no-store`; the URL with a changed `t` or a token for another item returns 403; a token issued with `ttl` past (use `signToken` with an old `now` in the test) returns 403; replacing the file deletes the old R2 object; upload over 95 MB returns 413 (use a 96 MB stream); file name with quotes or newlines is sanitised in the header.
+- [ ] **Step 1: Write failing tests:** admin uploads a small PDF as a slide via multipart; enrolled learner `POST /api/items/:id/link` returns a URL; `GET` that URL returns the same bytes with `content-disposition` and `cache-control: private, no-store`; the URL with a changed `t` or a token for another item returns 403; a token issued with `ttl` past (use `signToken` with an old `now` in the test) returns 403; replacing the file deletes the old R2 object; upload over 40 MB returns 413 (use a 96 MB stream); file name with quotes or newlines is sanitised in the header.
 - [ ] **Step 2: Run, fix, re-run** until PASS.
 - [ ] **Step 3: Commit** `test: R2 upload and signed links`.
 

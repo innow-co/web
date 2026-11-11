@@ -75,6 +75,6 @@ Visual details of the learner app and admin page (Innow brand: Anuphan, IBM Plex
 - Wrong, expired and revoked codes share one message (so a guesser learns nothing); the 5-per-10-minutes lockout shows its own message.
 - Learner session is a bearer token (7 days) from `liff.getAccessToken()`, verified against LINE on every login. No cookies.
 - One Worker, one D1 database, one R2 bucket. The `*.workers.dev` URL is the LIFF endpoint for now; dev and production OAs differ only by the Worker vars (LIFF ID, channel ID, OA ID). A custom domain can be added later without code changes.
-- Uploads go through the Worker, max 95 MB per file. Larger material is attached as an https link.
+- Uploads go through the Worker, max 40 MB per file. Larger material is attached as an https link.
 - The privacy notice text is written by me and shown in the app; the owner or a lawyer should review it before launch. Admin can export members as CSV and remove a learner's enrollment.
 - Learner app is plain HTML/CSS/JS with the LIFF SDK. No build step.
