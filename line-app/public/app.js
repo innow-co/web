@@ -8,6 +8,7 @@ import {
   STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
   stepNumber, summaryRows, buildPayload, firstFailingStep, parseDraft,
 } from './lib-wizard.js';
+import * as consult from './lib-consult.js';
 
 const $ = (id) => document.getElementById(id);
 const view = $('view');
@@ -60,6 +61,7 @@ const ICONS = {
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
   doc: '<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M9.5 12h5M9.5 15.5h5"/>',
+  spark: '<path d="M11 3.5l1.9 5.6 5.6 1.9-5.6 1.9L11 18.5l-1.9-5.6L3.5 11l5.6-1.9z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
   chat: '<path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z"/><path d="M8 10h8M8 13h5"/>',
   plus: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
 };
@@ -416,12 +418,12 @@ function choiceCard(iconName, title, sub, props) {
     icon('chevron', 'ico sm chev'));
 }
 
-function wzProgress(n, label) {
+function wzProgress(n, label, total = STEPS.length) {
   const bar = h('span');
-  bar.style.width = Math.round((n / STEPS.length) * 100) + '%';
+  bar.style.width = Math.round((n / total) * 100) + '%';
   return h('div', { class: 'wz-top' },
     h('p', { class: 'wz-count', text: label }),
-    h('div', { class: 'wz-bar', role: 'progressbar', 'aria-label': 'ความคืบหน้า', 'aria-valuemin': '1', 'aria-valuemax': String(STEPS.length), 'aria-valuenow': String(n) }, bar));
+    h('div', { class: 'wz-bar', role: 'progressbar', 'aria-label': 'ความคืบหน้า', 'aria-valuemin': '1', 'aria-valuemax': String(total), 'aria-valuenow': String(n) }, bar));
 }
 
 function wizardStep(w) {
@@ -569,6 +571,155 @@ function mountWizardDone(w, forwarded) {
 
 function renderWizard(w) {
   const s = wizardStep(w);
+  mountWith(s.focus, s.title, ...s.nodes);
+}
+
+// ---------- Contact: AI automation consultation wizard ----------
+// Same conventions as the quote wizard, own draft key (consult.DRAFT_KEY), own pure logic (lib-consult.js).
+
+function readConsultDraft(prefill) {
+  try {
+    const raw = sessionStorage.getItem(consult.DRAFT_KEY);
+    const d = raw ? consult.parseDraft(raw, prefill) : null;
+    return d ? { ...d, open: JSON.parse(raw).open === true } : null;
+  } catch { return null; }
+}
+function writeConsultDraft(w) {
+  try { sessionStorage.setItem(consult.DRAFT_KEY, JSON.stringify({ step: w.step, answers: w.answers, open: w.open })); } catch { /* storage blocked */ }
+}
+function clearConsultDraft() { try { sessionStorage.removeItem(consult.DRAFT_KEY); } catch { /* ignore */ } }
+
+function consultDraftHasContent(w, prefill) {
+  const a = w.answers;
+  return !!(a.organization || a.systems || a.goals || a.teamSize || (a.email && a.email !== prefill));
+}
+
+const CONSULT_HINTS = {
+  organization: 'ชื่อบริษัทหรือหน่วยงานของคุณ',
+  systems: 'เช่น Excel, Google Workspace, LINE OA, ระบบบัญชี/ERP, เว็บไซต์ เล่าคร่าวๆ ได้เลย',
+  goals: 'เช่น สรุปรายงานประจำวัน ตอบแชตลูกค้าเบื้องต้น คัดแยกเอกสาร เล่าคร่าวๆ ได้เลย',
+  teamSize: 'ไม่บังคับ ข้ามได้ถ้ายังไม่แน่ใจ',
+  email: 'เราจะใช้อีเมลนี้ติดต่อกลับเรื่องการปรึกษา',
+};
+
+function consultStep(w) {
+  const id = w.step;
+  if (id === 'summary') return consultSummary(w);
+  const step = consult.STEPS.find((x) => x.id === id);
+  const errBox = h('div', { class: 'e', id: 'wz-err', role: 'alert', text: w.errors[id] || '' });
+  const qid = 'wz-q';
+  const common = { id: 'wz-f', 'aria-labelledby': qid, 'aria-describedby': 'wz-hint wz-err', value: w.answers[id] };
+  const multiline = id === 'systems' || id === 'goals';
+  const field = multiline
+    ? h('textarea', { ...common, rows: '6' })
+    : h('input', { ...common, ...({
+      organization: { type: 'text', autocomplete: 'organization', enterkeyhint: 'next' },
+      teamSize: { type: 'text', inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', enterkeyhint: 'next' },
+      email: { type: 'email', inputmode: 'email', autocomplete: 'email', enterkeyhint: 'next' },
+    }[id]) });
+  const clearErr = () => { errBox.textContent = ''; field.removeAttribute('aria-invalid'); delete w.errors[id]; };
+  field.addEventListener('input', () => { w.answers[id] = field.value; writeConsultDraft(w); clearErr(); });
+  if (w.errors[id]) field.setAttribute('aria-invalid', 'true');
+
+  const goNext = () => {
+    w.errors = {};
+    w.step = w.editing ? 'summary' : consult.nextStep(id);
+    w.editing = false;
+    writeConsultDraft(w);
+    renderConsult(w);
+  };
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    w.answers[id] = multiline ? field.value : field.value.trim();
+    const r = consult.validateStep(id, w.answers);
+    if (!r.ok) {
+      errBox.textContent = r.error;
+      field.setAttribute('aria-invalid', 'true');
+      field.focus();
+      return;
+    }
+    goNext();
+  };
+  const goBack = () => {
+    const p = w.editing ? 'summary' : consult.prevStep(id);
+    if (!p) { w.open = false; writeConsultDraft(w); return go({ name: 'contact' }, { replace: true }); }
+    w.editing = false;
+    w.step = p;
+    writeConsultDraft(w);
+    renderConsult(w);
+  };
+  const skip = () => { w.answers[id] = ''; goNext(); };
+
+  const total = consult.STEPS.length;
+  const form = h('form', { class: 'card wz', novalidate: true, onsubmit: onSubmit },
+    wzProgress(consult.stepNumber(id), `ข้อ ${consult.stepNumber(id)} จาก ${total}`, total),
+    h('h1', { id: qid, text: step.question + (step.required ? '' : ' (ไม่บังคับ)') }),
+    h('p', { class: 'lead', id: 'wz-hint', text: CONSULT_HINTS[id] }),
+    field, errBox,
+    h('div', { class: 'wz-actions' },
+      h('button', { class: 'btn ghost', type: 'button', onclick: goBack, text: 'ย้อนกลับ' }),
+      step.required ? null : h('button', { class: 'btn ghost', type: 'button', onclick: skip, text: 'ข้าม' }),
+      h('button', { class: 'btn', type: 'submit', text: 'ถัดไป' })));
+  return { focus: field, title: 'ปรึกษา AI Automation', nodes: [form] };
+}
+
+function consultSummary(w) {
+  const SEND = 'ส่งเรื่องปรึกษา';
+  const formErr = h('div', { class: 'err', id: 'wz-form-err', role: 'alert', text: w.formError || '' });
+  const submit = h('button', { class: 'btn wide', type: 'submit', text: w.retry ? 'ลองส่งอีกครั้ง' : SEND, 'aria-describedby': 'wz-form-err' });
+  const rows = consult.summaryRows(w.answers).map((r) => h('div', { class: 'wz-row' },
+    h('div', { class: 'grow' }, h('div', { class: 'wz-k', text: r.label }), h('div', { class: 'wz-v', text: r.value })),
+    h('button', { class: 'linkbtn', type: 'button', 'aria-label': `แก้ไข ${r.label}`, onclick: () => { w.step = r.step; w.editing = true; writeConsultDraft(w); renderConsult(w); }, text: 'แก้ไข' })));
+  const onSubmit = async (ev) => {
+    ev.preventDefault();
+    if (w.busy) return; // no double submit: set synchronously, before the first await
+    w.busy = true;
+    setBusy(submit, true);
+    formErr.textContent = '';
+    try {
+      await api('/api/consultation', { method: 'POST', body: consult.buildPayload(w.answers) });
+      clearConsultDraft();
+      if (renderSeq !== w.seq) return;
+      return mountConsultDone();
+    } catch (e) {
+      if (renderSeq !== w.seq) return;
+      if (e.notFriend) return renderGate();
+      if (e.status === 422 && e.errors) {
+        const first = consult.firstFailingStep(e.errors);
+        if (first) { w.errors = e.errors; w.step = first; w.editing = true; w.formError = ''; writeConsultDraft(w); return renderConsult(w); }
+      }
+      w.retry = !!e.offline;
+      formErr.textContent = e.message || MSG.generic; // 429 shows the server's message
+      submit.textContent = w.retry ? 'ลองส่งอีกครั้ง' : SEND;
+      submit.focus();
+    } finally {
+      w.busy = false;
+      setBusy(submit, false);
+    }
+  };
+  const total = consult.STEPS.length;
+  const form = h('form', { class: 'card wz', novalidate: true, onsubmit: onSubmit },
+    wzProgress(total, 'ตรวจสอบข้อมูลก่อนส่ง', total),
+    h('h1', { text: 'ตรวจสอบข้อมูลของคุณ' }),
+    h('p', { class: 'lead', text: 'ถ้าต้องการแก้ข้อมูล แตะ “แก้ไข” ที่ข้อนั้น' }),
+    h('div', { class: 'wz-rows' }, rows),
+    formErr,
+    h('div', { class: 'wz-actions' },
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => { w.step = consult.prevStep('summary'); w.editing = false; w.formError = ''; writeConsultDraft(w); renderConsult(w); }, text: 'ย้อนกลับ' }),
+      submit));
+  return { focus: null, title: 'ตรวจสอบข้อมูล', nodes: [form] };
+}
+
+function mountConsultDone() {
+  mount('ส่งเรื่องปรึกษาแล้ว', h('div', { class: 'success' },
+    icon('check', 'ico big'),
+    h('h1', { text: 'ส่งเรื่องปรึกษาแล้ว' }),
+    h('p', { class: 'lead', text: 'ทีมงานจะตรวจสอบข้อมูลของคุณและติดต่อกลับ' }),
+    h('div', { class: 'stack' }, h('button', { class: 'btn', type: 'button', onclick: () => go('home'), text: 'กลับหน้าหลัก' }))));
+}
+
+function renderConsult(w) {
+  const s = consultStep(w);
   mountWith(s.focus, s.title, ...s.nodes);
 }
 
@@ -842,8 +993,15 @@ const screens = {
       const s = wizardStep(w);
       return s;
     }
+    const csaved = readConsultDraft(prefill);
+    const cw = { step: csaved?.step || 'organization', answers: csaved?.answers || consult.emptyAnswers(prefill), errors: {}, editing: false, busy: false, formError: '', retry: false, open: false, seq };
+    if (csaved?.open) {
+      cw.open = true;
+      return consultStep(cw);
+    }
     const chatUrl = oaMessageUrl(state.config?.oaBasicId, OA_CHAT_TEXT);
     const resume = saved && draftHasContent(w, prefill);
+    const cresume = csaved && consultDraftHasContent(cw, prefill);
     return {
       title: 'ติดต่อเรา',
       nodes: [
@@ -855,7 +1013,10 @@ const screens = {
           }),
           chatUrl
             ? choiceCard('chat', 'สอบถามบทเรียนที่เรียนไปแล้ว', 'เปิดแชตกับทีมงาน Innow ใน LINE', { href: chatUrl, target: '_blank', rel: 'noopener noreferrer', onclick: (ev) => openOaChat(ev, chatUrl) })
-            : choiceCard('chat', 'สอบถามบทเรียนที่เรียนไปแล้ว', 'ยังไม่สามารถเปิดแชตได้', { disabled: true, 'aria-disabled': 'true' })),
+            : choiceCard('chat', 'สอบถามบทเรียนที่เรียนไปแล้ว', 'ยังไม่สามารถเปิดแชตได้', { disabled: true, 'aria-disabled': 'true' }),
+          choiceCard('spark', 'ปรึกษาการ Setup AI ทำ Automation ให้ระบบของคุณ', cresume ? 'มีข้อมูลที่กรอกค้างไว้ แตะเพื่อกรอกต่อ' : 'เล่าระบบที่ใช้อยู่ แล้วทีมงานจะช่วยดูว่า AI ทำงานแทนส่วนไหนได้', {
+            onclick: () => { cw.open = true; writeConsultDraft(cw); renderConsult(cw); },
+          })),
       ],
     };
   },
