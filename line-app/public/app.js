@@ -2,8 +2,12 @@
 // All server-provided text is rendered with textContent (never innerHTML) to avoid stored XSS.
 import {
   parseRoute, routeUrl, addFriendUrl, isHttps, spreadDigits, codeString, codeComplete,
-  formatSize, groupByWorkshop, tabFor, isNotFriendError,
+  formatSize, groupByWorkshop, tabFor, isNotFriendError, oaMessageUrl,
 } from './lib-app.js';
+import {
+  STEPS, COURSE_DEFAULT, COURSE_GROUPS, EXPECTATIONS, emptyAnswers, validateStep, nextStep, prevStep,
+  stepNumber, summaryRows, buildPayload, firstFailingStep, parseDraft,
+} from './lib-wizard.js';
 
 const $ = (id) => document.getElementById(id);
 const view = $('view');
@@ -55,6 +59,8 @@ const ICONS = {
   file: '<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/>',
+  doc: '<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4M9.5 12h5M9.5 15.5h5"/>',
+  chat: '<path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z"/><path d="M8 10h8M8 13h5"/>',
   plus: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
 };
 function icon(name, cls = 'ico') {
@@ -306,8 +312,8 @@ function linkToast(url) {
 }
 
 // preOpened: a blank tab opened synchronously on tap (null when blocked or not needed).
-function openUrl(url, preOpened, { deferred = false } = {}) {
-  if (state.inClient && window.liff) { preOpened?.close(); liff.openWindow({ url, external: true }); return; }
+function openUrl(url, preOpened, { deferred = false, external = true } = {}) {
+  if (state.inClient && window.liff) { preOpened?.close(); liff.openWindow({ url, external }); return; }
   if (preOpened && !preOpened.closed) { preOpened.location.href = url; return; }
   if (deferred) return linkToast(url); // tab was blocked and we are no longer inside the tap
   clickAnchor(url);
@@ -370,6 +376,199 @@ function wsCard(w) {
     h('span', { class: 'badge', 'aria-hidden': 'true', text: Array.from(w.title || 'W')[0].toUpperCase() }),
     h('span', { class: 'grow' }, h('span', { class: 't', text: w.title }), meta ? h('span', { class: 'm', text: meta }) : null),
     icon('chevron', 'arrow'));
+}
+
+
+// ---------- Contact: choices + quote wizard ----------
+
+const OA_CHAT_TEXT = 'สอบถามบทเรียนที่เรียนไปแล้ว';
+const DRAFT_KEY = 'innow.inquiry';
+
+// The draft (answers + current step + whether the wizard was open) lives in sessionStorage until a successful send.
+function readDraft(prefill) {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    const d = raw ? parseDraft(raw, prefill) : null;
+    return d ? { ...d, open: JSON.parse(raw).open === true } : null;
+  } catch { return null; }
+}
+function writeDraft(w) {
+  try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ step: w.step, answers: w.answers, open: w.open })); } catch { /* storage blocked */ }
+}
+function clearDraft() { try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ } }
+
+function draftHasContent(w, prefill) {
+  const a = w.answers;
+  return !!(a.organization || a.expectation || a.learners || a.details || a.course !== COURSE_DEFAULT || (a.email && a.email !== prefill));
+}
+
+function choiceCard(iconName, title, sub, props) {
+  const tag = props.href ? 'a' : 'button';
+  return h(tag, { class: 'choice', ...(tag === 'button' ? { type: 'button' } : {}), ...props },
+    icon(iconName, 'ico'),
+    h('span', { class: 'grow' }, h('b', { text: title }), h('em', { text: sub })),
+    icon('chevron', 'ico sm chev'));
+}
+
+function wzProgress(n, label) {
+  const bar = h('span');
+  bar.style.width = Math.round((n / STEPS.length) * 100) + '%';
+  return h('div', { class: 'wz-top' },
+    h('p', { class: 'wz-count', text: label }),
+    h('div', { class: 'wz-bar', role: 'progressbar', 'aria-label': 'ความคืบหน้า', 'aria-valuemin': '1', 'aria-valuemax': String(STEPS.length), 'aria-valuenow': String(n) }, bar));
+}
+
+function wizardStep(w) {
+  const id = w.step;
+  if (id === 'summary') return wizardSummary(w);
+  const step = STEPS.find((x) => x.id === id);
+  const errBox = h('div', { class: 'e', id: 'wz-err', role: 'alert', text: w.errors[id] || '' });
+  const qid = 'wz-q';
+  let field; let focusEl; let read;
+  const clearErr = () => { errBox.textContent = ''; focusEl.removeAttribute('aria-invalid'); delete w.errors[id]; };
+  const save = (v) => { w.answers[id] = v; writeDraft(w); };
+
+  if (id === 'course' || id === 'expectation') {
+    const radio = (value) => {
+      const input = h('input', { type: 'radio', name: id, value, checked: w.answers[id] === value, 'aria-describedby': 'wz-err' });
+      input.addEventListener('change', () => { save(value); clearErr(); });
+      return h('label', { class: 'wz-choice' }, input, h('span', { text: value }));
+    };
+    const list = id === 'course'
+      ? [radio(COURSE_DEFAULT), ...COURSE_GROUPS.flatMap((g, i) => [h('p', { class: 'wz-group', id: 'wz-g' + i, text: g.label }), ...g.items.map(radio)])]
+      : EXPECTATIONS.map(radio);
+    field = h('div', { class: 'wz-choices', role: 'radiogroup', 'aria-labelledby': qid }, list);
+    focusEl = field.querySelector('input:checked') || field.querySelector('input');
+    read = () => field.querySelector('input:checked')?.value ?? '';
+  } else if (id === 'details') {
+    field = h('textarea', { id: 'wz-f', rows: '6', 'aria-labelledby': qid, 'aria-describedby': 'wz-hint wz-err', placeholder: 'เช่น หัวข้อที่อยากเรียน หรือโจทย์ของทีม', value: w.answers.details });
+    focusEl = field;
+    read = () => field.value;
+  } else {
+    const attrs = {
+      organization: { type: 'text', autocomplete: 'organization', enterkeyhint: 'next' },
+      learners: { type: 'text', inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', enterkeyhint: 'next' },
+      email: { type: 'email', inputmode: 'email', autocomplete: 'email', enterkeyhint: 'next' },
+    }[id];
+    field = h('input', { id: 'wz-f', 'aria-labelledby': qid, 'aria-describedby': 'wz-hint wz-err', value: w.answers[id], ...attrs });
+    focusEl = field;
+    read = () => field.value;
+  }
+  if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') field.addEventListener('input', () => { save(read()); clearErr(); });
+  if (w.errors[id]) focusEl.setAttribute('aria-invalid', 'true');
+
+  const hints = {
+    organization: 'ชื่อบริษัทหรือหน่วยงานที่ต้องการให้เราไปอบรม',
+    learners: 'ใช้ประเมินรูปแบบห้องและจำนวนผู้ช่วยสอน',
+    email: 'เราจะใช้อีเมลนี้ติดต่อกลับเพื่อจัดทำใบเสนอราคา',
+    details: 'ไม่บังคับ ข้ามได้ถ้ายังไม่มี',
+    course: 'ยังเลือกไม่ได้ก็ไม่เป็นไร ให้เราช่วยแนะนำ',
+    expectation: 'เลือกรูปแบบที่ใกล้เคียงที่สุด',
+  };
+  const goNext = () => {
+    w.errors = {};
+    w.step = w.editing ? 'summary' : nextStep(id);
+    w.editing = false;
+    writeDraft(w);
+    renderWizard(w);
+  };
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    const v = read();
+    w.answers[id] = id === 'details' || id === 'course' || id === 'expectation' ? v : v.trim();
+    const r = validateStep(id, w.answers);
+    if (!r.ok) {
+      errBox.textContent = r.error;
+      focusEl.setAttribute('aria-invalid', 'true');
+      focusEl.focus();
+      return;
+    }
+    goNext();
+  };
+  const goBack = () => {
+    const p = w.editing ? 'summary' : prevStep(id);
+    if (!p) { w.open = false; writeDraft(w); return go({ name: 'contact' }, { replace: true }); }
+    w.editing = false;
+    w.step = p;
+    writeDraft(w);
+    renderWizard(w);
+  };
+  const skip = () => { w.answers[id] = ''; goNext(); };
+
+  const form = h('form', { class: 'card wz', novalidate: true, onsubmit: onSubmit },
+    wzProgress(stepNumber(id), `ข้อ ${stepNumber(id)} จาก ${STEPS.length}`),
+    h('h1', { id: qid, text: step.question + (step.required ? '' : ' (ไม่บังคับ)') }),
+    h('p', { class: 'lead', id: 'wz-hint', text: hints[id] }),
+    field, errBox,
+    h('div', { class: 'wz-actions' },
+      h('button', { class: 'btn ghost', type: 'button', onclick: goBack, text: 'ย้อนกลับ' }),
+      step.required ? null : h('button', { class: 'btn ghost', type: 'button', onclick: skip, text: 'ข้าม' }),
+      h('button', { class: 'btn', type: 'submit', text: 'ถัดไป' })));
+  return { focus: focusEl, title: 'ขอใบเสนอราคา', nodes: [form] };
+}
+
+function wizardSummary(w) {
+  const formErr = h('div', { class: 'err', id: 'wz-form-err', role: 'alert', text: w.formError || '' });
+  const submit = h('button', { class: 'btn wide', type: 'submit', text: w.retry ? 'ลองส่งอีกครั้ง' : 'ส่งคำขอใบเสนอราคา', 'aria-describedby': 'wz-form-err' });
+  const rows = summaryRows(w.answers).map((r) => h('div', { class: 'wz-row' },
+    h('div', { class: 'grow' }, h('div', { class: 'wz-k', text: r.label }), h('div', { class: 'wz-v', text: r.value })),
+    h('button', { class: 'linkbtn', type: 'button', 'aria-label': `แก้ไข ${r.label}`, onclick: () => { w.step = r.step; w.editing = true; writeDraft(w); renderWizard(w); }, text: 'แก้ไข' })));
+  const onSubmit = async (ev) => {
+    ev.preventDefault();
+    if (w.busy) return; // no double submit: set synchronously, before the first await
+    w.busy = true;
+    setBusy(submit, true);
+    formErr.textContent = '';
+    try {
+      const r = await api('/api/inquiry', { method: 'POST', body: buildPayload(w.answers) });
+      clearDraft();
+      if (renderSeq !== w.seq) return;
+      return mountWizardDone(w, r.forwarded === true);
+    } catch (e) {
+      if (renderSeq !== w.seq) return;
+      if (e.notFriend) return renderGate();
+      if (e.status === 422 && e.errors) {
+        const first = firstFailingStep(e.errors);
+        if (first) { w.errors = e.errors; w.step = first; w.editing = true; w.formError = ''; writeDraft(w); return renderWizard(w); }
+      }
+      w.retry = !!e.offline;
+      formErr.textContent = e.message || MSG.generic;
+      submit.textContent = w.retry ? 'ลองส่งอีกครั้ง' : 'ส่งคำขอใบเสนอราคา';
+      submit.focus();
+    } finally {
+      w.busy = false;
+      setBusy(submit, false);
+    }
+  };
+  const form = h('form', { class: 'card wz', novalidate: true, onsubmit: onSubmit },
+    wzProgress(STEPS.length, 'ตรวจสอบข้อมูลก่อนส่ง'),
+    h('h1', { text: 'ตรวจสอบข้อมูลของคุณ' }),
+    h('p', { class: 'lead', text: 'ถ้าต้องการแก้ข้อมูล แตะ “แก้ไข” ที่ข้อนั้น' }),
+    h('div', { class: 'wz-rows' }, rows),
+    formErr,
+    h('div', { class: 'wz-actions' },
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => { w.step = prevStep('summary'); w.editing = false; w.formError = ''; writeDraft(w); renderWizard(w); }, text: 'ย้อนกลับ' }),
+      submit));
+  return { focus: null, title: 'ตรวจสอบข้อมูล', nodes: [form] };
+}
+
+function mountWizardDone(w, forwarded) {
+  mount('ส่งคำขอแล้ว', h('div', { class: 'success' },
+    icon('check', 'ico big'),
+    h('h1', { text: 'ส่งคำขอแล้ว' }),
+    h('p', { class: 'lead', text: forwarded ? 'ทีมงานจะติดต่อกลับทางอีเมลที่คุณระบุ' : 'เราบันทึกคำขอของคุณไว้แล้ว ทีมงานจะติดต่อกลับทางอีเมลที่คุณระบุ' }),
+    h('p', { class: 'lead', text: w.answers.email }),
+    h('div', { class: 'stack' }, h('button', { class: 'btn', type: 'button', onclick: () => go('home'), text: 'กลับหน้าหลัก' }))));
+}
+
+function renderWizard(w) {
+  const s = wizardStep(w);
+  mountWith(s.focus, s.title, ...s.nodes);
+}
+
+function openOaChat(ev, url) {
+  if (state.inClient && window.liff) { ev.preventDefault(); openUrl(url, null, { external: false }); }
+  // outside LINE the anchor (target=_blank, noopener) is followed normally
 }
 
 const screens = {
@@ -623,6 +822,35 @@ const screens = {
         h('div', { class: 'stack' },
           w.id ? h('button', { class: 'btn', type: 'button', onclick: () => { state.success = null; go({ name: 'workshop', id: w.id }); }, text: 'เปิด Workshop' }) : null,
           h('button', { class: 'btn ghost', type: 'button', onclick: () => go('workshops'), text: 'ดู Workshop ทั้งหมด' })))],
+    };
+  },
+
+
+  async contact(route, seq) {
+    const me = await getMe().catch((e) => { if (e.notFriend) throw e; return null; });
+    const prefill = me?.member?.email || '';
+    const saved = readDraft(prefill);
+    const w = { step: saved?.step || 'organization', answers: saved?.answers || emptyAnswers(prefill), errors: {}, editing: false, busy: false, formError: '', retry: false, open: false, seq };
+    if (saved?.open) { // refresh or return mid-wizard: pick up where the learner stopped
+      w.open = true;
+      const s = wizardStep(w);
+      return s;
+    }
+    const chatUrl = oaMessageUrl(state.config?.oaBasicId, OA_CHAT_TEXT);
+    const resume = saved && draftHasContent(w, prefill);
+    return {
+      title: 'ติดต่อเรา',
+      nodes: [
+        h('h1', { text: 'ติดต่อเรา' }),
+        h('p', { class: 'lead', text: 'เลือกเรื่องที่ต้องการสอบถาม ทีมงาน Innow ยินดีช่วยเหลือ' }),
+        h('div', { class: 'choices' },
+          choiceCard('doc', 'สอบถามคอร์สอบรม', resume ? 'มีข้อมูลที่กรอกค้างไว้ แตะเพื่อกรอกต่อ' : 'ขอใบเสนอราคาอบรมสำหรับทีมของคุณ ตอบทีละข้อ', {
+            onclick: () => { w.open = true; writeDraft(w); renderWizard(w); },
+          }),
+          chatUrl
+            ? choiceCard('chat', 'สอบถามบทเรียนที่เรียนไปแล้ว', 'เปิดแชตกับทีมงาน Innow ใน LINE', { href: chatUrl, target: '_blank', rel: 'noopener noreferrer', onclick: (ev) => openOaChat(ev, chatUrl) })
+            : choiceCard('chat', 'สอบถามบทเรียนที่เรียนไปแล้ว', 'ยังไม่สามารถเปิดแชตได้', { disabled: true, 'aria-disabled': 'true' })),
+      ],
     };
   },
 
