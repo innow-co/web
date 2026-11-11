@@ -1,6 +1,6 @@
 import {
   signToken, verifyToken, timingSafeEqualStr, randomCode, isFourDigits,
-  validateRegistration, slugify, safeFileName,
+  validateRegistration, slugify, safeFileName, csvCell,
 } from './lib.js';
 
 const SESSION_TTL = 60 * 60 * 24 * 7;      // member session: 7 days
@@ -415,6 +415,43 @@ const admin = {
     });
   },
 
+  async membersCsv(req, env) {
+    const res = await admin.members(req, env);
+    const { members } = await res.json();
+    const iso = (t) => (t ? new Date(t).toISOString() : '');
+    const head = ['first_name', 'last_name', 'email', 'line_display_name', 'marketing_consent', 'is_friend', 'workshops', 'registered_at', 'last_seen_at'];
+    const rows = members.map((m) => [m.firstName, m.lastName, m.email, m.displayName, m.marketing ? 'yes' : 'no', m.isFriend ? 'yes' : 'no', m.workshops, iso(m.createdAt), iso(m.lastSeenAt)]);
+    const csv = '\uFEFF' + [head, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+    return new Response(csv, { headers: { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="members.csv"', 'cache-control': 'no-store' } });
+  },
+
+  async copyFrom(req, env, wid, sourceId) {
+    const [dst, src] = await Promise.all([
+      env.DB.prepare('SELECT id FROM workshops WHERE id = ?').bind(wid).first(),
+      env.DB.prepare('SELECT id FROM workshops WHERE id = ?').bind(sourceId).first(),
+    ]);
+    if (!dst || !src) throw new HttpError(404, 'ไม่พบ Workshop');
+    const { results } = await env.DB.prepare('SELECT * FROM items WHERE workshop_id = ? ORDER BY id').bind(sourceId).all();
+    const t = now();
+    let copied = 0;
+    for (const it of results) {
+      let ff = { r2_key: '', file_name: it.file_name, content_type: it.content_type, size: it.size };
+      if (it.r2_key) {
+        const obj = await env.FILES.get(it.r2_key);
+        if (!obj) continue; // source file missing: skip rather than create a broken item
+        ff.r2_key = `workshops/${wid}/${crypto.randomUUID()}`;
+        await env.FILES.put(ff.r2_key, obj.body, { httpMetadata: { contentType: it.content_type || 'application/octet-stream' } });
+      } else {
+        ff = { r2_key: '', file_name: '', content_type: '', size: 0 };
+      }
+      await env.DB.prepare('INSERT INTO items (workshop_id, kind, title, category, body, url, sort, r2_key, file_name, content_type, size, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
+        .bind(wid, it.kind, it.title, it.category, it.body, it.url, it.sort, ff.r2_key, ff.file_name, ff.content_type, ff.size, t).run();
+      copied++;
+    }
+    await audit(env, 'admin', 'items_copy', { workshopId: wid, sourceId, copied });
+    return json({ copied });
+  },
+
   async removeEnrollment(req, env, wid, uid) {
     await env.DB.prepare('DELETE FROM enrollments WHERE workshop_id = ? AND line_user_id = ?').bind(wid, uid).run();
     await audit(env, 'admin', 'enroll_remove', { workshopId: wid, uid });
@@ -484,6 +521,8 @@ async function route(req, env) {
     if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/members\/([\w-]+)$/)) && M === 'DELETE') return admin.removeEnrollment(req, env, m[1], m[2]);
     if ((m = p.match(/^\/api\/admin\/items\/(\d+)\/file$/)) && M === 'GET') return serveFile(req, env, Number(m[1]), { admin: true });
     if (p === '/api/admin/members' && M === 'GET') return admin.members(req, env);
+    if (p === '/api/admin/members.csv' && M === 'GET') return admin.membersCsv(req, env);
+    if ((m = p.match(/^\/api\/admin\/workshops\/([\w-]+)\/copy-from\/([\w-]+)$/)) && M === 'POST') return admin.copyFrom(req, env, m[1], m[2]);
     if (p === '/api/admin/audit' && M === 'GET') return admin.audit(req, env);
   }
   if (p.startsWith('/api/')) throw new HttpError(404, 'Not found');

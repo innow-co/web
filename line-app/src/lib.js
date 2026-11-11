@@ -90,3 +90,10 @@ export function slugify(s) {
 export function safeFileName(name) {
   return String(name || 'file').replace(/[\\/\r\n"]/g, '_').slice(0, 150);
 }
+
+// CSV cell: neutralise spreadsheet formula injection, quote when needed.
+export function csvCell(value) {
+  let s = String(value ?? '');
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}

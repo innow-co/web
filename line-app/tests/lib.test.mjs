@@ -105,3 +105,17 @@ test('verifyToken returns null (not throw) for a non-base64url signature', async
   assert.equal(await verifyToken(SECRET, 'sess', 'a.b.c'), null);
   assert.equal(await verifyToken(SECRET, 'sess', '.'), null);
 });
+
+import { csvCell } from '../src/lib.js';
+import { test as csvTest } from 'node:test';
+import csvAssert from 'node:assert/strict';
+
+csvTest('csvCell neutralises formula prefixes and quotes specials', () => {
+  for (const v of ['=1+1', '+a@b.co', '-1', '@x', '\tx', '\rx']) {
+    csvAssert.ok(csvCell(v).replace(/^"/, '').startsWith("'"), JSON.stringify(v));
+  }
+  csvAssert.equal(csvCell('a,"b"'), '"a,""b"""');
+  csvAssert.equal(csvCell('line\nbreak'), '"line\nbreak"');
+  csvAssert.equal(csvCell('plain'), 'plain');
+  csvAssert.equal(csvCell(''), '');
+});
