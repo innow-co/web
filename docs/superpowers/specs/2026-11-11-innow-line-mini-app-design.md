@@ -93,3 +93,11 @@ My calls for option 2 (owner can override):
 - Rich menu button 6 keeps the label "ติดต่อเรา" with the sublabel "สอบถามข้อมูล" (owner decision) and opens `?p=contact` instead of the OA chat directly.
 - Rich menu button 4 label "ดูผลงานของเรา", sublabel "innow.co.th" (my call), with a simple portfolio/globe icon.
 - Unverified: that the website's `/api/contact` is live and accepts server-side JSON posts from the Worker. To be checked at deploy.
+
+## Code lifetime option: never expires (added 2026-11-11, owner request)
+
+Besides 1 minute to 24 hours, the admin can issue a 4-digit code that never expires ("ไม่หมดอายุ"). Owner's decision; it deliberately trades away the short-lifetime protection, so:
+- It is an explicit choice in the admin lifetime select with a short warning ("ใครได้รับรหัสสามารถรับสิทธิ์ได้ตลอด ควรยกเลิกเมื่อไม่ใช้แล้ว"). The default stays 5 minutes.
+- Stored with a sentinel expiry of 9999-12-31T23:59:59.999Z (253402300799000 ms) so every existing "expires_at > now" check keeps working; the API reports `neverExpires: true` and `expiresAt: null`.
+- Everything else is unchanged: issuing a new code for the workshop revokes the previous active one (including a never-expiring one), admin can revoke it at any time, the per-user limit (5 wrong codes / 10 min) still applies, wrong/expired/revoked codes still give the same generic message, collisions among active codes are still avoided.
+- The admin code screen shows "ไม่หมดอายุ" instead of a countdown, and the audit log records `never: true`.
