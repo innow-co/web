@@ -53,6 +53,12 @@ export function randomCode(taken = new Set()) {
     const code = String(n).padStart(4, '0');
     if (!taken.has(code)) return code;
   }
+  // Crowded space: random probing is unlikely to hit the remaining codes, so scan from a random start.
+  const start = crypto.getRandomValues(new Uint32Array(1))[0] % 10000;
+  for (let i = 0; i < 10000; i++) {
+    const code = String((start + i) % 10000).padStart(4, '0');
+    if (!taken.has(code)) return code;
+  }
   throw new Error('No free code');
 }
 
