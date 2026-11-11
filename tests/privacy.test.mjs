@@ -11,7 +11,7 @@ test('privacy page exists and is a Thai page with one h1 and the canonical URL',
   const html = read(pagePath);
   assert.match(html, /<html lang="th">/);
   assert.equal((html.match(/<h1[\s>]/g) || []).length, 1);
-  assert.match(html, /<link rel="canonical" href="https:\/\/innow\.co\.th\/privacy\/">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/www\.innow\.co\.th\/privacy\/">/);
   assert.match(html, /<meta name="robots" content="index,follow">/);
   assert.match(html, /<a class="skip" href="#main">/);
   assert.match(html, /<a [^>]*href="\/">กลับหน้าแรก<\/a>/);
@@ -46,7 +46,7 @@ test('privacy page names the controller, the responsible person, the contact and
 
 test('privacy page makes no external requests and links out only to allowed hosts', () => {
   const html = read(pagePath);
-  const allowed = [/^https:\/\/innow\.co\.th\//, /^https:\/\/line\.me\//];
+  const allowed = [/^https:\/\/(?:www\.)?innow\.co\.th\//, /^https:\/\/line\.me\//];
   const urls = [...html.matchAll(/\b(?:src|href)="([^"]+)"/g)].map(m => m[1]);
   assert.ok(urls.length > 0);
   for (const url of urls) {
