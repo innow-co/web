@@ -104,3 +104,31 @@ export function tabFor(name) {
 
 // liff.login()/liff.logout() must never run inside the LINE client (liff.init logs in there automatically).
 export const canCallLiffLogin = ({ inClient } = {}) => !inClient;
+
+// ---------- Google Slides embed ----------
+
+// Strict allow-list on the RAW string (no URL parser, so no normalisation can widen what passes): https, host exactly
+// docs.google.com (lowercase, no port, no userinfo, no trailing dot), path /presentation/d/<id> and then nothing, or one of
+// / ? #. The rest of the URL (path suffix, query, fragment) is discarded, so the deck always starts at slide 1 and the
+// viewer link is never the editor. Published links (/d/e/<id>/pub) are not supported yet (their id is "e" and fails).
+const SLIDES_RE = /^https:\/\/docs\.google\.com\/presentation\/d\/([A-Za-z0-9_-]{20,100})(?:[/?#][^\s\\\p{Cc}\p{Cf}]*)?$/u;
+
+export function googleSlidesInfo(url) {
+  if (typeof url !== 'string' || url.length > 2048) return null;
+  const m = SLIDES_RE.exec(url);
+  if (!m) return null;
+  const base = 'https://docs.google.com/presentation/d/' + m[1];
+  return { id: m[1], embedUrl: base + '/embed?start=false&loop=false&delayms=3000', openUrl: base + '/preview' };
+}
+
+// State machine of one slide card (kept DOM free so it can be unit tested):
+//   poster -> loaded (tap) -> native | overlay (full screen) -> loaded (close). Loaded is never lost.
+// ctx.native: whether the Fullscreen API actually entered fullscreen; anything else means the in-app overlay.
+const SLIDES_STATES = new Set(['poster', 'loaded', 'native', 'overlay']);
+export function slidesCardState(state, event, { native = false } = {}) {
+  const s = SLIDES_STATES.has(state) ? state : 'poster';
+  if (event === 'load') return s === 'poster' ? 'loaded' : s;
+  if (event === 'fullscreen') return native === true ? 'native' : 'overlay';
+  if (event === 'close') return s === 'native' || s === 'overlay' ? 'loaded' : s;
+  return s;
+}
