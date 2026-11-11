@@ -10,7 +10,7 @@ const FILE_LINK_TTL = 60 * 5;              // signed file URL: 5 minutes
 const FAIL_WINDOW = 10 * 60 * 1000;        // 10 minutes
 const MAX_FAILS = 5;                       // 5 wrong codes / 10 min
 const ADMIN_MAX_FAILS = 10;
-const MAX_UPLOAD = 95 * 1024 * 1024;
+const MAX_UPLOAD = 40 * 1024 * 1024;      // req.formData() buffers ~2x the body; 128 MB isolate
 
 class HttpError extends Error {
   constructor(status, message, extra = {}) { super(message); this.status = status; this.extra = extra; }
@@ -241,7 +241,7 @@ async function serveFile(req, env, itemId, { token, admin = false } = {}) {
   if (!it || !it.r2_key) return new Response('Not found', { status: 404 });
   const obj = await env.FILES.get(it.r2_key);
   if (!obj) return new Response('Not found', { status: 404 });
-  const inline = /^(application\/pdf|image\/|video\/|text\/plain)/.test(it.content_type);
+  const inline = /^(application\/pdf|image\/(png|jpeg|gif|webp|avif)|video\/(mp4|webm))$/i.test(String(it.content_type || '').split(';')[0].trim());
   return new Response(obj.body, {
     headers: {
       'content-type': it.content_type || 'application/octet-stream',
@@ -249,6 +249,7 @@ async function serveFile(req, env, itemId, { token, admin = false } = {}) {
       'content-disposition': `${inline ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeRfc5987(safeFileName(it.file_name))}`,
       'cache-control': 'private, no-store',
       'x-content-type-options': 'nosniff',
+      'content-security-policy': "default-src 'none'; sandbox",
     },
   });
 }
@@ -355,7 +356,11 @@ const admin = {
     const ct = req.headers.get('content-type') || '';
     let f;
     // Refuse oversized bodies before buffering them (Workers have 128 MB of memory).
-    if (Number(req.headers.get('content-length')) > MAX_UPLOAD + 1024 * 1024) throw new HttpError(413, 'ไฟล์ใหญ่เกิน 95MB');
+    if (ct.includes('multipart/form-data')) {
+      const len = req.headers.get('content-length');
+      if (!len || !/^\d+$/.test(len)) throw new HttpError(411, 'ไม่สามารถอัปโหลดแบบไม่ระบุขนาดได้ ไฟล์ใหญ่กรุณาแนบเป็นลิงก์แทน');
+      if (Number(len) > MAX_UPLOAD + 1024 * 1024) throw new HttpError(413, 'ไฟล์ใหญ่เกิน 40MB กรุณาแนบเป็นลิงก์แทน');
+    }
     if (ct.includes('multipart/form-data')) f = await req.formData();
     else { const b = await body(req); f = new Map(Object.entries(b)); }
     const get = (k) => String(f.get(k) ?? '').trim();
@@ -376,7 +381,7 @@ const admin = {
     const file = f.get('file');
     let fileFields = null;
     if (file && typeof file === 'object' && file.size > 0) {
-      if (file.size > MAX_UPLOAD) throw new HttpError(413, 'ไฟล์ใหญ่เกิน 95MB');
+      if (file.size > MAX_UPLOAD) throw new HttpError(413, 'ไฟล์ใหญ่เกิน 40MB กรุณาแนบเป็นลิงก์แทน');
       const key = `workshops/${wid}/${crypto.randomUUID()}`;
       await env.FILES.put(key, file.stream(), { httpMetadata: { contentType: file.type || 'application/octet-stream' } });
       fileFields = { r2_key: key, file_name: safeFileName(file.name), content_type: file.type || 'application/octet-stream', size: file.size };

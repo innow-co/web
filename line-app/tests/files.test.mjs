@@ -106,6 +106,7 @@ test('replacing a file removes the old R2 object; removeFile removes it too', as
   const w = await seedWorkshop('Files Replace');
   const id = (await upload(w.id, pdf('one.pdf'))).data.id;
   const [k1] = r2KeysOf(w.id);
+  assert.equal(await objectsOf(w.id), 1, 'control: object exists after upload');
   assert.deepEqual(r2Get(k1), Buffer.from(PDF));
   const second = new TextEncoder().encode('second-file');
   assert.equal((await upload(w.id, { bytes: second, name: 'two.txt', type: 'text/plain' }, { kind: 'slide', title: 'Deck' }, { itemId: id })).status, 200);
@@ -123,6 +124,7 @@ test('deleting an item or a workshop removes its R2 objects', async () => {
   const i1 = (await upload(w.id, pdf('1.pdf'))).data.id;
   await upload(w.id, pdf('2.pdf'), { kind: 'bonus', title: 'Two' });
   const [k1, k2] = r2KeysOf(w.id);
+  assert.equal(await objectsOf(w.id), 2, 'control: both objects exist after upload');
   assert.ok(r2Get(k1) && r2Get(k2));
   assert.equal((await call('DELETE', `/api/admin/workshops/${w.id}/items/${i1}`, { token: T })).status, 200);
   assert.equal(r2Get(k1), null);
@@ -139,15 +141,87 @@ test('validation failures with a file attached leave no orphan R2 object', async
   }
   assert.equal((await upload(w.id, pdf(), { kind: 'slide', title: 'x' }, { itemId: 999999 })).status, 404);
   assert.equal(await objectsOf(w.id), 0, 'no objects under the workshop prefix');
+  assert.equal((await upload(w.id, pdf())).status, 200);
+  assert.equal(await objectsOf(w.id), 1, 'control: the counter does see a successful upload');
 });
 
-test('upload over 95 MB is 413 and leaves nothing behind', async () => {
+const MB = 1024 * 1024;
+const blobOf = (mb, type = 'application/pdf') => new Blob([new Uint8Array(Math.round(mb * MB)).fill(7)], { type });
+
+test('upload over the 40 MB limit is 413 and leaves nothing behind', async () => {
   const w = await seedWorkshop('Files Big');
-  const big = new Blob([new Uint8Array(96 * 1024 * 1024)], { type: 'application/pdf' });
-  const r = await saveItemMultipart(w.id, { kind: 'slide', title: 'Big' }, { blob: big, name: 'big.pdf' });
-  assert.equal(r.status, 413);
-  assert.equal(await objectsOf(w.id), 0);
-  assert.match(d1(`SELECT COUNT(*) AS n FROM items WHERE workshop_id='${w.id}'`), /"n":\s*0/);
+  assert.equal((await upload(w.id, pdf())).status, 200);
+  assert.equal(await objectsOf(w.id), 1, 'control: counter sees an object');
+  const before = r2KeysOf(w.id);
+  for (const mb of [41, 96]) {
+    const r = await saveItemMultipart(w.id, { kind: 'slide', title: 'Big' }, { blob: blobOf(mb), name: 'big.pdf' });
+    assert.equal(r.status, 413, mb + ' MB');
+    assert.match((await r.json()).error, /40MB/);
+  }
+  assert.equal(await objectsOf(w.id), 1, 'still only the control object');
+  assert.deepEqual(r2KeysOf(w.id), before);
+});
+
+test('a file just under the limit uploads and downloads byte-identical', async () => {
+  const w = await seedWorkshop('Files Near Limit');
+  const blob = blobOf(39, 'application/zip');
+  const up = await upload(w.id, { blob, name: 'near.zip' });
+  assert.equal(up.status, 200);
+  assert.equal(await objectsOf(w.id), 1);
+  const res = await get(BASE + `/api/admin/items/${up.data.id}/file`, { headers: { authorization: 'Bearer ' + T } });
+  assert.equal(res.status, 200);
+  const got = Buffer.from(await res.arrayBuffer());
+  assert.equal(got.length, blob.size);
+  assert.ok(got.equals(Buffer.from(await blob.arrayBuffer())));
+});
+
+test('multipart without Content-Length is refused (411) with a hint to use a link', async () => {
+  const w = await seedWorkshop('Files NoLen');
+  const boundary = 'xBOUNDARYx';
+  const part = `--${boundary}\r\nContent-Disposition: form-data; name="kind"\r\n\r\nslide\r\n--${boundary}\r\nContent-Disposition: form-data; name="title"\r\n\r\nT\r\n--${boundary}--\r\n`;
+  const stream = new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(part)); c.close(); } });
+  const r = await fetch(BASE + `/api/admin/workshops/${w.id}/items`, {
+    method: 'POST', duplex: 'half', body: stream,
+    headers: { authorization: 'Bearer ' + T, 'content-type': 'multipart/form-data; boundary=' + boundary },
+  });
+  assert.equal(r.status, 411);
+  assert.match((await r.json()).error, /ลิงก์/);
+});
+
+test('SVG and HTML uploads are always attachments with a locked-down CSP (no stored XSS)', async () => {
+  const w = await seedWorkshop('Files XSS');
+  const tok = await enroll('U-files-xss', w.code);
+  const cases = [
+    ['x.svg', 'image/svg+xml', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'],
+    ['x.html', 'text/html', '<script>alert(1)</script>'],
+    ['x.txt', 'text/plain', 'plain'],
+    ['x.bin', '', 'unknown'],
+  ];
+  for (const [name, type, content] of cases) {
+    const up = await upload(w.id, { bytes: new TextEncoder().encode(content), name, type });
+    assert.equal(up.status, 200, name);
+    const res = await get((await link(tok, up.data.id)).data.url);
+    assert.equal(res.status, 200, name);
+    assert.match(res.headers.get('content-disposition'), /^attachment;/, name);
+    assert.equal(res.headers.get('content-security-policy'), "default-src 'none'; sandbox", name);
+    await res.arrayBuffer();
+  }
+});
+
+test('PDF and PNG stay inline and carry the CSP; admin token downloads identical bytes', async () => {
+  const w = await seedWorkshop('Files Inline');
+  const tok = await enroll('U-files-inline', w.code);
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]);
+  for (const f of [pdf('a.pdf'), { bytes: png, name: 'a.png', type: 'image/png' }]) {
+    const up = await upload(w.id, f);
+    const res = await get((await link(tok, up.data.id)).data.url);
+    assert.match(res.headers.get('content-disposition'), /^inline;/, f.name);
+    assert.equal(res.headers.get('content-security-policy'), "default-src 'none'; sandbox");
+    await res.arrayBuffer();
+    const adm = await get(BASE + `/api/admin/items/${up.data.id}/file`, { headers: { authorization: 'Bearer ' + T } });
+    assert.equal(adm.status, 200);
+    assert.deepEqual(new Uint8Array(await adm.arrayBuffer()), f.bytes);
+  }
 });
 
 test('copy-from with the same workshop as source is rejected with 400', async () => {

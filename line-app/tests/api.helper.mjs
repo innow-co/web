@@ -120,17 +120,17 @@ export async function login(userId) {
 }
 
 // Keys currently stored in the local simulated R2 bucket (reads miniflare's sqlite index, read-only).
+// Throws when the index cannot be read, so a 0-count can never be vacuous.
 export async function listR2Keys(prefix = '') {
   const { DatabaseSync } = await import('node:sqlite');
-  const dir = path.join(STATE, 'v3', 'r2', 'miniflare-R2BucketObject');
-  if (!existsSync(dir)) return [];
   const { readdirSync } = await import('node:fs');
+  const dir = path.join(STATE, 'v3', 'r2', 'miniflare-R2BucketObject');
+  const files = readdirSync(dir).filter((n) => n.endsWith('.sqlite') && n !== 'metadata.sqlite');
+  if (!files.length) throw new Error('R2 object index not found in ' + dir);
   const keys = [];
-  for (const f of readdirSync(dir).filter((n) => n.endsWith('.sqlite'))) {
+  for (const f of files) {
     const db = new DatabaseSync(path.join(dir, f), { readOnly: true });
-    try {
-      for (const r of db.prepare("SELECT key FROM _mf_objects").all()) if (r.key.startsWith(prefix)) keys.push(r.key);
-    } catch { /* not the objects db */ } finally { db.close(); }
+    try { for (const r of db.prepare('SELECT key FROM _mf_objects').all()) if (r.key.startsWith(prefix)) keys.push(r.key); } finally { db.close(); }
   }
   return keys;
 }
@@ -150,13 +150,17 @@ export async function saveItemMultipart(wid, fields, file, { itemId, token } = {
   return fetch(BASE + p, { method: itemId ? 'PUT' : 'POST', headers: { authorization: 'Bearer ' + t }, body: fd });
 }
 
-// Local R2 read: object bytes, or null when absent (wrangler r2 --local only).
+// Local R2 read: object bytes, or null only when the object does not exist; any other failure throws.
 export function r2Get(key) {
   const out = path.join(WR, 'r2-probe-' + randomBytes(4).toString('hex'));
   try {
     wrangler(['r2', 'object', 'get', `innow-line-files/${key}`, '--local', '--persist-to', STATE, '--file', out]);
     return readFileSync(out);
-  } catch { return null; } finally { rmSync(out, { force: true }); }
+  } catch (e) {
+    const msg = String(e.stderr || '') + String(e.stdout || '') + String(e.message || '');
+    if (/specified key does not exist/i.test(msg)) return null;
+    throw new Error('r2Get failed unexpectedly: ' + msg.slice(0, 300));
+  } finally { rmSync(out, { force: true }); }
 }
 
 export function r2KeysOf(wid) {
