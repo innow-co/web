@@ -1,0 +1,81 @@
+# Innow LINE MINI App (line-app)
+
+Cloudflare Worker + D1 (`innow-line`) + R2 (`innow-line-files`) serving the learner app (`public/`) and the API (`src/worker.js`).
+Current config is the TEST setup (provider "Bot 2023", MINI App "Innow Test", Unverified). See `wrangler.jsonc`.
+
+## Prerequisites
+
+- `npx wrangler login` (account that owns the bucket and database)
+- R2 bucket `innow-line-files` exists, D1 database `innow-line` exists (id is in `wrangler.jsonc`)
+- `npm install` in `line-app/`, then `npm test` passes
+
+## Deploy
+
+```sh
+cd line-app
+npx wrangler d1 migrations apply innow-line --remote
+
+openssl rand -base64 48            # copy the output, paste it at the next prompt
+npx wrangler secret put SESSION_SECRET
+npx wrangler secret put ADMIN_PASSWORD
+
+npx wrangler deploy
+```
+
+- Secrets are typed at the prompt only. Never commit them, never put them in a tracked file.
+- Do NOT run `wrangler secret bulk` with `.dev.vars`: it contains `DEV_FAKE_LINE`, which must never exist in production.
+- Rotating `SESSION_SECRET` logs everyone out (members and admin).
+- `wrangler deploy` prints the URL, expected form `https://innow-line.<account-subdomain>.workers.dev`. Use it as the Endpoint URL below.
+
+## LINE console (test setup)
+
+1. LINE Developers console, provider "Bot 2023", MINI App channel "Innow Test": `/console/channel/2012557246/mini-liff`.
+2. Developing channel: set the Endpoint URL to the deployed Worker URL (https, no trailing path).
+3. Confirm the linked OA is "Bot 2023" (@276eafaf). Under the MINI App settings turn on the "Add friend" option so members are prompted to add the OA.
+4. Roles: add every person who will test as a Tester (in Developing mode only testers can open the app).
+5. Open `https://miniapp.line.me/2012557246-GV0GKhsl` from LINE on a phone. Deep links: `...?p=workshops|redeem|prompts|contact`.
+
+`LIFF_ID` is the Developing LIFF ID. The Worker accepts tokens from any channel in `LINE_LOGIN_CHANNEL_ID`
+(`2012557246,2012557247,2012557248` = developing/review/published). At go-live replace `LIFF_ID`, `LINE_LOGIN_CHANNEL_ID`
+and `OA_BASIC_ID` in `wrangler.jsonc` with the production Innow values and redeploy.
+
+## Rich menu
+
+Run by the OWNER in their own terminal (the channel access token must not be pasted into chat or files).
+The token is Messaging API > Channel access token of the OA, and is only sent to api.line.me.
+
+```sh
+cd line-app
+LINE_CHANNEL_ACCESS_TOKEN=... LIFF_ID=2012557246-GV0GKhsl OA_BASIC_ID=@276eafaf node richmenu/create.mjs --dry-run   # no network
+LINE_CHANNEL_ACCESS_TOKEN=... LIFF_ID=2012557246-GV0GKhsl OA_BASIC_ID=@276eafaf node richmenu/create.mjs --confirm
+```
+
+WARNING: `--confirm` sets the menu as the DEFAULT for every friend of the OA. Use the test OA first.
+
+To show the menu to one person only, link it to that user instead of setting the default:
+
+```sh
+... node richmenu/create.mjs --confirm --user U0123456789abcdef0123456789abcdef
+```
+
+(`POST /v2/bot/user/{userId}/richmenu/{richMenuId}`; the user id is `U` + 32 hex characters.)
+On failure the script deletes the menu it just created. Buttons 1, 2, 3, 6 open `https://miniapp.line.me/<liffId>?p=...`.
+
+## Post-deploy smoke test
+
+- [ ] Admin login at `/admin.html`, wrong password rejected
+- [ ] Create a workshop, then create a 4-digit code
+- [ ] In LINE (as a tester): open the app, redeem the code, workshop appears
+- [ ] Privacy dialog opens and shows the responsible person and retention text
+- [ ] Contact wizard (one question per screen) submits; admin tab "คำขอใบเสนอราคา" shows it; CSV export works
+- [ ] File upload (slide/PDF) works; PDF preview opens in real Chrome and Edge under the admin CSP
+- [ ] Add friend gate: a non-friend (or blocked) account sees the Add friend page
+- [ ] "ติดต่อเรา" OA chat link opens the chat (the URL keeps its trailing slash)
+- [ ] Rich menu (test OA / one user): all six buttons open the right place
+
+## Known limits and deferred work
+
+- Upload size limit: 40 MB per file.
+- Developing mode: only users with a role (Tester/Admin) can open the app.
+- LINE access tokens last 12 hours; after that members must reopen the app (inside LINE the app never calls `liff.login()`).
+- Deferred: log cleanup/retention job, PDPA delete/withdraw endpoints, admin logout, unique index for `newCode` collisions.
