@@ -11,7 +11,8 @@ button, input, textarea, select { font: inherit; color: inherit; }
 a { color: var(--blue); }
 .top { background: linear-gradient(112deg, #071f44 0%, #014799 60%, #0575bf 100%); color: #fff; padding: 16px 20px 18px; }
 .brand { font-family: var(--f-display); font-weight: 700; font-size: 26px; letter-spacing: -1px; line-height: 1.1; }
-.brand-sub { font-size: 12px; opacity: .8; }
+.brand .logo { display: block; height: 32px; width: auto; }
+.brand-sub { margin-top: 4px; font-size: 12px; opacity: .8; }
 main { max-width: 560px; margin: 0 auto; padding: 18px 16px; }
 h1 { font-family: var(--f-display); font-size: 22px; color: var(--navy); margin: 4px 0 2px; line-height: 1.35; }
 h2 { font-family: var(--f-display); font-size: 18px; color: var(--navy); margin: 22px 0 10px; }
