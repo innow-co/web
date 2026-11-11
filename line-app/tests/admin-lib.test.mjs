@@ -115,6 +115,13 @@ test('mailtoHref only for well-formed addresses', () => {
   assert.equal(mailtoHref('a'.repeat(250) + '@b.co'), null);
 });
 
+test('mailtoHref refuses addresses that could add mailto headers or odd encodings', () => {
+  for (const e of ['a@b.co?cc=x@y.com', 'a@b.co?subject=hi', 'a&b@c.com', 'a#b@c.com', 'a%0Ab@c.com', 'a@b.co&bcc=x@y.com']) assert.equal(mailtoHref(e), null, e);
+  // Allowed characters that are not URI-safe are encoded in the href, '@' stays readable.
+  assert.equal(mailtoHref("o'brien+x@example.com"), 'mailto:' + encodeURIComponent("o'brien+x").replace(/%40/g, '@') + '@example.com');
+  assert.equal(mailtoHref('hr@example.com'), 'mailto:hr@example.com');
+});
+
 test('forwardBadge text', () => {
   assert.deepEqual(forwardBadge({ forwarded: true, forwardError: '' }), { text: 'ส่งอีเมลแล้ว', ok: true });
   assert.deepEqual(forwardBadge({ forwarded: false, forwardError: '500' }), { text: 'ส่งอีเมลไม่สำเร็จ: 500', ok: false });

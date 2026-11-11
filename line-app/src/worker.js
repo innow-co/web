@@ -269,8 +269,12 @@ const member = {
       `INSERT INTO inquiries (line_user_id, organization, email, course, expectation, details, learners, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).bind(s.uid, q.organization, q.email, q.course, q.expectation, q.details, q.learners, now()).run();
     const result = await forwardInquiry(env, new URL(req.url).hostname, q);
-    await env.DB.prepare('UPDATE inquiries SET forwarded = ?, forward_error = ? WHERE id = ?')
-      .bind(result.ok ? 1 : 0, result.error, ins.meta.last_row_id).run();
+    // The request is stored and already forwarded: a failure to record that must not become a 500
+    // (the learner would retry and send the lead twice).
+    try {
+      await env.DB.prepare('UPDATE inquiries SET forwarded = ?, forward_error = ? WHERE id = ?')
+        .bind(result.ok ? 1 : 0, result.error, ins.meta.last_row_id).run();
+    } catch { /* keep the answer truthful: the forward itself happened */ }
     return json({ ok: true, forwarded: result.ok });
   },
 };
@@ -292,8 +296,11 @@ async function forwardInquiry(env, hostname, q) {
       headers: { 'content-type': 'application/json', 'user-agent': 'innow-line-worker' },
       body: JSON.stringify({ organization: q.organization, email: q.email, course: q.course, expectation: q.expectation, details: q.details, learners: q.learners, website: '' }),
       signal: AbortSignal.timeout(timeout),
+      redirect: 'manual', // never re-POST the lead body to a host the redirect names
     });
     res.body?.cancel().catch(() => {});
+    // Any 3xx (or an opaque redirect) is a failure; only a real 2xx counts as forwarded.
+    if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) return { ok: false, error: String(res.status || 302) };
     return res.ok ? { ok: true, error: '' } : { ok: false, error: String(res.status) };
   } catch (e) {
     return { ok: false, error: e?.name === 'TimeoutError' || e?.name === 'AbortError' ? 'timeout' : 'network' };

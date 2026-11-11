@@ -82,9 +82,12 @@ export const kindLabel = (k) => ({ slide: 'Slide', prompt: 'Prompt Library', bon
 
 // Quote requests: same email shape as the website's form. Only a matching address becomes a mailto: link.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Addresses containing ? & # or % are legal in the loose shape above but could inject mailto headers (cc, bcc,
+// body) or odd encodings, so they are shown as plain text. The href is URI-encoded; '@' is kept readable.
 export const mailtoHref = (email) => {
   const e = String(email ?? '');
-  return e.length <= 254 && EMAIL_RE.test(e) ? 'mailto:' + e : null;
+  if (e.length > 254 || !EMAIL_RE.test(e) || /[?&#%]/.test(e)) return null;
+  return 'mailto:' + encodeURIComponent(e).replace(/%40/g, '@');
 };
 
 export const forwardBadge = (q) => (q?.forwarded

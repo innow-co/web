@@ -82,14 +82,23 @@ test('validateInquiry: non-object input and several errors at once', () => {
 // Local stand-in for the website's /api/contact. mode: 'ok' | 'fail' | 'hang'.
 let target; let targetPort; let mode = 'ok'; const hits = [];
 const conns = new Set();
+let other; let otherPort; const otherHits = [];
 
 before(async () => {
+  other = http.createServer((req, res) => {
+    let b = '';
+    req.on('data', (c) => { b += c; });
+    req.on('end', () => { otherHits.push({ url: req.url, body: b }); res.writeHead(200); res.end('{}'); });
+  });
+  await new Promise((r) => other.listen(0, '127.0.0.1', r));
+  otherPort = other.address().port;
   target = http.createServer((req, res) => {
     let b = '';
     req.on('data', (c) => { b += c; });
     req.on('end', () => {
       hits.push({ method: req.method, url: req.url, headers: req.headers, body: b });
       if (mode === 'hang') return; // never answer
+      if (mode === 'redirect') { res.writeHead(307, { location: `http://127.0.0.1:${otherPort}/stolen` }); return res.end(); }
       if (mode === 'fail') { res.writeHead(500, { 'content-type': 'text/plain' }); return res.end('SECRET-BODY-DO-NOT-STORE'); }
       res.writeHead(200, { 'content-type': 'application/json' }); res.end('{"ok":true}');
     });
@@ -103,6 +112,7 @@ after(async () => {
   await stop();
   for (const s of conns) s.destroy();
   await new Promise((r) => target.close(r));
+  await new Promise((r) => other.close(r));
 });
 
 const form = (patch = {}) => ({ organization: 'บริษัท ทดสอบ จำกัด', email: 'hr@example.com', course: 'Secure Coding', expectation: 'Bootcamp มุ่งสร้างผลงาน', details: 'บรรทัด 1\nบรรทัด 2', learners: 25, ...patch });
@@ -160,6 +170,35 @@ test('forward target that hangs: 200 forwarded:false after the timeout, row kept
   assert.match(rows('inq-hang'), /"forward_error":\s*"timeout"/);
   for (const s of conns) s.destroy();
   mode = 'ok';
+});
+
+test('forward target answering 307: never followed, forwarded:false with the status, second host gets nothing', async () => {
+  hits.length = 0; otherHits.length = 0; mode = 'redirect';
+  const { token } = await login('inq-redir');
+  const r = await call('POST', '/api/inquiry', { token, json: form() });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.data, { ok: true, forwarded: false });
+  assert.equal(hits.length, 1);
+  assert.equal(otherHits.length, 0, 'redirect target must not receive the lead');
+  const out = rows('inq-redir');
+  assert.match(out, /"forwarded":\s*0/);
+  assert.match(out, /"forward_error":\s*"307"/);
+  mode = 'ok';
+});
+
+test('a failing UPDATE after a successful forward still answers 200 forwarded:true', async () => {
+  hits.length = 0; mode = 'ok';
+  d1("CREATE TRIGGER inq_block_update BEFORE UPDATE ON inquiries BEGIN SELECT RAISE(ABORT, 'blocked'); END");
+  try {
+    const { token } = await login('inq-upd');
+    const r = await call('POST', '/api/inquiry', { token, json: form() });
+    assert.equal(r.status, 200);
+    assert.deepEqual(r.data, { ok: true, forwarded: true });
+    assert.equal(hits.length, 1);
+    assert.equal(rowCount('inq-upd'), 1);
+  } finally {
+    d1('DROP TRIGGER inq_block_update');
+  }
 });
 
 test('validation: 422 with per-field errors, nothing stored or forwarded, no limit slot used', async () => {
