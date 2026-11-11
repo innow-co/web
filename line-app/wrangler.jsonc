@@ -33,6 +33,11 @@
     // Quote requests are copied server-to-server to the website's contact endpoint (it emails ask@innow.co.th). Empty disables.
     "INQUIRY_FORWARD_URL": "https://innow.co.th/api/contact"
   },
+  // Custom domain: Cloudflare creates the DNS record and certificate (the innow.co.th zone is on this account).
+  // workers_dev must stay true: the LINE MINI App endpoint points at the workers.dev URL until it is switched to the custom domain.
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [{ "pattern": "line.innow.co.th", "custom_domain": true }],
   "observability": { "enabled": true }
   // Secrets (wrangler secret put): ADMIN_PASSWORD, SESSION_SECRET
 }
