@@ -291,6 +291,23 @@ function emptyBox(text, ...actions) {
   return h('div', { class: 'empty' }, h('p', { text }), actions.length ? h('div', { class: 'row center-row' }, actions) : null);
 }
 
+// Link for opening the app in a computer browser (LINE Login runs in the browser there); the copy button lets a phone user send it to themselves.
+function desktopCard() {
+  const url = location.origin + '/';
+  const copy = h('button', { class: 'btn small', type: 'button' }, icon('copy', 'ico sm'), 'คัดลอกลิงก์');
+  copy.addEventListener('click', async () => {
+    const ok = await copyText(url);
+    toast(ok ? 'คัดลอกลิงก์แล้ว' : 'คัดลอกไม่สำเร็จ กรุณากดค้างที่ลิงก์เพื่อคัดลอก');
+  });
+  const open = h('button', { class: 'btn small ghost', type: 'button' }, icon('link', 'ico sm'), 'เปิดในเบราว์เซอร์');
+  open.addEventListener('click', () => openUrl(url));
+  return h('div', { class: 'card stack gap-top' },
+    h('h2', { text: 'เปิดบนคอมพิวเตอร์' }),
+    h('p', { class: 'lead', text: 'ใช้งานบนเบราว์เซอร์ของคอมพิวเตอร์ได้ที่ลิงก์นี้ แล้วเข้าสู่ระบบด้วยบัญชี LINE เดิม' }),
+    h('p', { class: 'meta', text: url }),
+    h('div', { class: 'row' }, copy, open));
+}
+
 async function copyText(text) {
   try {
     if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); return true; }
@@ -1193,6 +1210,7 @@ const screens = {
               h('dt', { text: 'Workshop' }), h('dd', { text: `${me.workshops.length} รายการ` }))
             : h('p', { class: 'lead', text: 'ยังไม่ได้สมัครสมาชิก ระบบจะขอข้อมูลเมื่อคุณรับสิทธิ์ Workshop แรก' })),
         navBtn('กรอกรหัสรับสิทธิ์', 'redeem', 'btn ghost gap-top'),
+        desktopCard(),
       ],
     };
   },
