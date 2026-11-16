@@ -54,7 +54,7 @@ Typing the token inline (`LINE_CHANNEL_ACCESS_TOKEN=... node ...`) stores it in 
 ```sh
 cd line-app
 read -rs LINE_CHANNEL_ACCESS_TOKEN && export LINE_CHANNEL_ACCESS_TOKEN
-export LIFF_ID=2012547684-HJKrsHm3 OA_BASIC_ID=@355rjzvz
+export LIFF_ID=2012547686-MYxY36VO OA_BASIC_ID=@355rjzvz
 node richmenu/create.mjs --dry-run                                            # no network
 node richmenu/create.mjs --confirm --user U0123456789abcdef0123456789abcdef   # test OA first: one user only
 node richmenu/create.mjs --confirm                                            # default menu for ALL friends

@@ -22,8 +22,9 @@
   "vars": {
     // PRODUCTION setup: provider "Innow", MINI App channel "Innow Members" (2012547684, Unverified), OA "อาจารย์ไพบูลย์ Innow".
     // Public identifiers, not secrets. (Old test setup: Bot 2023 / "Innow Test" 2012557246-8, @276eafaf.)
-    // LIFF_ID is the Developing channel's LIFF ID.
-    "LIFF_ID": "2012547684-HJKrsHm3",
+    // LIFF_ID is the Published channel's (2012547686) LIFF ID. It must match the miniapp.line.me/<LIFF_ID> URL the rich menu opens,
+    // otherwise liff.init() fails and the app shows "ไม่สามารถเชื่อมต่อ LINE ได้".
+    "LIFF_ID": "2012547686-MYxY36VO",
     // Comma-separated allowlist: Developing, Review and Published channel IDs of the MINI App.
     "LINE_LOGIN_CHANNEL_ID": "2012547684,2012547685,2012547686",
     // Basic ID of the OA members are asked to add (production OA)
