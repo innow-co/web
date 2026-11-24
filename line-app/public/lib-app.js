@@ -97,7 +97,7 @@ export function groupByWorkshop(items) {
 }
 
 export function tabFor(name) {
-  if (name === 'workshops' || name === 'workshop' || name === 'prompts' || name === 'bonus') return 'workshops';
+  if (name === 'workshops' || name === 'workshop' || name === 'prompts' || name === 'bonus') return 'home';
   if (name === 'redeem' || name === 'register' || name === 'success') return 'redeem';
   return name === 'profile' ? 'profile' : 'home';
 }

@@ -65,7 +65,8 @@ test('fullscreen tries native (standard + webkit) and falls back to the in-app o
 });
 
 test('non-Google and non-slide items keep the old rendering', () => {
-  assert.match(app, /kind === 'slide'\s*&&\s*googleSlidesInfo\(\s*i\.url\s*\)/);
+  assert.match(app, /kind === 'slide'\s*\|\|\s*i\.kind === 'bonus'\)\s*&&\s*googleSlidesInfo\(\s*i\.url\s*\)/);
+  assert.match(app, /kind === 'bonus'\s*&&\s*googleSlidesInfo\(\s*i\.url\s*\)/);
   assert.match(app, /itemCard\(i\)/);
   assert.match(app, /function itemCard\(/);
   assert.match(app, /openFile\(it, b\)/);

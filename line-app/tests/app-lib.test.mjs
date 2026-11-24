@@ -86,8 +86,8 @@ test('groupByWorkshop keeps first-seen order', () => {
 });
 
 test('tabFor', () => {
-  assert.equal(tabFor('workshop'), 'workshops');
-  assert.equal(tabFor('prompts'), 'workshops');
+  assert.equal(tabFor('workshop'), 'home');
+  assert.equal(tabFor('prompts'), 'home');
   assert.equal(tabFor('register'), 'redeem');
   assert.equal(tabFor('home'), 'home');
 });

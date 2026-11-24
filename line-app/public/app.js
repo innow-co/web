@@ -963,7 +963,7 @@ const screens = {
       const rows = byKind(section);
       releaseSlides();
       list.replaceChildren(...(rows.length
-        ? rows.map((i) => (i.kind === 'slide' && googleSlidesInfo(i.url) ? slidesCard(i) : itemCard(i)))
+        ? rows.map((i) => ((i.kind === 'slide' || i.kind === 'bonus') && googleSlidesInfo(i.url) ? slidesCard(i) : itemCard(i)))
         : [emptyBox(`ยังไม่มี${KIND[section].label}ใน Workshop นี้`)]));
     };
     for (const k of ['slide', 'prompt', 'bonus']) {
@@ -1229,7 +1229,7 @@ async function kindPage(kind, title, path) {
       h('h1', { text: title }),
       h('p', { class: 'lead', text: kind === 'prompt' ? 'Prompt จาก Workshop ที่คุณมีสิทธิ์ แตะ “คัดลอก” เพื่อนำไปใช้' : 'สื่อและไฟล์เสริมจาก Workshop ที่คุณมีสิทธิ์' }),
       groups.length
-        ? groups.map((g) => h('section', { 'aria-label': g.title }, h('h2', { text: g.title }), h('div', { class: 'list' }, g.items.map((i) => itemCard(i)))))
+        ? groups.map((g) => h('section', { 'aria-label': g.title }, h('h2', { text: g.title }), h('div', { class: 'list' }, g.items.map((i) => (i.kind === 'bonus' && googleSlidesInfo(i.url) ? slidesCard(i) : itemCard(i))))))
         : emptyBox(`ยังไม่มี${title}จาก Workshop ของคุณ`, navBtn('กรอกรหัสรับสิทธิ์', 'redeem')),
     ],
   };
@@ -1288,7 +1288,9 @@ async function boot() {
 
 tabbar.addEventListener('click', (e) => {
   const b = e.target.closest('button[data-go]');
-  if (b) go(b.dataset.go);
+  if (!b) return;
+  if (b.dataset.go === 'browser') openUrl(location.origin + '/');
+  else go(b.dataset.go);
 });
 for (const s of tabbar.querySelectorAll('[data-icon]')) s.replaceWith(icon(s.dataset.icon, 'ico'));
 $('privacy-close').addEventListener('click', () => $('privacy').close());
